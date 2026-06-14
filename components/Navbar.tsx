@@ -1,5 +1,5 @@
-import React from 'react';
-import { LogOut } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { LogOut, Moon, Sun } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { User } from '../types';
 
@@ -9,8 +9,26 @@ interface NavbarProps {
   onLogout: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) => {
+export const Navbar: React.FC<NavbarProps> = ({ user, onLoginClick, onLogout }) => {
   const navigate = useNavigate();
+  const [isHighContrast, setIsHighContrast] = useState(false);
+
+  useEffect(() => {
+    // Check initial
+    if (document.documentElement.classList.contains('high-contrast')) {
+      setIsHighContrast(true);
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    if (isHighContrast) {
+      document.documentElement.classList.remove('high-contrast');
+      setIsHighContrast(false);
+    } else {
+      document.documentElement.classList.add('high-contrast');
+      setIsHighContrast(true);
+    }
+  };
 
   const handleReturnToIntro = () => {
     // Navigate to root with state to trigger IntroSequence with skipAnimation
@@ -42,23 +60,48 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onLogout }) => {
              </div>
         </button>
 
-        {/* Right Side: User Profile (Only if logged in) */}
-        {user ? (
-          <div className="pointer-events-auto animate-fade-in flex items-center gap-4">
-            <button onClick={() => navigate('/dashboard')} className="text-gray-900 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest backdrop-blur-md border border-gray-200 transition-colors">
-              Dashboard
-            </button>
-            <div className="flex items-center gap-2 md:gap-3 bg-white/80 backdrop-blur-md px-3 py-2 md:px-4 md:py-2 rounded-full border border-gray-300 shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:border-purple-300 transition-colors">
-              <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full border border-purple-500" />
-              <span className="text-xs md:text-sm font-bold text-gray-900 hidden md:block max-w-[100px] truncate">{user.name}</span>
-              <button onClick={onLogout} className="text-gray-500 hover:text-red-500 ml-1 md:ml-2 p-1 transition-colors">
-                <LogOut size={18} />
+        {/* Right Side: Theme Toggle & User Profile */}
+        <div className="pointer-events-auto flex items-center gap-4">
+          <button 
+            onClick={toggleTheme} 
+            className="text-gray-900 bg-white/80 hover:bg-white backdrop-blur-md px-3 py-2 md:px-4 md:py-2 rounded-full border border-gray-300 shadow-sm transition-colors flex items-center gap-2"
+          >
+            {isHighContrast ? <Sun size={16} /> : <Moon size={16} />}
+            <span className="text-xs font-bold uppercase tracking-widest hidden md:block">
+              {isHighContrast ? 'Light' : 'Dark'}
+            </span>
+          </button>
+          
+          {user ? (
+            <div className="animate-fade-in flex items-center gap-4">
+              <button onClick={() => navigate('/dashboard')} className="text-gray-900 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest backdrop-blur-md border border-gray-200 transition-colors">
+                Dashboard
               </button>
+              <div className="flex items-center gap-2 md:gap-3 bg-white/80 backdrop-blur-md px-3 py-2 md:px-4 md:py-2 rounded-full border border-gray-300 shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:border-purple-300 transition-colors">
+                <button 
+                  onClick={() => {
+                    if (window.location.hash.startsWith('#/admin')) {
+                      navigate('/admin?tab=settings');
+                    } else {
+                      navigate('/dashboard?tab=profile');
+                    }
+                  }} 
+                  className="flex items-center gap-2 md:gap-3 hover:opacity-80 transition-opacity text-left"
+                >
+                  <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full border border-purple-500" />
+                  <span className="text-xs md:text-sm font-bold text-gray-900 hidden md:block max-w-[100px] truncate">{user.name}</span>
+                </button>
+                <button onClick={(e) => { e.stopPropagation(); onLogout(); }} className="text-gray-500 hover:text-red-500 ml-1 md:ml-2 p-1 transition-colors">
+                  <LogOut size={18} />
+                </button>
+              </div>
             </div>
-          </div>
-        ) : (
-          <div></div> /* Spacer for flex justify-between if user is null */
-        )}
+          ) : (
+            <button onClick={onLoginClick} className="text-gray-900 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest backdrop-blur-md border border-gray-200 transition-colors">
+               Sign In
+            </button>
+          )}
+        </div>
     </header>
   );
 };

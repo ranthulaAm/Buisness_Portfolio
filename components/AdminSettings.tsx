@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getPortfolioItems, getServicesConfig, addPortfolioItem, updatePortfolioItem, deletePortfolioItem, updateServiceConfig, PortfolioItem, ServiceItem, updateAdminPassword, getAdminEmails, updateAdminEmails, getDiscountsConfig, updateDiscountsConfig } from '../services/dataService';
 import { SERVICES as DEFAULT_SERVICES, PORTFOLIO_ITEMS as DEFAULT_PORTFOLIO } from '../constants';
-import { Save, Loader2, Plus, Trash2, Key, UserPlus, ShieldCheck, Mail, Eye, EyeOff, Tag } from 'lucide-react';
+import { Save, Loader2, Plus, Trash2, Key, UserPlus, ShieldCheck, Mail, Eye, EyeOff, Tag, Edit3 } from 'lucide-react';
 import { User } from '../types';
 
 interface AdminSettingsProps {
@@ -9,7 +9,9 @@ interface AdminSettingsProps {
 }
 
 export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
-    const [serviceConfigs, setServiceConfigs] = useState<Record<string, { price: number, hidden?: boolean, discountPercentage?: number }>>({});
+    const [serviceConfigs, setServiceConfigs] = useState<Record<string, ServiceItem>>({});
+    const [showServiceModal, setShowServiceModal] = useState(false);
+    const [editingService, setEditingService] = useState<any>(null);
     const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
     const [loading, setLoading] = useState(false);
     const [newPassword, setNewPassword] = useState('');
@@ -29,13 +31,13 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
         setLoading(true);
         try {
             const configs = await getServicesConfig();
-            const loadedConfigs: Record<string, { price: number, hidden?: boolean, discountPercentage?: number }> = {};
+            const loadedConfigs: Record<string, ServiceItem> = { ...configs };
             DEFAULT_SERVICES.forEach(s => {
-                loadedConfigs[s.id] = { 
-                    price: configs[s.id]?.price || s.price, 
-                    hidden: configs[s.id]?.hidden || false,
-                    discountPercentage: configs[s.id]?.discountPercentage || 0
-                };
+                if (!loadedConfigs[s.id]) {
+                    loadedConfigs[s.id] = { id: s.id, price: s.price, title: s.title };
+                } else {
+                    loadedConfigs[s.id] = { ...loadedConfigs[s.id], title: loadedConfigs[s.id].title || s.title };
+                }
             });
             setServiceConfigs(loadedConfigs);
 
@@ -63,11 +65,20 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
         setLoading(true);
         try {
             for (const key in serviceConfigs) {
-                await updateServiceConfig(key, { 
-                    price: serviceConfigs[key].price || 0,
-                    hidden: serviceConfigs[key].hidden,
-                    discountPercentage: serviceConfigs[key].discountPercentage || 0
-                });
+                const s = serviceConfigs[key];
+                const payload: any = { 
+                    price: s.price || 0,
+                    hidden: s.hidden,
+                    discountPercentage: s.discountPercentage || 0
+                };
+                if (s.isCustom) {
+                    payload.isCustom = true;
+                    payload.title = s.title;
+                    payload.description = s.description;
+                    payload.image = s.image;
+                    payload.features = s.features || [];
+                }
+                await updateServiceConfig(key, payload);
             }
             await updateDiscountsConfig({ globalDiscount, isActive: isGlobalDiscountActive });
             alert("Services updated successfully.");
@@ -193,8 +204,9 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
     };
 
     return (
-        <div className="space-y-8 pb-12">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <>
+            <div className="space-y-8 pb-12">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* Security Info & Password */}
                 <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
@@ -317,14 +329,19 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
 
                 <h3 className="text-lg font-bold text-gray-900 mb-6 flex justify-between items-center">
                     Services Configuration
-                    <button onClick={handleSavePrices} disabled={loading} className="bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors disabled:opacity-50">
-                        {loading && <Loader2 size={16} className="animate-spin" />}
-                        <Save size={16} /> Save Services
-                    </button>
+                    <div className="flex gap-3">
+                        <button onClick={() => { setEditingService(null); setShowServiceModal(true); }} className="bg-purple-600 text-white hover:bg-purple-700 px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors">
+                            <Plus size={16} /> New Service
+                        </button>
+                        <button onClick={handleSavePrices} disabled={loading} className="bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors disabled:opacity-50">
+                            {loading && <Loader2 size={16} className="animate-spin" />}
+                            <Save size={16} /> Save Services
+                        </button>
+                    </div>
                 </h3>
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                    {DEFAULT_SERVICES.map(s => (
-                        <div key={s.id} className={`border border-gray-200 rounded-lg p-4 flex items-center justify-between ${serviceConfigs[s.id]?.hidden ? 'bg-gray-100 opacity-70' : 'bg-gray-50'}`}>
+                    {Object.values(serviceConfigs).map(s => (
+                        <div key={s.id} className={`border border-gray-200 rounded-lg p-4 flex items-center justify-between ${s.hidden ? 'bg-gray-100 opacity-70' : 'bg-gray-50'}`}>
                             <span className="font-medium text-gray-700 text-sm truncate pr-2 max-w-[200px] md:max-w-xs" title={s.title}>{s.title}</span>
                             <div className="flex items-center gap-4 shrink-0">
                                 <div className="flex items-center gap-2">
@@ -332,8 +349,8 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
                                     <input 
                                         type="number"
                                         min="0"
-                                        value={serviceConfigs[s.id]?.price ?? ''}
-                                        onChange={(e) => setServiceConfigs({...serviceConfigs, [s.id]: { ...serviceConfigs[s.id], price: Number(e.target.value) }})}
+                                        value={s.price ?? ''}
+                                        onChange={(e) => setServiceConfigs({...serviceConfigs, [s.id]: { ...s, price: Number(e.target.value) }})}
                                         className="w-24 border border-gray-300 rounded px-2 py-1 outline-none focus:border-blue-500 font-mono text-sm text-right"
                                         placeholder="Base Price"
                                         title="Base Price"
@@ -345,20 +362,25 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
                                         type="number"
                                         min="0"
                                         max="100"
-                                        value={serviceConfigs[s.id]?.discountPercentage ?? ''}
-                                        onChange={(e) => setServiceConfigs({...serviceConfigs, [s.id]: { ...serviceConfigs[s.id], discountPercentage: Number(e.target.value) }})}
+                                        value={s.discountPercentage ?? ''}
+                                        onChange={(e) => setServiceConfigs({...serviceConfigs, [s.id]: { ...s, discountPercentage: Number(e.target.value) }})}
                                         className="w-16 border border-gray-300 rounded px-2 py-1 outline-none focus:border-rose-500 font-mono text-sm text-center text-rose-600 bg-rose-50/20 placeholder:text-gray-300"
                                         title="Specific % Discount for this service"
                                         placeholder="0%"
                                     />
                                     <span className="text-gray-400 text-xs font-bold">%</span>
                                 </div>
+                                {s.isCustom && (
+                                   <button onClick={() => { setEditingService(s); setShowServiceModal(true); }} className="p-2 text-purple-600 hover:text-purple-800 transition-colors bg-purple-50 rounded-lg">
+                                      <Edit3 size={16} />
+                                   </button>
+                                )}
                                 <button 
-                                    onClick={() => setServiceConfigs({...serviceConfigs, [s.id]: { ...serviceConfigs[s.id], hidden: !serviceConfigs[s.id]?.hidden }})} 
-                                    className={`p-2 rounded-lg transition-colors ${serviceConfigs[s.id]?.hidden ? 'text-gray-400 hover:text-blue-600' : 'text-blue-600 hover:text-gray-400'}`}
-                                    title={serviceConfigs[s.id]?.hidden ? "Show Service" : "Hide Service"}
+                                    onClick={() => setServiceConfigs({...serviceConfigs, [s.id]: { ...s, hidden: !s.hidden }})} 
+                                    className={`p-2 rounded-lg transition-colors ${s.hidden ? 'text-gray-400 hover:text-blue-600' : 'text-blue-600 hover:text-gray-400'}`}
+                                    title={s.hidden ? "Show Service" : "Hide Service"}
                                 >
-                                    {serviceConfigs[s.id]?.hidden ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    {s.hidden ? <EyeOff size={18} /> : <Eye size={18} />}
                                 </button>
                             </div>
                         </div>
@@ -367,5 +389,65 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
             </div>
 
         </div>
+
+        {showServiceModal && (
+            <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+               <div className="bg-white rounded-3xl p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto">
+                   <h3 className="text-2xl font-bold font-display mb-6">{editingService ? 'Edit Custom Service' : 'Add New Service'}</h3>
+                   <div className="space-y-4">
+                       <div>
+                           <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-gray-500">Service Title</label>
+                           <input type="text" defaultValue={editingService?.title} id="modal_service_title" className="w-full border border-gray-300 rounded-xl p-3 outline-none focus:border-purple-500" />
+                       </div>
+                       <div>
+                           <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-gray-500">Description</label>
+                           <textarea defaultValue={editingService?.description} id="modal_service_desc" className="w-full border border-gray-300 rounded-xl p-3 outline-none focus:border-purple-500 min-h-[80px]" />
+                       </div>
+                       <div>
+                           <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-gray-500">Image URL</label>
+                           <input type="text" defaultValue={editingService?.image || 'https://picsum.photos/600/800'} id="modal_service_image" className="w-full border border-gray-300 rounded-xl p-3 outline-none focus:border-purple-500" />
+                       </div>
+                       <div>
+                           <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-gray-500">Initial Price (LKR)</label>
+                           <input type="number" defaultValue={editingService?.price || 0} id="modal_service_price" className="w-full border border-gray-300 rounded-xl p-3 outline-none focus:border-purple-500" />
+                       </div>
+                   </div>
+                   <div className="flex gap-4 mt-8">
+                       <button onClick={() => setShowServiceModal(false)} className="flex-1 py-3 text-gray-500 font-bold uppercase tracking-widest text-xs hover:bg-gray-50 rounded-xl transition-colors">Cancel</button>
+                       <button 
+                          onClick={() => {
+                              const t = (document.getElementById('modal_service_title') as HTMLInputElement).value;
+                              const d = (document.getElementById('modal_service_desc') as HTMLTextAreaElement).value;
+                              const i = (document.getElementById('modal_service_image') as HTMLInputElement).value;
+                              const p = Number((document.getElementById('modal_service_price') as HTMLInputElement).value);
+                              if (!t) return alert("Title required");
+                              
+                              const id = editingService ? editingService.id : `s_custom_${Date.now()}`;
+                              setServiceConfigs(prev => ({
+                                  ...prev,
+                                  [id]: {
+                                      id,
+                                      title: t,
+                                      description: d,
+                                      image: i,
+                                      price: p,
+                                      isCustom: true,
+                                      hidden: editingService?.hidden || false,
+                                      discountPercentage: editingService?.discountPercentage || 0,
+                                      features: editingService?.features || []
+                                  }
+                              }));
+                              setShowServiceModal(false);
+                          }} 
+                          className="flex-1 bg-purple-600 text-white py-3 rounded-xl font-bold uppercase tracking-widest text-xs hover:bg-purple-700 transition-colors"
+                        >
+                           Save
+                       </button>
+                   </div>
+               </div>
+            </div>
+        )}
+
+        </>
     );
 };

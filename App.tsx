@@ -35,6 +35,28 @@ const AppContent: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   
+  // Sync auth modal with URL
+  useEffect(() => {
+     const params = new URLSearchParams(location.search);
+     if (params.get('auth') === 'login' && !isAuthModalOpen) {
+         setIsAuthModalOpen(true);
+     } else if (!params.get('auth') && isAuthModalOpen) {
+         setIsAuthModalOpen(false);
+     }
+  }, [location.search]);
+
+  const openAuthModal = () => {
+      const params = new URLSearchParams(location.search);
+      params.set('auth', 'login');
+      navigate(`${location.pathname}?${params.toString()}`, { replace: false });
+  };
+
+  const closeAuthModal = () => {
+      const params = new URLSearchParams(location.search);
+      params.delete('auth');
+      navigate(`${location.pathname}?${params.toString()}`, { replace: false });
+  };
+
   // Intro State
   const [showIntro, setShowIntro] = useState(true);
 
@@ -103,16 +125,16 @@ const AppContent: React.FC = () => {
         <div className="relative z-10 flex flex-col min-h-screen">
           <Navbar 
             user={user} 
-            onLoginClick={() => setIsAuthModalOpen(true)} 
+            onLoginClick={openAuthModal} 
             onLogout={handleLogout} 
           />
           
           <main className="flex-grow">
             <Routes>
-              <Route path="/" element={<Home user={user} onLoginClick={() => setIsAuthModalOpen(true)} />} />
+              <Route path="/" element={<Home user={user} onLoginClick={openAuthModal} />} />
               <Route 
                 path="/order" 
-                element={<Order user={user} onLoginRequest={() => setIsAuthModalOpen(true)} />} 
+                element={<Order user={user} onLoginRequest={openAuthModal} />} 
               />
               <Route 
                 path="/tracking" 
@@ -139,7 +161,7 @@ const AppContent: React.FC = () => {
         
         <AuthModal 
           isOpen={isAuthModalOpen} 
-          onClose={() => setIsAuthModalOpen(false)} 
+          onClose={closeAuthModal} 
           onLogin={() => {}} // No longer needed as AuthModal handles logic
         />
       </div>

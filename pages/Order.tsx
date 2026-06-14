@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { Upload, Check, ChevronRight, Palette, Plus, X, ArrowLeft, AlertCircle, Home as HomeIcon, ShieldCheck, Mic, Square, Play, Trash2, PlusCircle, MinusCircle, Monitor, Smartphone, Printer, Layers, Move, Maximize, CreditCard, BookOpen, FileText, Image as ImageIcon, Video, Facebook, Linkedin, Youtube, Instagram, Twitter, Loader } from 'lucide-react';
 import { SERVICES as DEFAULT_SERVICES } from '../constants';
@@ -217,8 +217,35 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
   useEffect(() => {
     getServicesConfig().then(configs => {
       setServiceConfigs(configs);
+      let baseServices = [...DEFAULT_SERVICES];
+      
+      // Add custom ones from configs that aren't in SERVICES
+      Object.keys(configs).forEach(key => {
+         const c = configs[key];
+         if (c.isCustom && !baseServices.find(b => b.id === c.id)) {
+            baseServices.push({
+               id: c.id,
+               title: c.title || 'Custom Service',
+               description: c.description || '',
+               image: c.image || 'https://picsum.photos/600/800?random=999',
+               features: c.features || [],
+               price: c.price,
+            });
+         }
+      });
+      
       if (Object.keys(configs).length > 0) {
-        setServices(prev => prev.map(s => configs[s.id] ? { ...s, price: configs[s.id].price } : s));
+        setServices(baseServices.map(s => {
+           if (configs[s.id]) {
+              if (configs[s.id].isCustom) {
+                  return { ...s, price: configs[s.id].price, title: configs[s.id].title || s.title, description: configs[s.id].description || s.description, image: configs[s.id].image || s.image, features: configs[s.id].features || s.features };
+              }
+              return { ...s, price: configs[s.id].price };
+           }
+           return s;
+        }));
+      } else {
+        setServices(baseServices);
       }
     }).catch(console.error);
     
@@ -566,6 +593,7 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
         keywords: formData.keywords,
         avoid: '',
         colorPalette: formData.colorPalette,
+        extraDetails: formData.extraDetails,
         files: validFiles,      
         voiceClips: validVoiceClips, 
         status: OrderStatus.PENDING,
@@ -618,7 +646,6 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
           </div>
           <input name="websiteUrl" value={formData.websiteUrl} onChange={handleInputChange} placeholder="Website Link (Optional)" className={inputClass('websiteUrl')} />
           <input name="audience" value={formData.audience} onChange={handleInputChange} placeholder="Audience Targeting (Optional)" className={inputClass('audience')} />
-          <textarea name="extraDetails" rows={2} value={formData.extraDetails} onChange={handleInputChange} placeholder="Common problems or other things to mention (Optional)" className={inputClass('extraDetails')}></textarea>
         </div>
       );
     }
@@ -699,6 +726,19 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
               <h3 className="text-3xl font-display text-gray-900 mb-8 uppercase tracking-tight border-b border-gray-100 pb-4">Project Details</h3>
               <div className="space-y-10">
                 {renderDynamicForm()}
+                
+                <div className="pt-8 border-t border-gray-100">
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-4">Extra Context & Inspiration Boards</label>
+                  <textarea 
+                    name="extraDetails" 
+                    rows={4} 
+                    value={formData.extraDetails} 
+                    onChange={handleInputChange} 
+                    placeholder="Provide any additional context, specific color preferences, or links to inspiration boards here..." 
+                    className="w-full bg-slate-50 border border-zinc-300 rounded-2xl px-6 py-4 text-gray-900 placeholder:text-gray-400 outline-none focus:border-purple-600 focus:bg-white transition-all shadow-sm"
+                  ></textarea>
+                </div>
+
                 <div className="pt-8 border-t border-gray-100"><label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4 block">Can't describe it in text? Use voice:</label><div className="flex items-center gap-4"><button type="button" onClick={isRecording ? stopRecording : startRecording} className={`flex items-center gap-3 px-6 py-3 rounded-full font-bold text-xs uppercase tracking-widest transition-all ${isRecording ? 'bg-pink-500 text-white animate-pulse' : 'bg-gray-100 text-gray-700 hover:bg-gray-250 border border-gray-200 hover:bg-gray-200'}`}>{isRecording ? <><Square size={14} fill="white" /> Stop Recording</> : <><Mic size={14} /> Record Voice</>}</button>{isRecording && <span className="text-pink-500 text-xs font-bold animate-pulse">Recording...</span>}</div></div>
                 {formData.voiceClips.length > 0 && <div className="space-y-3"><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Voice Notes</label>{formData.voiceClips.map((clip, i) => (<div key={i} className="flex items-center justify-between bg-gray-50 border border-gray-200 p-3 rounded-2xl"><div className="flex items-center gap-3"><Play size={14} className="text-purple-600" /><span className="text-xs font-bold text-gray-700">{clip.name}</span></div><div className="flex items-center gap-4"><audio src={clip.url} controls className="h-8 max-w-[150px] opacity-60" /><button type="button" onClick={() => removeVoiceClip(i)} className="text-gray-400 hover:text-red-500"><Trash2 size={16} /></button></div></div>))}</div>}
               </div>

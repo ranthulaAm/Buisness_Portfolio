@@ -56,6 +56,11 @@ export interface ServiceItem {
   price: number;
   discountPercentage?: number;
   hidden?: boolean;
+  isCustom?: boolean;
+  title?: string;
+  description?: string;
+  image?: string;
+  features?: string[];
 }
 
 export const getPortfolioItems = async (): Promise<PortfolioItem[]> => {
@@ -200,6 +205,42 @@ export const updateAdminEmails = async (emails: string[]): Promise<void> => {
   return await setDoc(ref, { emails }, { merge: true });
 };
 
+export interface InvoiceConfig {
+  logoUrl: string;
+  primaryColor: string;
+  secondaryColor: string;
+  layoutStyle: 'modern' | 'classic' | 'minimal';
+  companyName: string;
+  companyAddress: string;
+}
+
+export const getInvoiceConfig = async (): Promise<InvoiceConfig> => {
+  try {
+    const q = query(collection(db, 'settings'));
+    const snapshot = await getDocs(q);
+    const docItem = snapshot.docs.find(d => d.id === 'invoice');
+    if (docItem) {
+      const data = docItem.data();
+      return { 
+        logoUrl: data.logoUrl || '', 
+        primaryColor: data.primaryColor || '#000000', 
+        secondaryColor: data.secondaryColor || '#666666',
+        layoutStyle: data.layoutStyle || 'modern',
+        companyName: data.companyName || 'My Company',
+        companyAddress: data.companyAddress || ''
+      };
+    }
+  } catch (e) {
+    console.error("Error getting invoice config:", e);
+  }
+  return { logoUrl: '', primaryColor: '#000000', secondaryColor: '#666666', layoutStyle: 'modern', companyName: 'My Company', companyAddress: '' };
+};
+
+export const updateInvoiceConfig = async (config: InvoiceConfig) => {
+  const ref = doc(db, 'settings', 'invoice');
+  return await setDoc(ref, config, { merge: true });
+};
+
 export const getDiscountsConfig = async (): Promise<{ globalDiscount: number, isActive: boolean }> => {
   try {
     const q = query(collection(db, 'settings'));
@@ -225,6 +266,7 @@ export interface Testimonial {
   projectRole: string;
   feedback: string;
   order?: number;
+  rating?: number;
 }
 
 export const getTestimonials = async (): Promise<Testimonial[]> => {

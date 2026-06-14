@@ -4,8 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#000000" />
-    <title>Ranthula's Buisness Portfolio</title>
-    <link rel="icon" type="image/png" href="logo.png">
+    <title>I'm Ranthula | Creative Portfolio</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -181,6 +180,18 @@
       }
       ::-webkit-scrollbar-thumb:hover {
         background: #a8a8a8;
+      }
+
+      /* High-Contrast/Dark Mode via Inversion Strategy */
+      html.high-contrast {
+        filter: invert(0.9) hue-rotate(180deg) brightness(1.1) contrast(0.95);
+        background-color: #ffffff; /* White inverts to a clean Dark Gray */
+      }
+      html.high-contrast img,
+      html.high-contrast video,
+      html.high-contrast svg.lucide,
+      html.high-contrast [style*="background-image"] {
+        filter: invert(1) hue-rotate(180deg);
       }
     </style>
   <script type="importmap">

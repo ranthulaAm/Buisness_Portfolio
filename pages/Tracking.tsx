@@ -1,63 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
-import { Package, CheckCircle2, AlertCircle, Clock, DollarSign, Download, Home, MessageCircle, Edit2, Trash2, Eye, Copy, Loader2, Info, X, Send, ShieldAlert, Check, Image as ImageIcon } from 'lucide-react';
+import { Package, CheckCircle2, AlertCircle, Clock, DollarSign, Download, Home, MessageCircle, Edit2, Trash2, Eye, Copy, Loader2, Info, X, Send, ShieldAlert, Check, Image as ImageIcon, Search, Printer } from 'lucide-react';
 import { listenToOrderById, updateOrder, cancelOrder, listenToOrdersByClientId } from '../services/storageService';
+import { getInvoiceConfig } from '../services/dataService';
+import { downloadInvoice } from '../utils/invoiceGenerator';
 import { Order, OrderStatus, User } from '../types';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
-
-const downloadInvoice = (order: Order) => {
-  const doc = new jsPDF();
-  
-  // Header
-  doc.setFontSize(22);
-  doc.setTextColor(147, 51, 234); // Purple 600
-  doc.text("INVOICE / RECEIPT", 14, 20);
-  
-  doc.setFontSize(10);
-  doc.setTextColor(100);
-  doc.text(`Order ID: ${order.id}`, 14, 30);
-  doc.text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`, 14, 35);
-  doc.text(`Status: ${order.status}`, 14, 40);
-  
-  // Client Info
-  doc.setFontSize(12);
-  doc.setTextColor(0);
-  doc.text("Client Summary", 14, 55);
-  doc.setFontSize(10);
-  doc.setTextColor(100);
-  doc.text(`Name: ${order.clientName}`, 14, 62);
-  doc.text(`Email: ${order.email}`, 14, 67);
-  doc.text(`Service: ${order.serviceType}`, 14, 72);
-  doc.text(`Estimated Completion: ${order.estimatedCompletion}`, 14, 77);
-
-  const tableData: any[][] = [
-    [order.serviceType, `LKR ${order.originalPrice !== undefined ? order.originalPrice.toLocaleString() : order.price.toLocaleString()}`]
-  ];
-
-  if (order.discountApplied && order.discountApplied > 0 && order.originalPrice) {
-    tableData.push([`Discount (${order.discountApplied}%)`, `- LKR ${(order.originalPrice - order.price).toLocaleString()}`]);
-  }
-
-  // Cost Details Table
-  autoTable(doc, {
-    startY: 90,
-    head: [['Description', 'Amount']],
-    body: tableData,
-    foot: [['Total Paid', `LKR ${order.price.toLocaleString()}`]],
-    theme: 'grid',
-    headStyles: { fillColor: [147, 51, 234] },
-    footStyles: { fillColor: [243, 244, 246], textColor: 0, fontStyle: 'bold' }
-  });
-
-  // Footer
-  doc.setFontSize(9);
-  doc.setTextColor(150);
-  doc.text("Thank you for your business!", 14, (doc as any).lastAutoTable.finalY + 20);
-  
-  doc.save(`Invoice_${order.id}.pdf`);
-};
+import { PrintableInvoice } from '../components/PrintableInvoice';
 
 interface TrackingProps {
   user: User | null;
@@ -69,6 +18,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
   const [trackingId, setTrackingId] = useState(searchParams.get('id') || '');
   const [order, setOrder] = useState<Order | null>(null);
   const [userOrders, setUserOrders] = useState<Order[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
@@ -78,6 +28,25 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
   const [revisionNotes, setRevisionNotes] = useState('');
   const [isSubmittingAction, setIsSubmittingAction] = useState(false);
   
+  // Back button param sync
+  const lightboxParam = searchParams.get('lightbox');
+  useEffect(() => {
+     if (lightboxParam === 'true' && !showDraftLightbox) {
+         setShowDraftLightbox(true);
+     } else if (lightboxParam !== 'true' && showDraftLightbox) {
+         setShowDraftLightbox(false);
+         setIsRevisionMode(false);
+     }
+  }, [lightboxParam]);
+
+  const openLightbox = () => {
+      setSearchParams(prev => { prev.set('lightbox', 'true'); return prev; }, { replace: false });
+  };
+
+  const closeLightbox = () => {
+      setSearchParams(prev => { prev.delete('lightbox'); return prev; }, { replace: false });
+  };
+
   // Body scroll lock for lightbox
   useEffect(() => {
     if (showDraftLightbox) {
@@ -87,6 +56,23 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
     }
     return () => { document.body.classList.remove('overflow-hidden'); }
   }, [showDraftLightbox]);
+
+  const [rating, setRating] = useState(0);
+  const [feedback, setFeedback] = useState('');
+
+  const handleSubmitFeedback = async () => {
+    if (!order) return;
+    setIsSubmittingAction(true);
+    try {
+      await updateOrder({ ...order, rating, feedback });
+      alert("Thank you for your feedback!");
+    } catch (e) {
+      console.error(e);
+      alert("Failed to submit feedback.");
+    } finally {
+      setIsSubmittingAction(false);
+    }
+  };
 
   // Fetch specific order if ID is in URL
   useEffect(() => {
@@ -143,7 +129,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
     setIsSubmittingAction(true);
     try {
       await updateOrder({ ...order, status: OrderStatus.WAITING_PAYMENT });
-      setShowDraftLightbox(false);
+      closeLightbox();
     } catch (err) {
       alert("Failed to approve draft.");
     } finally {
@@ -162,7 +148,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
       });
       setIsRevisionMode(false);
       setRevisionNotes('');
-      setShowDraftLightbox(false);
+      closeLightbox();
     } catch (err) {
       alert("Failed to submit revision.");
     } finally {
@@ -215,19 +201,20 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
     const hasDraft = !!order.draftImg;
 
     return (
-      <div className="min-h-screen pt-24 px-4 pb-12 max-w-7xl mx-auto">
+      <div className="min-h-screen pt-24 px-4 pb-12 max-w-7xl mx-auto print:p-0 print:pt-0 print:m-0 print:min-h-0 print:w-full">
         <Helmet>
           <title>Order #{order.id} | Tracking</title>
           <meta name="robots" content="noindex, nofollow" />
         </Helmet>
-        <div className="mb-8">
+        <PrintableInvoice order={order} />
+        <div className="mb-8 print:hidden">
           <button onClick={() => { setOrder(null); setSearchParams({}); }} className="inline-flex items-center gap-3 text-gray-600 hover:text-gray-900 transition-all group bg-white border border-gray-200 px-4 py-2 rounded-full shadow-sm">
              <Home size={18} />
              <span className="text-xs font-bold uppercase tracking-widest">Back to Projects</span>
           </button>
         </div>
 
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-3xl mx-auto print:hidden">
           <div className="bg-white border border-zinc-300 rounded-[2rem] p-8 md:p-12 relative overflow-hidden shadow-[0_15px_50px_rgba(0,0,0,0.07)]">
              <div className="flex justify-between items-start mb-10">
                <div>
@@ -264,42 +251,83 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                 )}
 
                 {/* Light Mode: Completed assets listing */}
-                {order.status === OrderStatus.COMPLETED && order.finalFiles && order.finalFiles.length > 0 && (
-                   <div className="p-8 bg-green-50/50 border border-green-200 rounded-3xl animate-fade-in mb-4 shadow-sm">
-                      <div className="flex items-center gap-3 text-green-700 font-black uppercase tracking-[0.2em] text-[10px] mb-6">
-                        <CheckCircle2 size={18} /> Final Assets Ready
-                      </div>
-                      <div className="space-y-3">
-                        {order.finalFiles.map((f, i) => (
-                           <a 
-                             key={i} 
-                             href={f.data} 
-                             download={f.name}
-                             target="_blank" 
-                             rel="noopener noreferrer"
-                             className="flex items-center justify-between p-4 bg-white hover:bg-gray-50 border border-gray-200 rounded-2xl group transition-all shadow-sm"
+                {order.status === OrderStatus.COMPLETED && (
+                   <div className="space-y-4">
+                      {order.finalFiles && order.finalFiles.length > 0 && (
+                         <div className="p-8 bg-green-50/50 border border-green-200 rounded-3xl animate-fade-in shadow-sm">
+                            <div className="flex items-center gap-3 text-green-700 font-black uppercase tracking-[0.2em] text-[10px] mb-6">
+                              <CheckCircle2 size={18} /> Final Assets Ready
+                            </div>
+                            <div className="space-y-3">
+                              {order.finalFiles.map((f, i) => (
+                                 <a 
+                                   key={i} 
+                                   href={f.data} 
+                                   download={f.name}
+                                   target="_blank" 
+                                   rel="noopener noreferrer"
+                                   className="flex items-center justify-between p-4 bg-white hover:bg-gray-50 border border-gray-200 rounded-2xl group transition-all shadow-sm"
+                                 >
+                                    <div className="flex items-center gap-4">
+                                       <div className="p-2 bg-green-100 rounded-lg text-green-700 group-hover:scale-110 transition-transform">
+                                          <ImageIcon size={16} />
+                                       </div>
+                                       <span className="text-xs font-bold text-gray-700 group-hover:text-gray-900 truncate max-w-[180px]">{f.name}</span>
+                                    </div>
+                                    <Download size={18} className="text-gray-400 group-hover:text-green-600 group-hover:scale-110 transition-all" />
+                                 </a>
+                              ))}
+                            </div>
+                            
+                            <div className="mt-6 pt-6 border-t border-green-200/50 flex gap-4">
+                              <button onClick={() => window.print()} className="flex-1 flex items-center justify-center gap-2 bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 font-bold uppercase tracking-widest text-[10px] py-4 rounded-xl transition-colors shadow-sm">
+                                 <Printer size={16} /> Print Invoice
+                              </button>
+                              <button onClick={() => downloadInvoice(order)} className="flex-1 flex items-center justify-center gap-2 bg-white hover:bg-green-50 border border-green-600 text-green-700 font-bold uppercase tracking-widest text-[10px] py-4 rounded-xl transition-colors shadow-sm">
+                                 <Download size={16} /> Download (PDF)
+                              </button>
+                            </div>
+                         </div>
+                      )}
+
+                      {!order.rating && (
+                         <div className="p-8 bg-gray-50 border border-gray-200 rounded-3xl animate-fade-in shadow-sm mt-4">
+                           <h4 className="text-lg font-display text-gray-900 mb-4">How was your experience?</h4>
+                           <div className="flex justify-center gap-2 mb-6">
+                             {[1, 2, 3, 4, 5].map((star) => (
+                               <button key={star} onClick={() => setRating(star)} className={`text-4xl transition-colors hover:scale-110 ${rating >= star ? 'text-yellow-400' : 'text-gray-300 hover:text-yellow-200'}`}>
+                                 ★
+                               </button>
+                             ))}
+                           </div>
+                           <textarea
+                             value={feedback}
+                             onChange={e => setFeedback(e.target.value)}
+                             placeholder="Leave your thoughts (optional)..."
+                             className="w-full bg-white border border-gray-200 rounded-xl p-4 outline-none focus:border-purple-500 min-h-[100px] text-sm mb-6 resize-none shadow-sm font-medium"
+                           />
+                           <button
+                             onClick={handleSubmitFeedback}
+                             disabled={!rating || isSubmittingAction}
+                             className="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-xl py-4 font-black uppercase text-[10px] tracking-widest disabled:opacity-50 transition-all shadow-md"
                            >
-                              <div className="flex items-center gap-4">
-                                 <div className="p-2 bg-green-100 rounded-lg text-green-700 group-hover:scale-110 transition-transform">
-                                    <ImageIcon size={16} />
-                                 </div>
-                                 <span className="text-xs font-bold text-gray-700 group-hover:text-gray-900 truncate max-w-[180px]">{f.name}</span>
-                              </div>
-                              <Download size={18} className="text-gray-400 group-hover:text-green-600 group-hover:scale-110 transition-all" />
-                           </a>
-                        ))}
-                      </div>
-                      
-                      <div className="mt-6 pt-6 border-t border-green-200/50">
-                        <button onClick={() => downloadInvoice(order)} className="w-full flex items-center justify-center gap-2 bg-white hover:bg-green-50 border border-green-600 text-green-700 font-bold uppercase tracking-widest text-[10px] py-4 rounded-xl transition-colors shadow-sm">
-                           <Download size={16} /> Download Invoice (PDF)
-                        </button>
-                      </div>
+                             Submit Feedback
+                           </button>
+                         </div>
+                      )}
+
+                      {order.rating && (
+                        <div className="p-6 bg-purple-50 border border-purple-100 rounded-2xl flex flex-col items-center gap-3 text-center shadow-sm mt-4">
+                          <CheckCircle2 className="text-purple-600" size={24} />
+                          <span className="text-sm font-bold text-gray-900">Thank you for your feedback!</span>
+                          <span className="text-xs text-gray-500">Your review has been captured.</span>
+                        </div>
+                      )}
                    </div>
                 )}
 
                 {hasDraft && (
-                  <button onClick={() => setShowDraftLightbox(true)} className="w-full bg-purple-600 hover:bg-purple-700 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:scale-[1.02] transition-all shadow-sm">
+                  <button onClick={openLightbox} className="w-full bg-purple-600 hover:bg-purple-700 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:scale-[1.02] transition-all shadow-sm">
                     <Eye size={18} /> View Draft / Proof
                   </button>
                 )}
@@ -320,7 +348,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
         {/* Draft Lightbox Modal - FIXED SCROLLING */}
         {showDraftLightbox && (
           <div className="fixed inset-0 z-[200] flex items-start justify-center p-4 overflow-y-auto">
-             <div className="fixed inset-0 bg-black/95 backdrop-blur-xl" onClick={() => !isRevisionMode && setShowDraftLightbox(false)}></div>
+             <div className="fixed inset-0 bg-black/95 backdrop-blur-xl" onClick={() => !isRevisionMode && closeLightbox()}></div>
              
              <div className="relative w-full max-w-lg bg-white border border-gray-200 rounded-[3rem] overflow-hidden shadow-2xl animate-fade-in my-8">
                 <div className="relative aspect-[3/4] bg-gray-100 flex items-center justify-center border-b border-gray-150">
@@ -340,7 +368,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                    ) : (
                      <div className="text-gray-400 italic text-sm">No preview available.</div>
                    )}
-                   <button onClick={() => setShowDraftLightbox(false)} className="absolute top-6 right-6 bg-white/80 hover:bg-gray-150 p-3 rounded-full text-gray-600 hover:text-gray-900 transition-all border border-gray-250 z-50 shadow-sm">
+                   <button onClick={closeLightbox} className="absolute top-6 right-6 bg-white/80 hover:bg-gray-150 p-3 rounded-full text-gray-600 hover:text-gray-900 transition-all border border-gray-250 z-50 shadow-sm">
                      <X size={20} />
                    </button>
                 </div>
@@ -423,13 +451,25 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
             <h1 className="text-5xl font-display font-medium text-gray-900 mb-2 uppercase tracking-tight">Active Projects</h1>
             <p className="text-gray-500 text-lg font-light">Keep track of your creative requests (Real-time updates).</p>
           </div>
-          <Link to="/order" className="bg-purple-600 text-white px-8 py-4.5 rounded-full font-bold shadow-md hover:bg-purple-700 hover:scale-[1.01] transition-all flex items-center gap-3 uppercase text-xs tracking-widest border border-purple-700">
-             <Package size={20} /> New Order
-          </Link>
+          <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
+             <div className="relative w-full sm:w-64">
+               <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+               <input 
+                 type="text" 
+                 placeholder="Search orders..." 
+                 value={searchQuery}
+                 onChange={(e) => setSearchQuery(e.target.value)}
+                 className="w-full bg-white border border-gray-200 rounded-full pl-10 pr-4 py-3 outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-600/20 text-sm shadow-sm transition-all"
+               />
+             </div>
+             <Link to="/order" className="w-full sm:w-auto shrink-0 bg-purple-600 text-white px-8 py-4.5 rounded-full font-bold shadow-md hover:bg-purple-700 hover:scale-[1.01] transition-all flex items-center justify-center gap-3 uppercase text-xs tracking-widest border border-purple-700">
+                <Package size={20} /> New Order
+             </Link>
+          </div>
        </div>
 
        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-         {userOrders.map((o) => {
+         {userOrders.filter(o => o.id.toLowerCase().includes(searchQuery.toLowerCase()) || (o.serviceType && o.serviceType.toLowerCase().includes(searchQuery.toLowerCase()))).map((o) => {
            const isFilesDeleted = o.isDeletedByAdmin === true;
            
            return (

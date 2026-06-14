@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Helmet } from 'react-helmet';
-import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { listenToOrders, updateOrder } from '../services/storageService';
 import { deleteFileFromUrl } from '../services/fileUploadService';
 import { sendStatusUpdateEmail } from '../services/emailService';
-import { listenToContacts, ContactMessage } from '../services/dataService';
-import { Order, OrderStatus } from '../types';
+import { listenToContacts, ContactMessage, addTestimonial } from '../services/dataService';
+import { Order, OrderStatus, User } from '../types';
 import { uploadFileWithProgress } from '../services/fileUploadService';
 import { AdminSettings } from '../components/AdminSettings';
 import { AdminPortfolio } from '../components/AdminPortfolio';
@@ -14,8 +14,9 @@ import { AdminEducation } from '../components/AdminEducation';
 import { AdminExperience } from '../components/AdminExperience';
 import { AdminContacts } from '../components/AdminContacts';
 import { AdminTestimonials } from '../components/AdminTestimonials';
+import { AdminInvoice } from '../components/AdminInvoice';
 import { ClientActivityChart } from '../components/ClientActivityChart';
-import { Search, MessageSquare, MessageCircle, Layout, LogOut, ChevronRight, Save, User, X, AlertCircle, Download, Music, Copy, Check, Upload, Image as ImageIcon, FileBox, RefreshCw, DollarSign, ChevronUp, ChevronDown, Loader2, Trash2, Bell, BarChart2, List, Settings, Briefcase, GraduationCap, Award, Mail, Plus } from 'lucide-react';
+import { Search, MessageSquare, MessageCircle, Layout as LayoutIcon, LogOut, ChevronRight, Save, User as UserIcon, X, AlertCircle, Download, Music, Copy, Check, Upload, Image as ImageIcon, FileBox, RefreshCw, DollarSign, ChevronUp, ChevronDown, Loader2, Trash2, Bell, BarChart2, List, Settings, Briefcase, GraduationCap, Award, Mail, Plus, Star, ArrowLeft, Receipt } from 'lucide-react';
 import {
   BarChart,
   Bar,
@@ -36,7 +37,24 @@ interface AdminDashboardProps {
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'orders' | 'charts' | 'settings' | 'portfolio' | 'skills' | 'experience' | 'education' | 'contacts'>('orders');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabFromUrl = searchParams.get('tab');
+  
+  const [activeTab, setActiveTab] = useState<'orders' | 'reviews' | 'charts' | 'settings' | 'portfolio' | 'skills' | 'experience' | 'education' | 'contacts' | 'testimonials' | 'invoice'>(
+    (tabFromUrl as any) || 'orders'
+  );
+
+  useEffect(() => {
+    if (tabFromUrl) {
+      setActiveTab(tabFromUrl as any);
+    }
+  }, [tabFromUrl]);
+
+  const handleTabChange = (tab: 'orders' | 'reviews' | 'charts' | 'settings' | 'portfolio' | 'skills' | 'experience' | 'education' | 'contacts' | 'testimonials' | 'invoice') => {
+    setActiveTab(tab);
+    setSearchParams({ tab });
+  };
+
   const [orders, setOrders] = useState<Order[]>([]);
   const [contacts, setContacts] = useState<ContactMessage[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -58,6 +76,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
   // Deliverable States
   const [draftImage, setDraftImage] = useState<string | null>(null);
   const [finalFiles, setFinalFiles] = useState<{ name: string; type: string; data: string }[]>([]);
+
+  const orderIdFromUrl = searchParams.get('order');
+
+  useEffect(() => {
+    if (orderIdFromUrl && orders.length > 0) {
+      const o = orders.find(x => x.id === orderIdFromUrl);
+      if (o && (!selectedOrder || selectedOrder.id !== o.id)) {
+        openOrder(o, false);
+      }
+    } else if (!orderIdFromUrl && selectedOrder) {
+      closeOrder(false);
+    }
+  }, [orderIdFromUrl, orders]);
 
   useEffect(() => {
     setIsLoading(true);
@@ -85,7 +116,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
     setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc');
   };
 
-  const openOrder = (order: Order) => {
+  const openOrder = (order: Order, updateUrl = true) => {
     if (!order) return;
     setSelectedOrder(order);
     setEditStatus(order.status);
@@ -93,13 +124,35 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
     setDraftImage(order.draftImg || null);
     setFinalFiles(order.finalFiles || []);
     setUploadProgress({});
+    if (updateUrl) {
+      setSearchParams(prev => { prev.set('order', order.id); return prev; }, { replace: false });
+    }
   };
 
-  const closeOrder = () => {
+  const handleAddTestimonial = async () => {
+    if (!selectedOrder) return;
+    try {
+       await addTestimonial({
+           clientName: selectedOrder.clientName,
+           projectRole: selectedOrder.serviceType,
+           feedback: selectedOrder.feedback || '',
+           order: 0
+       });
+       alert("Testimonial added to public website!");
+    } catch (e) {
+       console.error(e);
+       alert("Failed to add testimonial.");
+    }
+  };
+
+  const closeOrder = (updateUrl = true) => {
     setSelectedOrder(null);
     setDraftImage(null);
     setFinalFiles([]);
     setUploadProgress({});
+    if (updateUrl) {
+      setSearchParams(prev => { prev.delete('order'); return prev; }, { replace: false });
+    }
   };
 
   const handleDraftUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -401,63 +454,78 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
         <div className="flex gap-4 border-b border-gray-200 mb-6 px-4 overflow-x-auto whitespace-nowrap">
           <button 
             className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 relative ${activeTab === 'orders' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
-            onClick={() => setActiveTab('orders')}
+            onClick={() => handleTabChange('orders')}
           >
             <List size={16} /> Orders
-            {orders.some(o => o.status === OrderStatus.PENDING) && (
-              <span className="w-2 h-2 bg-red-500 rounded-full absolute top-0 right-0 transform translate-x-1 -translate-y-1"></span>
+            {orders.filter(o => o.status === OrderStatus.PENDING).length > 0 && (
+              <span className="min-w-4 h-4 px-1.5 bg-red-500 text-white text-[10px] font-bold rounded-full absolute -top-1 -right-2 flex items-center justify-center">
+                {orders.filter(o => o.status === OrderStatus.PENDING).length}
+              </span>
             )}
           </button>
           <button 
             className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'charts' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
-            onClick={() => setActiveTab('charts')}
+            onClick={() => handleTabChange('charts')}
           >
             <BarChart2 size={16} /> Analytics
           </button>
           <button 
             className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'portfolio' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
-            onClick={() => setActiveTab('portfolio')}
+            onClick={() => handleTabChange('portfolio')}
           >
             <ImageIcon size={16} /> Portfolio
           </button>
           <button 
             className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'skills' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
-            onClick={() => setActiveTab('skills')}
+            onClick={() => handleTabChange('skills')}
           >
             <Award size={16} /> Skills
           </button>
           <button 
             className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'experience' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
-            onClick={() => setActiveTab('experience')}
+            onClick={() => handleTabChange('experience')}
           >
             <Briefcase size={16} /> Experience
           </button>
           <button 
              className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'education' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
-             onClick={() => setActiveTab('education')}
+             onClick={() => handleTabChange('education')}
            >
              <GraduationCap size={16} /> Education
            </button>
           <button 
             className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 relative ${activeTab === 'contacts' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
-            onClick={() => setActiveTab('contacts')}
+            onClick={() => handleTabChange('contacts')}
           >
             <Mail size={16} /> Contacts
-            {contacts.some(c => !c.isRead) && (
-              <span className="w-2 h-2 bg-red-500 rounded-full absolute top-0 right-0 transform translate-x-1 -translate-y-1"></span>
+            {contacts.filter(c => !c.isRead).length > 0 && (
+              <span className="min-w-4 h-4 px-1.5 bg-red-500 text-white text-[10px] font-bold rounded-full absolute -top-1 -right-2 flex items-center justify-center">
+                {contacts.filter(c => !c.isRead).length}
+              </span>
             )}
           </button>
           <button 
-             className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'testimonials' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
-             onClick={() => setActiveTab('testimonials')}
-           >
-             <MessageSquare size={16} /> Testimonials
-           </button>
+            className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 relative ${activeTab === 'reviews' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+            onClick={() => handleTabChange('reviews')}
+          >
+            <Star size={16} /> Reviews & Testimonials
+            {orders.filter(o => o.rating && !o.isFeedbackRead).length > 0 && (
+              <span className="min-w-4 h-4 px-1.5 bg-red-500 text-white text-[10px] font-bold rounded-full absolute -top-1 -right-2 flex items-center justify-center">
+                {orders.filter(o => o.rating && !o.isFeedbackRead).length}
+              </span>
+            )}
+          </button>
           <button 
             className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'settings' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
-            onClick={() => setActiveTab('settings')}
+            onClick={() => handleTabChange('settings')}
           >
             <Settings size={16} /> Settings & Prices
+          </button>
+          <button 
+            className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'invoice' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+            onClick={() => handleTabChange('invoice')}
+          >
+            <Receipt size={16} /> Invoice Template
           </button>
         </div>
 
@@ -607,6 +675,68 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
               </div>
             </div>
           </div>
+        ) : activeTab === 'reviews' ? (
+          <div className="space-y-12">
+            <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 space-y-6">
+              <h3 className="text-xl font-bold">Client Reviews from Orders</h3>
+              {orders.filter(o => o.rating).length === 0 ? (
+                <div className="p-8 text-center text-gray-500 bg-gray-50 rounded-xl border border-gray-200 border-dashed">No reviews yet.</div>
+              ) : (
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                   {orders.filter(o => o.rating).sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(o => (
+                      <div key={o.id} className={`border ${!o.isFeedbackRead ? 'border-red-300 bg-red-50/20' : 'border-gray-200 bg-white'} shadow-sm p-6 rounded-2xl relative overflow-hidden transition-all hover:shadow-md`}>
+                          {!o.isFeedbackRead && (
+                             <div className="absolute top-4 right-4 z-10">
+                               <span className="bg-red-500 text-white text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full shadow-sm flex items-center gap-1.5">
+                                  <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span>
+                                  NEW
+                               </span>
+                             </div>
+                          )}
+                          <div className="flex justify-between items-start mb-4 relative z-0 pr-16">
+                             <div>
+                                 <h4 className="font-bold text-gray-900 border-b border-gray-200 pb-1">{o.clientName}</h4>
+                                 <span className="text-xs text-purple-600 font-bold uppercase tracking-wider">{o.serviceType}</span>
+                             </div>
+                             <div className="flex gap-0.5 text-lg">
+                                 {[1,2,3,4,5].map(s => <span key={s} className={s <= (o.rating||0) ? 'text-yellow-400' : 'text-gray-200'}>★</span>)}
+                             </div>
+                          </div>
+                          {o.feedback && <p className="italic text-gray-700 text-sm mb-6 pb-4 border-b border-gray-100">"{o.feedback}"</p>}
+                          
+                          <div className="flex gap-3">
+                              {!o.isFeedbackRead && (
+                                  <button onClick={() => updateOrder({...o, isFeedbackRead: true})} className="flex-1 bg-white border border-gray-200 hover:border-gray-300 text-gray-700 text-xs uppercase tracking-widest font-black py-2.5 rounded-xl transition-all">Mark Read</button>
+                              )}
+                              <button onClick={async () => { 
+                                 await updateOrder({...o, isFeedbackRead: true}); 
+                                 try {
+                                     await addTestimonial({
+                                         clientName: o.clientName,
+                                         projectRole: o.serviceType,
+                                         feedback: o.feedback || '',
+                                         order: 0,
+                                         rating: o.rating
+                                     });
+                                     alert("Testimonial added to public website!");
+                                 } catch (e) {
+                                     console.error(e);
+                                     alert("Failed to add testimonial.");
+                                 }
+                              }} className="flex-1 bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border border-yellow-200 text-xs uppercase tracking-widest font-black py-2.5 rounded-xl transition-all shadow-sm">Publish</button>
+                              <button onClick={() => { updateOrder({...o, isFeedbackRead: true}); openOrder({...o, isFeedbackRead: true}); }} className="flex-1 bg-purple-600 text-white hover:bg-purple-700 text-xs uppercase tracking-widest font-black py-2.5 rounded-xl transition-all shadow-sm">View Details</button>
+                          </div>
+                      </div>
+                   ))}
+                 </div>
+              )}
+            </div>
+            
+            <div className="pt-4 border-t border-gray-200">
+               <h3 className="text-xl font-bold mb-4">Manual Testimonials</h3>
+               <AdminTestimonials />
+            </div>
+          </div>
         ) : activeTab === 'portfolio' ? (
           <AdminPortfolio />
         ) : activeTab === 'skills' ? (
@@ -617,36 +747,46 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
           <AdminEducation />
         ) : activeTab === 'contacts' ? (
           <AdminContacts />
-        ) : activeTab === 'testimonials' ? (
-          <AdminTestimonials />
         ) : activeTab === 'settings' ? (
           <AdminSettings user={user} />
+        ) : activeTab === 'invoice' ? (
+          <AdminInvoice />
         ) : null}
       </div>
 
       {selectedOrder && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-              <div className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onClick={closeOrder}></div>
+              <div className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onClick={() => closeOrder(true)}></div>
               <div className="relative bg-white rounded-2xl w-full max-w-5xl h-[90vh] shadow-2xl flex flex-col animate-fade-in border border-gray-200 overflow-hidden">
                   <div className="px-8 py-6 border-b border-gray-100 flex justify-between items-start bg-white z-10 shrink-0">
-                      <div>
-                          <div className="flex items-center gap-3">
-                             <h2 className="text-2xl font-bold text-gray-900">{selectedOrder?.serviceType}</h2>
-                             {selectedOrder?.status === OrderStatus.COMPLETED && (
-                                <div className="bg-green-100 text-green-800 text-[10px] uppercase font-bold px-2 py-1 rounded border border-green-200 flex items-center gap-1">
-                                    <Check size={12} /> Approved by Client
-                                </div>
-                             )}
-                          </div>
-                          <div className="flex items-center gap-3 mt-1 text-sm text-gray-500">
-                             <span className="font-mono bg-gray-100 px-2 py-0.5 rounded text-gray-700 uppercase">{selectedOrder?.id}</span>
-                             <span>•</span>
-                             <span className="flex items-center gap-1"><User size={14} /> {selectedOrder?.clientName}</span>
+                      <div className="flex items-start gap-4">
+                          <button onClick={() => closeOrder(true)} className="p-1.5 mt-1 text-gray-400 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 rounded-full transition-colors hidden sm:block">
+                              <ArrowLeft size={20} />
+                          </button>
+                          <div>
+                              <div className="flex items-center gap-3">
+                                 <h2 className="text-2xl font-bold text-gray-900">{selectedOrder?.serviceType}</h2>
+                                 {selectedOrder?.status === OrderStatus.COMPLETED && (
+                                    <div className="bg-green-100 text-green-800 text-[10px] uppercase font-bold px-2 py-1 rounded border border-green-200 flex items-center gap-1">
+                                        <Check size={12} /> Approved by Client
+                                    </div>
+                                 )}
+                              </div>
+                              <div className="flex items-center gap-3 mt-1 text-sm text-gray-500">
+                                 <span className="font-mono bg-gray-100 px-2 py-0.5 rounded text-gray-700 uppercase">{selectedOrder?.id}</span>
+                                 <span>•</span>
+                                 <span className="flex items-center gap-1"><UserIcon size={14} /> {selectedOrder?.clientName}</span>
+                              </div>
                           </div>
                       </div>
-                      <button onClick={closeOrder} className="text-gray-400 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors">
-                          <X size={20} />
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => closeOrder(true)} className="flex items-center gap-2 text-gray-600 font-medium hover:text-gray-900 bg-gray-50 hover:bg-gray-100 px-3 py-1.5 rounded-full transition-colors sm:hidden">
+                            <ArrowLeft size={16} /> Back
+                        </button>
+                        <button onClick={() => closeOrder(true)} className="text-gray-400 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 p-2 rounded-full transition-colors hidden sm:block">
+                            <X size={20} />
+                        </button>
+                      </div>
                   </div>
 
                   <div className="flex-1 overflow-y-auto p-8 grid grid-cols-1 md:grid-cols-3 gap-8 bg-gray-50/50">
@@ -777,6 +917,29 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                                </div>
                            )}
 
+                           {selectedOrder?.rating && (
+                               <div className="bg-yellow-50 border border-yellow-200 p-6 rounded-xl shadow-sm">
+                                   <div className="flex justify-between items-start mb-4">
+                                       <div>
+                                           <h4 className="text-yellow-800 font-bold text-sm mb-2">Client Feedback</h4>
+                                           <div className="flex gap-1">
+                                               {[1, 2, 3, 4, 5].map((star) => (
+                                                 <span key={star} className={`text-xl ${selectedOrder.rating! >= star ? 'text-yellow-400' : 'text-yellow-200'}`}>
+                                                     ★
+                                                 </span>
+                                               ))}
+                                           </div>
+                                       </div>
+                                       <button onClick={handleAddTestimonial} className="bg-white border border-yellow-300 text-yellow-700 hover:bg-yellow-100 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors shadow-sm">
+                                           Add to Testimonials
+                                       </button>
+                                   </div>
+                                   {selectedOrder.feedback && (
+                                       <p className="text-yellow-900 text-sm italic border-t border-yellow-200/50 pt-4 mt-2">"{selectedOrder.feedback}"</p>
+                                   )}
+                               </div>
+                           )}
+
                            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
                               <h3 className="text-sm font-bold text-gray-900 mb-4 pb-2 border-b border-gray-100 flex items-center gap-2">
                                 <Download size={16} className="text-gray-400" /> Client Assets
@@ -822,7 +985,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                            </div>
                            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
                                <div className="flex justify-between items-center mb-4 pb-2 border-b border-gray-100">
-                                  <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2"><Layout size={16} className="text-gray-400" /> Specifications</h3>
+                                  <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2"><LayoutIcon size={16} className="text-gray-400" /> Specifications</h3>
                                   <button onClick={() => selectedOrder && exportPalette(selectedOrder.colorPalette)} className="text-[10px] font-bold text-gray-500 hover:text-blue-600 flex items-center gap-1 uppercase tracking-wider">
                                     <Download size={12} /> Export Palette
                                   </button>
@@ -891,36 +1054,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
               </div>
           </div>
       )}
-
-      {/* Floating Action Button for Quick Shortcuts */}
-      <div className="fixed bottom-6 right-6 z-40 group flex flex-col items-end gap-3">
-        <div className="flex flex-col gap-3 scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-100 origin-bottom right-0 transition-all duration-300">
-          <button 
-            onClick={() => setActiveTab('settings')} 
-            className="bg-white border border-gray-200 text-gray-900 shadow-lg px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest flex items-center justify-end gap-3 hover:bg-gray-50 transition-colors whitespace-nowrap"
-          >
-            Create Discount <DollarSign size={16} className="text-green-500" />
-          </button>
-          
-          <button 
-            onClick={() => setActiveTab('settings')} 
-            className="bg-white border border-gray-200 text-gray-900 shadow-lg px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest flex items-center justify-end gap-3 hover:bg-gray-50 transition-colors whitespace-nowrap"
-          >
-            New Service <Plus size={16} className="text-purple-500" />
-          </button>
-          
-          <button 
-            onClick={() => { setActiveTab('orders'); setFilterStatus('All'); }} 
-            className="bg-white border border-gray-200 text-gray-900 shadow-lg px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest flex items-center justify-end gap-3 hover:bg-gray-50 transition-colors whitespace-nowrap"
-          >
-            View All Orders <List size={16} className="text-blue-500" />
-          </button>
-        </div>
-        
-        <button className="bg-gray-900 text-white p-4 rounded-full shadow-2xl hover:bg-gray-800 transition-colors hover:scale-105 transform">
-          <Plus size={24} className="group-hover:rotate-45 transition-transform duration-300" />
-        </button>
-      </div>
     </div>
   );
 };

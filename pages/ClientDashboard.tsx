@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { User, Order, OrderStatus } from '../types';
 import { listenToOrders, updateOrder } from '../services/storageService';
-import { Package, Clock, MessageSquare, ArrowRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Package, Clock, MessageSquare, ArrowRight, User as UserIcon, Download } from 'lucide-react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { ClientProfile } from '../components/ClientProfile';
+import { downloadInvoice } from '../utils/invoiceGenerator';
 
 interface ClientDashboardProps {
   user: User | null;
@@ -12,6 +14,24 @@ interface ClientDashboardProps {
 export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user }) => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabFromUrl = searchParams.get('tab');
+
+  const [activeTab, setActiveTab] = useState<'projects' | 'profile'>(
+    (tabFromUrl as any) || 'projects'
+  );
+
+  useEffect(() => {
+    if (tabFromUrl) {
+      setActiveTab(tabFromUrl as any);
+    }
+  }, [tabFromUrl]);
+
+  const handleTabChange = (tab: 'projects' | 'profile') => {
+    setActiveTab(tab);
+    setSearchParams({ tab });
+  };
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -67,14 +87,31 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user }) => {
                  <ArrowRight size={14} className="rotate-180" /> Back to Home
               </button>
               <h1 className="text-5xl md:text-6xl font-display uppercase tracking-tighter text-gray-900 mb-4 mix-blend-difference">My Dashboard</h1>
-              <p className="text-gray-500 text-lg font-medium">Track your projects and request revisions.</p>
+              <p className="text-gray-500 text-lg font-medium">Track your projects and manage settings.</p>
            </div>
            <InteractiveButton onClick={() => navigate('/order')}>
                New Project
            </InteractiveButton>
         </div>
 
-        {loading ? (
+        <div className="flex gap-8 border-b border-gray-200 mb-8">
+            <button 
+                onClick={() => handleTabChange('projects')}
+                className={`pb-4 px-2 font-bold uppercase tracking-widest text-xs transition-colors border-b-2 ${activeTab === 'projects' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-500 hover:text-gray-900'}`}
+            >
+                My Projects
+            </button>
+            <button 
+                onClick={() => handleTabChange('profile')}
+                className={`pb-4 px-2 font-bold uppercase tracking-widest text-xs transition-colors border-b-2 flex items-center gap-2 ${activeTab === 'profile' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-500 hover:text-gray-900'}`}
+            >
+                <UserIcon size={14} /> Profile & Settings
+            </button>
+        </div>
+
+        {activeTab === 'profile' ? (
+           <ClientProfile user={user} />
+        ) : loading ? (
           <div className="space-y-6">
             {[1, 2, 3].map((i) => (
               <div key={i} className="animate-pulse bg-white/80 backdrop-blur-xl border border-gray-300 rounded-3xl p-8 shadow-[0_8px_32px_rgba(0,0,0,0.12)] flex flex-col md:flex-row gap-8 items-start">
@@ -168,6 +205,12 @@ const ProjectCard = ({ order, onRequestRevision }: { order: Order; onRequestRevi
           {(order.status === OrderStatus.DRAFT_SENT || order.status === OrderStatus.COMPLETED) && (
              <button onClick={() => setShowRevisionForm(!showRevisionForm)} className="border border-gray-200 text-gray-600 px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:border-gray-900 hover:text-gray-900 transition-colors flex items-center gap-2">
                 <MessageSquare size={14} /> Request Revision
+             </button>
+          )}
+
+          {isCompleted && (
+             <button onClick={() => downloadInvoice(order)} className="border border-green-200 text-green-700 bg-green-50 px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-green-100 transition-colors flex items-center gap-2 group">
+                <Download size={14} className="group-hover:-translate-y-0.5 transition-transform" /> Download Invoice
              </button>
           )}
         </div>

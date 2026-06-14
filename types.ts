@@ -36,6 +36,8 @@ export interface Order {
 
   colorPalette: string[];
   
+  extraDetails?: string;
+  
   files: { name: string; type: string; data: string }[]; 
   voiceClips: { name: string; type: string; data: string }[];
   
@@ -46,6 +48,10 @@ export interface Order {
   
   revisionNotes?: string;
   revisionFiles?: string[];
+
+  rating?: number;
+  feedback?: string;
+  isFeedbackRead?: boolean;
 
   status: OrderStatus;
   estimatedCompletion: string;
@@ -76,4 +82,5 @@ export interface User {
   email: string;
   avatar: string;
   provider: 'google' | 'apple' | 'facebook' | 'guest' | 'email';
+  emailNotifications?: boolean;
 }

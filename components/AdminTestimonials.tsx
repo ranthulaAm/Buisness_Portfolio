@@ -27,7 +27,7 @@ export const AdminTestimonials: React.FC = () => {
         setLoading(true);
         try {
             if (item.id && !Number.isInteger(Number(item.id))) {
-                await updateTestimonial(item.id, { clientName: item.clientName, projectRole: item.projectRole, feedback: item.feedback, order: item.order });
+                await updateTestimonial(item.id, { clientName: item.clientName, projectRole: item.projectRole, feedback: item.feedback, order: item.order, rating: item.rating || 5 });
             } else {
                 const { id, ...data } = item;
                 const ref = await addTestimonial(data);
@@ -45,7 +45,7 @@ export const AdminTestimonials: React.FC = () => {
     };
 
     const handleAdd = () => {
-        setTestimonials([{ clientName: '', projectRole: '', feedback: '', order: testimonials.length }, ...testimonials]);
+        setTestimonials([{ clientName: '', projectRole: '', feedback: '', order: testimonials.length, rating: 5 }, ...testimonials]);
     };
 
     const handleDelete = async (index: number) => {
@@ -98,6 +98,12 @@ export const AdminTestimonials: React.FC = () => {
                                     <div className="flex-1">
                                         <label className="text-[10px] uppercase font-bold text-gray-500 mb-1 block">Project Role / Brand</label>
                                         <input value={t.projectRole} onChange={e => handleChange(idx, 'projectRole', e.target.value)} className="w-full border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-purple-500" placeholder="e.g. CEO at TechCorp" />
+                                    </div>
+                                    <div>
+                                        <label className="text-[10px] uppercase font-bold text-gray-500 mb-1 block">Rating</label>
+                                        <select value={t.rating || 5} onChange={e => handleChange(idx, 'rating', Number(e.target.value) as any)} className="w-full border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-purple-500 bg-white">
+                                            {[5,4,3,2,1].map(r => <option key={r} value={r}>{r} Stars</option>)}
+                                        </select>
                                     </div>
                                 </div>
                                 <div>

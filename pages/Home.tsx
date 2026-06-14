@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Helmet } from 'react-helmet';
+import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { ArrowRight, Maximize2, X, Package, User as UserIcon } from 'lucide-react';
+import { ArrowRight, Maximize2, X, Package, User as UserIcon, ChevronDown } from 'lucide-react';
 import { SERVICES as DEFAULT_SERVICES, PORTFOLIO_ITEMS as DEFAULT_PORTFOLIO } from '../constants';
 import { User } from '../types';
 import { 
@@ -181,6 +181,14 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
   const [services, setServices] = useState(DEFAULT_SERVICES);
   const [portfolio, setPortfolio] = useState(DEFAULT_PORTFOLIO);
   const [loadingPortfolio, setLoadingPortfolio] = useState(true);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  const FAQS = [
+    { question: "What is the typical turnaround time?", answer: "Standard projects usually take 3-5 business days. Complex requests may take longer, which will be communicated upfront." },
+    { question: "How does the revision process work?", answer: "We offer up to 3 rounds of free revisions for most of our design services to ensure you are completely satisfied with the final result." },
+    { question: "Can I provide my own visual assets?", answer: "Absolutely! You can upload your own photos, logos, or inspiration boards when placing an order or through the tracking dashboard later." },
+    { question: "How do I communicate with the designer?", answer: "You can track your project status and leave feedback directly via your Client Dashboard. Admins will also reach out if clarification is needed."}
+  ];
 
   // New states
   const [skills, setSkills] = useState<SkillItem[]>([]);
@@ -209,7 +217,24 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
     });
 
     Promise.all([getServicesConfig(), getDiscountsConfig()]).then(([configs, discountInfo]) => {
-      setServices(prev => prev.map(s => {
+      let baseServices = [...DEFAULT_SERVICES];
+      
+      // Add custom ones from configs that aren't in DEFAULT_SERVICES
+      Object.keys(configs).forEach(key => {
+         const c = configs[key];
+         if (c.isCustom && !baseServices.find(b => b.id === c.id)) {
+            baseServices.push({
+               id: c.id,
+               title: c.title || 'Custom Service',
+               description: c.description || '',
+               image: c.image || 'https://picsum.photos/600/800?random=999',
+               features: c.features || [],
+               price: c.price,
+            });
+         }
+      });
+
+      setServices(baseServices.map(s => {
         let finalPrice = s.price;
         let originalPrice = s.price;
         let discountApplied = 0;
@@ -219,6 +244,14 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
             originalPrice = configs[s.id].price;
             finalPrice = originalPrice;
             hidden = configs[s.id].hidden || false;
+            
+            // overrides for custom elements
+            if (configs[s.id].isCustom) {
+               s.title = configs[s.id].title || s.title;
+               s.description = configs[s.id].description || s.description;
+               s.image = configs[s.id].image || s.image;
+               s.features = configs[s.id].features || s.features;
+            }
             
             const specificDiscount = configs[s.id].discountPercentage || 0;
             const globalDiscount = discountInfo.isActive ? discountInfo.globalDiscount : 0;
@@ -557,11 +590,16 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
             
             <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-8 hide-scrollbar" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
               {testimonials.map((t, idx) => (
-                <div key={t.id || idx} className="min-w-[300px] md:min-w-[400px] bg-gray-50 border border-gray-100 p-8 rounded-[2rem] snap-center flex-shrink-0 relative mt-8">
+                <div key={t.id || idx} className="min-w-[300px] md:min-w-[400px] bg-gray-50 border border-gray-100 p-8 rounded-[2rem] snap-center flex-shrink-0 relative mt-8 flex flex-col">
                    <div className="absolute -top-6 left-8 bg-purple-600 text-white w-12 h-12 flex items-center justify-center rounded-full shadow-lg font-serif italic text-3xl">"</div>
-                   <p className="text-gray-600 font-medium leading-relaxed mb-8 pt-4 text-sm md:text-base">
+                   <p className="text-gray-600 font-medium leading-relaxed mb-8 pt-4 text-sm md:text-base flex-1">
                       {t.feedback}
                    </p>
+                   {t.rating && (
+                     <div className="flex gap-1 text-lg mb-4">
+                        {[1, 2, 3, 4, 5].map(s => <span key={s} className={s <= t.rating! ? 'text-yellow-400' : 'text-gray-300'}>★</span>)}
+                     </div>
+                   )}
                    <div>
                       <div className="font-bold text-gray-900 text-lg">{t.clientName}</div>
                       <div className="text-xs uppercase tracking-widest text-purple-600 font-bold mt-1">{t.projectRole}</div>
@@ -572,6 +610,34 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
           </div>
         </section>
       )}
+
+      {/* 6.5 FAQ SECTION */}
+      <section className="py-24 bg-gray-50">
+        <div className="px-6 md:px-12 max-w-4xl mx-auto">
+          <div className="flex flex-col items-center mb-16 text-center">
+             <h2 className="text-4xl md:text-6xl font-display tracking-tight text-gray-900 mb-4">Frequently Asked Questions</h2>
+             <p className="text-gray-500 max-w-lg text-sm">Everything you need to know about the product and billing.</p>
+          </div>
+          <div className="space-y-4">
+             {FAQS.map((faq, idx) => (
+               <div key={idx} className="bg-white border border-gray-200 rounded-2xl overflow-hidden transition-all shadow-sm">
+                 <button 
+                   onClick={() => setOpenFaq(openFaq === idx ? null : idx)} 
+                   className="w-full px-6 py-5 text-left flex justify-between items-center bg-white hover:bg-gray-50 transition-colors"
+                  >
+                   <span className="font-medium text-gray-900">{faq.question}</span>
+                   <ChevronDown size={20} className={`text-gray-400 transition-transform duration-300 ${openFaq === idx ? 'rotate-180' : ''}`} />
+                 </button>
+                 <div className={`overflow-hidden transition-all duration-300 ${openFaq === idx ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
+                   <div className="px-6 pb-5 pt-0 text-gray-500 text-sm leading-relaxed">
+                     {faq.answer}
+                   </div>
+                 </div>
+               </div>
+             ))}
+          </div>
+        </div>
+      </section>
 
       {/* 7. CONTACT / LET'S WORK TOGETHER */}
       <section className="py-32 bg-gray-900 text-white relative overflow-hidden">
