@@ -8,6 +8,8 @@ interface AdminSettingsProps {
     user?: User | null;
 }
 
+import { AdminFooterSettings } from './AdminFooterSettings';
+
 export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
     const [serviceConfigs, setServiceConfigs] = useState<Record<string, ServiceItem>>({});
     const [showServiceModal, setShowServiceModal] = useState(false);
@@ -389,6 +391,8 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
             </div>
 
         </div>
+
+        <AdminFooterSettings />
 
         {showServiceModal && (
             <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">

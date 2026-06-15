@@ -7,6 +7,7 @@ import { sendStatusUpdateEmail } from '../services/emailService';
 import { listenToContacts, ContactMessage, addTestimonial } from '../services/dataService';
 import { Order, OrderStatus, User } from '../types';
 import { uploadFileWithProgress } from '../services/fileUploadService';
+import { downloadInvoice } from '../utils/invoiceGenerator';
 import { AdminSettings } from '../components/AdminSettings';
 import { AdminPortfolio } from '../components/AdminPortfolio';
 import { AdminSkills } from '../components/AdminSkills';
@@ -16,7 +17,7 @@ import { AdminContacts } from '../components/AdminContacts';
 import { AdminTestimonials } from '../components/AdminTestimonials';
 import { AdminInvoice } from '../components/AdminInvoice';
 import { ClientActivityChart } from '../components/ClientActivityChart';
-import { Search, MessageSquare, MessageCircle, Layout as LayoutIcon, LogOut, ChevronRight, Save, User as UserIcon, X, AlertCircle, Download, Music, Copy, Check, Upload, Image as ImageIcon, FileBox, RefreshCw, DollarSign, ChevronUp, ChevronDown, Loader2, Trash2, Bell, BarChart2, List, Settings, Briefcase, GraduationCap, Award, Mail, Plus, Star, ArrowLeft, Receipt } from 'lucide-react';
+import { Search, MessageSquare, MessageCircle, Layout as LayoutIcon, LogOut, ChevronRight, Save, User as UserIcon, X, AlertCircle, Download, Music, Copy, Check, Upload, ImageIcon, FileBox, RefreshCw, DollarSign, ChevronUp, ChevronDown, Loader2, Trash2, Bell, BarChart2, List, Settings, Briefcase, GraduationCap, Award, Mail, Plus, Star, ArrowLeft, Receipt } from 'lucide-react';
 import {
   BarChart,
   Bar,
@@ -891,6 +892,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                               <h3 className="text-xs font-bold uppercase text-gray-400 tracking-wider mb-4">Communication</h3>
                               <button onClick={() => selectedOrder && sendWhatsAppNotification(selectedOrder, selectedOrder.status)} className="w-full bg-emerald-50 text-emerald-600 py-4 rounded-xl font-bold text-xs uppercase tracking-widest border border-emerald-100 hover:bg-emerald-100 transition-all flex items-center justify-center gap-3 shadow-sm hover:shadow-emerald-100">
                                   <MessageCircle size={18} /> WhatsApp Update
+                              </button>
+                          </div>
+                          <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm mt-6">
+                              <h3 className="text-xs font-bold uppercase text-gray-400 tracking-wider mb-4 flex items-center gap-2">
+                                <Receipt size={14} /> Invoice & Billing
+                              </h3>
+                              <button onClick={() => selectedOrder && downloadInvoice(selectedOrder)} className="w-full bg-blue-50 text-blue-700 py-4 rounded-xl font-bold text-xs uppercase tracking-widest border border-blue-100 hover:bg-blue-100 transition-all flex items-center justify-center gap-3 shadow-sm hover:shadow-blue-100">
+                                  <Download size={18} /> Download Invoice
                               </button>
                           </div>
                       </div>

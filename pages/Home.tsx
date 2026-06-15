@@ -758,7 +758,8 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
                   
                   <div className="flex flex-col gap-4">
                      <InteractiveButton onClick={() => {
-                        window.location.href = `/#/order`
+                        navigate(`/order?service=${encodeURIComponent(selectedWork.category)}&title=${encodeURIComponent(selectedWork.title)}`);
+                        closeLightbox();
                      }}>
                         Start Similar Project
                      </InteractiveButton>

@@ -62,23 +62,30 @@ const AppContent: React.FC = () => {
 
   // Firebase Auth Listener
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser) {
-         const appUser: User = {
-          id: firebaseUser.uid,
-          name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
-          email: firebaseUser.email || '',
-          avatar: firebaseUser.photoURL || `https://api.dicebear.com/7.x/shapes/svg?seed=${firebaseUser.uid}`,
-          provider: 'email',
-        };
-        setUser(appUser);
-        saveUserProfile(appUser);
-      } else {
-        setUser(null);
-      }
-    });
+    import('firebase/auth').then(({ signInAnonymously }) => {
+      const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+        if (firebaseUser && !firebaseUser.isAnonymous) {
+           const appUser: User = {
+            id: firebaseUser.uid,
+            name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
+            email: firebaseUser.email || '',
+            avatar: firebaseUser.photoURL || `https://api.dicebear.com/7.x/shapes/svg?seed=${firebaseUser.uid}`,
+            provider: 'email',
+          };
+          setUser(appUser);
+          saveUserProfile(appUser).catch(console.error);
+        } else if (!firebaseUser) {
+          setUser(null);
+          // Sign in anonymously to allow reading public data if Firebase rules default to auth required
+          signInAnonymously(auth).catch(console.error);
+        } else {
+          // Is anonymous
+          setUser(null);
+        }
+      });
 
-    return () => unsubscribe();
+      return () => unsubscribe();
+    });
   }, [navigate]);
 
   // Handle returning to intro from Admin

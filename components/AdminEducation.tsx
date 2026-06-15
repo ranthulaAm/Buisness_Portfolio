@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { getEducation, deleteEducation, updateEducation, addEducation, EducationItem } from '../services/dataService';
 import { Loader2, Trash2, GraduationCap, Plus, Save, Eye, EyeOff } from 'lucide-react';
+import { ConfirmModal } from './ConfirmModal';
 
 export const AdminEducation: React.FC = () => {
     const [education, setEducation] = useState<EducationItem[]>([]);
     const [loading, setLoading] = useState(true);
+    const [itemToDelete, setItemToDelete] = useState<number | null>(null);
 
     useEffect(() => {
         loadData();
@@ -23,7 +25,7 @@ export const AdminEducation: React.FC = () => {
     };
 
     const handleAdd = () => {
-        setEducation([{ degree: 'New Degree', institution: 'Institution Name', year: '2020 - 2024', description: 'Study details' }, ...education]);
+        setEducation([{ id: 'temp_' + Date.now(), degree: 'New Degree', institution: 'Institution Name', year: '2020 - 2024', description: 'Study details' }, ...education]);
     };
 
     const handleChange = (index: number, field: keyof EducationItem, value: any) => {
@@ -35,10 +37,12 @@ export const AdminEducation: React.FC = () => {
     const handleSave = async (index: number) => {
         const item = education[index];
         try {
-            if (item.id) {
+            if (item.id && !item.id.toString().startsWith('temp_')) {
                 await updateEducation(item.id, item);
             } else {
-                const ref = await addEducation(item);
+                const obj = { ...item };
+                if (obj.id && obj.id.toString().startsWith('temp_')) delete obj.id;
+                const ref = await addEducation(obj);
                 const newArr = [...education];
                 newArr[index].id = ref.id;
                 setEducation(newArr);
@@ -50,16 +54,31 @@ export const AdminEducation: React.FC = () => {
         }
     };
 
-    const handleDelete = async (index: number) => {
+    const confirmDelete = async () => {
+        if (itemToDelete === null) return;
+        const index = itemToDelete;
         const item = education[index];
-        if (item.id) {
+        setItemToDelete(null);
+        if (item.id && !item.id.toString().startsWith('temp_')) {
             await deleteEducation(item.id);
         }
         setEducation(education.filter((_, i) => i !== index));
     };
 
+    const handleDelete = (index: number) => {
+        setItemToDelete(index);
+    };
+
     return (
-        <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 max-w-4xl mx-auto">
+        <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 max-w-4xl mx-auto relative">
+            <ConfirmModal 
+                isOpen={itemToDelete !== null}
+                title="Delete Education Entry"
+                message="Are you sure you want to delete this? This action is permanent."
+                confirmText="Yes, Delete Forever"
+                onConfirm={confirmDelete}
+                onCancel={() => setItemToDelete(null)}
+            />
             <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                     <GraduationCap className="text-blue-600" size={20} /> Education History

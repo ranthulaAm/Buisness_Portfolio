@@ -260,6 +260,54 @@ export const updateDiscountsConfig = async (config: { globalDiscount: number, is
   return await setDoc(ref, config, { merge: true });
 }
 
+export interface FooterURL {
+  title: string;
+  url: string;
+}
+
+export interface FooterConfig {
+  email: string;
+  phone: string;
+  location: string;
+  extraUrls: FooterURL[];
+  instagram: string;
+  facebook: string;
+}
+
+export const getFooterConfig = async (): Promise<FooterConfig> => {
+  try {
+    const q = query(collection(db, 'settings'));
+    const snapshot = await getDocs(q);
+    const docItem = snapshot.docs.find(d => d.id === 'footer');
+    if (docItem) {
+      const data = docItem.data();
+      return {
+        email: data.email || 'ranthuls112@gmail.com',
+        phone: data.phone || '+94 712 132 855',
+        location: data.location || '414/2, Thuduwegedara\nKiriwaththuduwa, Homagama\nSri Lanka (10200)',
+        extraUrls: data.extraUrls || [{ title: 'ranthulaam.github.io/portfolio', url: 'https://ranthulaam.github.io/portfolio/' }],
+        instagram: data.instagram || 'https://www.instagram.com/_razor_s/',
+        facebook: data.facebook || 'https://web.facebook.com/Ranthula.senmith'
+      };
+    }
+  } catch (e) {
+    console.error("Error getting footer config:", e);
+  }
+  return {
+    email: 'ranthuls112@gmail.com',
+    phone: '+94 712 132 855',
+    location: '414/2, Thuduwegedara\nKiriwaththuduwa, Homagama\nSri Lanka (10200)',
+    extraUrls: [{ title: 'ranthulaam.github.io/portfolio', url: 'https://ranthulaam.github.io/portfolio/' }],
+    instagram: 'https://www.instagram.com/_razor_s/',
+    facebook: 'https://web.facebook.com/Ranthula.senmith'
+  };
+};
+
+export const updateFooterConfig = async (config: FooterConfig) => {
+  const ref = doc(db, 'settings', 'footer');
+  return await setDoc(ref, config, { merge: true });
+};
+
 export interface Testimonial {
   id?: string;
   clientName: string;

@@ -37,24 +37,39 @@ export const downloadInvoice = async (order: Order) => {
   const headerY = config.layoutStyle === 'modern' ? 20 : 20;
 
   const getBase64ImageFromUrl = async (imageUrl: string): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.crossOrigin = "Anonymous";
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        canvas.width = img.width;
-        canvas.height = img.height;
-        const ctx = canvas.getContext("2d");
-        if (ctx) {
-          ctx.drawImage(img, 0, 0);
-          resolve(canvas.toDataURL("image/png"));
-        } else {
-          reject(new Error("Unable to get canvas context"));
-        }
-      };
-      img.onerror = (e) => reject(e);
-      img.src = imageUrl;
-    });
+    try {
+      const response = await fetch(imageUrl, { mode: 'cors' });
+      if (!response.ok) throw new Error('Network response was not ok');
+      const blob = await response.blob();
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+           resolve(reader.result as string);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (err) {
+      // Fallback to Image object approach if fetch fails (e.g., due to strict CORS but image load works)
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = "Anonymous";
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(img, 0, 0);
+            resolve(canvas.toDataURL("image/png"));
+          } else {
+            reject(new Error("Unable to get canvas context"));
+          }
+        };
+        img.onerror = (e) => reject(e);
+        img.src = imageUrl;
+      });
+    }
   };
   
   // Header Logo/Company
@@ -70,7 +85,9 @@ export const downloadInvoice = async (order: Order) => {
   if (config.logoUrl) {
     try {
       const dataUrl = await getBase64ImageFromUrl(config.logoUrl);
-      doc.addImage(dataUrl, "PNG", 14, 10, 30, 30, undefined, 'FAST');
+      const isJpeg = dataUrl.startsWith('data:image/jpeg') || dataUrl.startsWith('data:image/jpg');
+      const imgType = isJpeg ? "JPEG" : "PNG";
+      doc.addImage(dataUrl, imgType, 14, 10, 30, 30, undefined, 'FAST');
       companyY = 45; // move company text down slightly if logo exists
       doc.setFontSize(16);
       doc.text(config.companyName || "Company Name", 14, companyY);

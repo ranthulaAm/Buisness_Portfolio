@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getInvoiceConfig, updateInvoiceConfig, InvoiceConfig } from '../services/dataService';
 import { uploadFileWithProgress } from '../services/fileUploadService';
-import { Save, Loader2, Image as ImageIcon, Palette, Layout, Building2, Upload } from 'lucide-react';
+import { Save, Loader2, ImageIcon, Palette, Layout, Building2, Upload } from 'lucide-react';
 
 export const AdminInvoice: React.FC = () => {
     const [config, setConfig] = useState<InvoiceConfig>({

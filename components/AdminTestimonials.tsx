@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Testimonial, getTestimonials, addTestimonial, updateTestimonial, deleteTestimonial } from '../services/dataService';
 import { Loader2, Plus, ArrowUp, ArrowDown, Trash2 } from 'lucide-react';
+import { ConfirmModal } from './ConfirmModal';
 
 export const AdminTestimonials: React.FC = () => {
     const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
     const [loading, setLoading] = useState(true);
+    const [itemToDelete, setItemToDelete] = useState<number | null>(null);
 
     useEffect(() => {
         getTestimonials().then(data => {
@@ -26,11 +28,13 @@ export const AdminTestimonials: React.FC = () => {
         const item = testimonials[index];
         setLoading(true);
         try {
-            if (item.id && !Number.isInteger(Number(item.id))) {
+            if (item.id && !item.id.toString().startsWith('temp_') && !Number.isInteger(Number(item.id))) {
                 await updateTestimonial(item.id, { clientName: item.clientName, projectRole: item.projectRole, feedback: item.feedback, order: item.order, rating: item.rating || 5 });
             } else {
                 const { id, ...data } = item;
-                const ref = await addTestimonial(data);
+                const obj = { ...data };
+                if ((obj as any).id) delete (obj as any).id;
+                const ref = await addTestimonial(obj as any);
                 const updated = [...testimonials];
                 updated[index].id = ref.id;
                 setTestimonials(updated);
@@ -45,17 +49,24 @@ export const AdminTestimonials: React.FC = () => {
     };
 
     const handleAdd = () => {
-        setTestimonials([{ clientName: '', projectRole: '', feedback: '', order: testimonials.length, rating: 5 }, ...testimonials]);
+        setTestimonials([{ id: 'temp_' + Date.now(), clientName: '', projectRole: '', feedback: '', order: testimonials.length, rating: 5 }, ...testimonials]);
     };
 
-    const handleDelete = async (index: number) => {
+    const confirmDelete = async () => {
+        if (itemToDelete === null) return;
+        const index = itemToDelete;
         const item = testimonials[index];
-        if (item.id && !Number.isInteger(Number(item.id))) {
+        setItemToDelete(null);
+        if (item.id && !item.id.toString().startsWith('temp_') && !Number.isInteger(Number(item.id))) {
             setLoading(true);
             await deleteTestimonial(item.id);
             setLoading(false);
         }
         setTestimonials(testimonials.filter((_, i) => i !== index));
+    };
+
+    const handleDelete = (index: number) => {
+        setItemToDelete(index);
     };
 
     const handleMoveUp = async (index: number) => {
@@ -75,7 +86,15 @@ export const AdminTestimonials: React.FC = () => {
     };
 
     return (
-        <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+        <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 relative">
+            <ConfirmModal 
+                isOpen={itemToDelete !== null}
+                title="Delete Testimonial"
+                message="Are you sure you want to delete this testimonial? This action cannot be undone."
+                confirmText="Yes, Delete Forever"
+                onConfirm={confirmDelete}
+                onCancel={() => setItemToDelete(null)}
+            />
             <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-bold text-gray-900">Manage Testimonials</h3>
                 <button onClick={handleAdd} className="bg-purple-600 text-white hover:bg-purple-700 px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors">

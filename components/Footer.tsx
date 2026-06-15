@@ -1,7 +1,16 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Instagram, Twitter, Mail, Heart, Facebook, Phone, MapPin, Globe } from 'lucide-react';
+import { FooterConfig, getFooterConfig } from '../services/dataService';
 
 export const Footer: React.FC = () => {
+  const [footerData, setFooterData] = useState<FooterConfig | null>(null);
+
+  useEffect(() => {
+    getFooterConfig().then(setFooterData);
+  }, []);
+
+  if (!footerData) return null;
+
   return (
     <footer className="bg-gray-50 border-t border-gray-200 pt-16 pb-8 relative z-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -15,39 +24,37 @@ export const Footer: React.FC = () => {
               Transforming ideas into surreal visions through advanced image manipulation and digital art.
             </p>
             <div className="flex gap-4 justify-center md:justify-start">
-              <a href="https://www.instagram.com/_razor_s/" target="_blank" rel="noreferrer" className="text-gray-400 hover:text-purple-600 transition-colors hover:scale-110 transform"><Instagram /></a>
-              <a href="https://web.facebook.com/Ranthula.senmith" target="_blank" rel="noreferrer" className="text-gray-400 hover:text-blue-600 transition-colors hover:scale-110 transform"><Facebook /></a>
-              <a href="mailto:ranthuls112@gmail.com" className="text-gray-400 hover:text-red-500 transition-colors hover:scale-110 transform"><Mail /></a>
+              {footerData.instagram && <a href={footerData.instagram} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-purple-600 transition-colors hover:scale-110 transform"><Instagram /></a>}
+              {footerData.facebook && <a href={footerData.facebook} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-blue-600 transition-colors hover:scale-110 transform"><Facebook /></a>}
+              {footerData.email && <a href={`mailto:${footerData.email}`} className="text-gray-400 hover:text-red-500 transition-colors hover:scale-110 transform"><Mail /></a>}
             </div>
           </div>
           
           <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-8 text-sm max-w-2xl w-full md:mx-auto">
              <div className="flex flex-col gap-4">
                 <h4 className="font-bold text-gray-900 uppercase tracking-widest text-xs mb-2">Contact</h4>
-                <a href="mailto:ranthuls112@gmail.com" className="flex items-center gap-3 text-gray-600 hover:text-purple-600 transition-colors">
+                <a href={`mailto:${footerData.email}`} className="flex items-center gap-3 text-gray-600 hover:text-purple-600 transition-colors">
                     <Mail size={16} className="text-gray-400" />
-                    ranthuls112@gmail.com
+                    {footerData.email}
                 </a>
-                <a href="tel:0712132855" className="flex items-center gap-3 text-gray-600 hover:text-purple-600 transition-colors">
+                <a href={`tel:${footerData.phone.replace(/[^0-9+]/g, '')}`} className="flex items-center gap-3 text-gray-600 hover:text-purple-600 transition-colors">
                     <Phone size={16} className="text-gray-400" />
-                    +94 712 132 855
+                    {footerData.phone}
                 </a>
              </div>
              
              <div className="flex flex-col gap-4">
-                <h4 className="font-bold text-gray-900 uppercase tracking-widest text-xs mb-2">Location</h4>
-                <div className="flex items-start gap-3 text-gray-600">
+                <h4 className="font-bold text-gray-900 uppercase tracking-widest text-xs mb-2">Location & Links</h4>
+                <div className="flex items-start gap-3 text-gray-600 whitespace-pre-wrap">
                     <MapPin size={16} className="text-gray-400 mt-0.5 shrink-0" />
-                    <p>
-                      414/2, Thuduwegedara<br />
-                      Kiriwaththuduwa, Homagama<br />
-                      Sri Lanka (10200)
-                    </p>
+                    <p>{footerData.location}</p>
                 </div>
-                <a href="https://ranthulaam.github.io/portfolio/" target="_blank" rel="noreferrer" className="flex items-center gap-3 text-gray-600 hover:text-purple-600 transition-colors">
-                    <Globe size={16} className="text-gray-400" />
-                    ranthulaam.github.io/portfolio
-                </a>
+                {footerData.extraUrls && footerData.extraUrls.map((urlItem, idx) => (
+                  <a key={idx} href={urlItem.url} target="_blank" rel="noreferrer" className="flex items-center gap-3 text-gray-600 hover:text-purple-600 transition-colors">
+                      <Globe size={16} className="text-gray-400 shrink-0" />
+                      {urlItem.title}
+                  </a>
+                ))}
              </div>
           </div>
         </div>

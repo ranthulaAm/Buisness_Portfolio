@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
-import { Upload, Check, ChevronRight, Palette, Plus, X, ArrowLeft, AlertCircle, Home as HomeIcon, ShieldCheck, Mic, Square, Play, Trash2, PlusCircle, MinusCircle, Monitor, Smartphone, Printer, Layers, Move, Maximize, CreditCard, BookOpen, FileText, Image as ImageIcon, Video, Facebook, Linkedin, Youtube, Instagram, Twitter, Loader } from 'lucide-react';
+import { Upload, Check, ChevronRight, Palette, Plus, X, ArrowLeft, AlertCircle, Home as HomeIcon, ShieldCheck, Mic, Square, Play, Trash2, PlusCircle, MinusCircle, Monitor, Smartphone, Printer, Layers, Move, Maximize, CreditCard, BookOpen, FileText, ImageIcon, Video, Facebook, Linkedin, Youtube, Instagram, Twitter, Loader } from 'lucide-react';
 import { SERVICES as DEFAULT_SERVICES } from '../constants';
 import { User } from '../types';
 import { saveOrder, updateOrder, getOrderById, generateOrderId } from '../services/storageService';

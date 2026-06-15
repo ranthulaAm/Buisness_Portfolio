@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { getSkills, deleteSkill, updateSkill, addSkill, SkillItem } from '../services/dataService';
 import { Loader2, Trash2, Award, Plus, Save, Eye, EyeOff } from 'lucide-react';
+import { ConfirmModal } from './ConfirmModal';
 
 export const AdminSkills: React.FC = () => {
     const [skills, setSkills] = useState<SkillItem[]>([]);
     const [loading, setLoading] = useState(true);
+    const [itemToDelete, setItemToDelete] = useState<number | null>(null);
 
     useEffect(() => {
         loadData();
@@ -23,7 +25,7 @@ export const AdminSkills: React.FC = () => {
     };
 
     const handleAdd = () => {
-        setSkills([{ name: 'New Skill', level: 80 }, ...skills]);
+        setSkills([{ id: 'temp_' + Date.now(), name: 'New Skill', level: 80 }, ...skills]);
     };
 
     const handleChange = (index: number, field: keyof SkillItem, value: any) => {
@@ -35,10 +37,12 @@ export const AdminSkills: React.FC = () => {
     const handleSave = async (index: number) => {
         const item = skills[index];
         try {
-            if (item.id) {
+            if (item.id && !item.id.toString().startsWith('temp_')) {
                 await updateSkill(item.id, item);
             } else {
-                const ref = await addSkill(item);
+                const obj = { ...item };
+                if (obj.id && obj.id.toString().startsWith('temp_')) delete obj.id;
+                const ref = await addSkill(obj);
                 const newArr = [...skills];
                 newArr[index].id = ref.id;
                 setSkills(newArr);
@@ -50,16 +54,31 @@ export const AdminSkills: React.FC = () => {
         }
     };
 
-    const handleDelete = async (index: number) => {
+    const confirmDelete = async () => {
+        if (itemToDelete === null) return;
+        const index = itemToDelete;
         const item = skills[index];
-        if (item.id) {
+        setItemToDelete(null);
+        if (item.id && !item.id.toString().startsWith('temp_')) {
             await deleteSkill(item.id);
         }
         setSkills(skills.filter((_, i) => i !== index));
     };
 
+    const handleDelete = (index: number) => {
+        setItemToDelete(index);
+    };
+
     return (
-        <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 max-w-4xl mx-auto">
+        <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 max-w-4xl mx-auto relative">
+            <ConfirmModal 
+                isOpen={itemToDelete !== null}
+                title="Delete Skill"
+                message="Are you sure you want to delete this skill? This action is permanent."
+                confirmText="Yes, Delete Forever"
+                onConfirm={confirmDelete}
+                onCancel={() => setItemToDelete(null)}
+            />
             <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                     <Award className="text-blue-600" size={20} /> Software Skills

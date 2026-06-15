@@ -209,10 +209,23 @@ const ProjectCard = ({ order, onRequestRevision }: { order: Order; onRequestRevi
           )}
 
           {isCompleted && (
-             <button onClick={() => downloadInvoice(order)} className="border border-green-200 text-green-700 bg-green-50 px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-green-100 transition-colors flex items-center gap-2 group">
-                <Download size={14} className="group-hover:-translate-y-0.5 transition-transform" /> Download Invoice
+             <button onClick={() => downloadInvoice(order)} className="border border-green-200 text-green-700 bg-green-50 px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-green-100 transition-colors flex items-center gap-2">
+                <Download size={14} /> Download Invoice
              </button>
           )}
+
+          {isCompleted && order.finalFiles && order.finalFiles.length > 0 && order.finalFiles.map((file, idx) => (
+             <a
+               key={`final-${idx}`}
+               href={file.data}
+               download={file.name}
+               target="_blank"
+               rel="noreferrer"
+               className="border-2 border-blue-600 text-white bg-blue-600 shadow-md px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-blue-700 hover:border-blue-700 transition-colors flex items-center gap-2 group"
+             >
+                <Download size={14} className="group-hover:-translate-y-0.5 transition-transform animate-bounce" /> Get {file.name}
+             </a>
+          ))}
         </div>
 
         {showRevisionForm && (

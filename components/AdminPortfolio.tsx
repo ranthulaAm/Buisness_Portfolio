@@ -2,13 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { getPortfolioItems, addPortfolioItem, updatePortfolioItem, deletePortfolioItem, PortfolioItem } from '../services/dataService';
 import { uploadFileWithProgress } from '../services/fileUploadService';
 import { PORTFOLIO_ITEMS as DEFAULT_PORTFOLIO } from '../constants';
-import { Save, Plus, Trash2, Loader2, Upload, ArrowUp, ArrowDown } from 'lucide-react';
+import { Save, Plus, Trash2, Loader2, Upload, ArrowUp, ArrowDown, ImageIcon } from 'lucide-react';
+import { ConfirmModal } from './ConfirmModal';
 
 export const AdminPortfolio: React.FC = () => {
     const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
     const [loading, setLoading] = useState(false);
     const [uploadingIdx, setUploadingIdx] = useState<number | null>(null);
     const [progress, setProgress] = useState(0);
+    const [itemToDelete, setItemToDelete] = useState<number | null>(null);
 
     const handleMoveUp = async (index: number) => {
         if (index === 0) return;
@@ -82,6 +84,7 @@ export const AdminPortfolio: React.FC = () => {
 
     const handleAddPortfolio = () => {
         const item: PortfolioItem = {
+            id: 'temp_' + Date.now(),
             title: 'New Portfolio Item',
             description: 'Item description',
             category: 'Uncategorized',
@@ -118,7 +121,7 @@ export const AdminPortfolio: React.FC = () => {
         const item = portfolio[index];
         setLoading(true);
         try {
-            if (item.id && !Number.isInteger(Number(item.id))) {
+            if (item.id && !item.id.toString().startsWith('temp_') && !Number.isInteger(Number(item.id))) {
                 await updatePortfolioItem(item.id, item);
             } else {
                 const obj = { ...item };
@@ -137,9 +140,13 @@ export const AdminPortfolio: React.FC = () => {
         }
     };
 
-    const handleDeletePortfolioItem = async (index: number) => {
+    const confirmDelete = async () => {
+        if (itemToDelete === null) return;
+        const index = itemToDelete;
         const item = portfolio[index];
-        if (item.id && !Number.isInteger(Number(item.id))) {
+        
+        setItemToDelete(null);
+        if (item.id && !item.id.toString().startsWith('temp_') && !Number.isInteger(Number(item.id))) {
             setLoading(true);
             try {
                 await deletePortfolioItem(item.id);
@@ -151,8 +158,20 @@ export const AdminPortfolio: React.FC = () => {
         setPortfolio(portfolio.filter((_, i) => i !== index));
     };
 
+    const handleDeletePortfolioItem = (index: number) => {
+        setItemToDelete(index);
+    };
+
     return (
-        <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+        <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 relative">
+            <ConfirmModal 
+                isOpen={itemToDelete !== null}
+                title="Delete Portfolio Item"
+                message="Are you sure you want to delete this item? This action is permanent and cannot be undone."
+                confirmText="Yes, Delete Forever"
+                onConfirm={confirmDelete}
+                onCancel={() => setItemToDelete(null)}
+            />
             <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-bold text-gray-900">Live Portfolio Manager</h3>
                 <button onClick={handleAddPortfolio} className="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors">

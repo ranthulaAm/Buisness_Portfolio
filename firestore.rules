@@ -2,12 +2,19 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /{document=**} {
-      // Allow read/write access to any user who is signed in.
-      // In a production app, you would refine this to check for specific user IDs or roles.
-      // For this portfolio app, this allows:
-      // 1. Clients to create and view orders (since they must be logged in).
-      // 2. Admins to view all orders (must be logged in).
       allow read, write: if request.auth != null;
+    }
+    match /portfolio/{document} { allow read: if true; }
+    match /skills/{document} { allow read: if true; }
+    match /education/{document} { allow read: if true; }
+    match /experience/{document} { allow read: if true; }
+    match /service_configs/{document} { allow read: if true; }
+    match /settings/{document} { allow read: if true; }
+    match /testimonials/{document} { allow read: if true; }
+    match /contacts/{document} {
+      allow read: if request.auth != null; // only admin can read
+      allow create: if true; // anyone can submit contact form
+      allow update, delete: if request.auth != null;
     }
   }
 }

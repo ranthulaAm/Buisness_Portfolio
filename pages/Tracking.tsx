@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
-import { Package, CheckCircle2, AlertCircle, Clock, DollarSign, Download, Home, MessageCircle, Edit2, Trash2, Eye, Copy, Loader2, Info, X, Send, ShieldAlert, Check, Image as ImageIcon, Search, Printer } from 'lucide-react';
+import { Package, CheckCircle2, AlertCircle, Clock, DollarSign, Download, Home, MessageCircle, Edit2, Trash2, Eye, Copy, Loader2, Info, X, Send, ShieldAlert, Check, ImageIcon, Search, Printer } from 'lucide-react';
 import { listenToOrderById, updateOrder, cancelOrder, listenToOrdersByClientId } from '../services/storageService';
 import { getInvoiceConfig } from '../services/dataService';
 import { downloadInvoice } from '../utils/invoiceGenerator';
 import { Order, OrderStatus, User } from '../types';
 import { PrintableInvoice } from '../components/PrintableInvoice';
+import { ConfirmModal } from '../components/ConfirmModal';
 
 interface TrackingProps {
   user: User | null;
@@ -27,6 +28,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
   const [isRevisionMode, setIsRevisionMode] = useState(false);
   const [revisionNotes, setRevisionNotes] = useState('');
   const [isSubmittingAction, setIsSubmittingAction] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   
   // Back button param sync
   const lightboxParam = searchParams.get('lightbox');
@@ -156,15 +158,18 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
     }
   };
 
-  const handleCancel = async () => {
+  const confirmCancel = async () => {
     if (!order) return;
-    if (window.confirm("Are you sure you want to cancel this order?")) {
-      try {
-        await cancelOrder(order.id);
-      } catch (err) {
-        alert("Failed to cancel order.");
-      }
+    setShowCancelConfirm(false);
+    try {
+      await cancelOrder(order.id);
+    } catch (err) {
+      alert("Failed to cancel order.");
     }
+  };
+
+  const handleCancel = () => {
+    setShowCancelConfirm(true);
   };
 
   const STATUS_FLOW = [
@@ -201,7 +206,15 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
     const hasDraft = !!order.draftImg;
 
     return (
-      <div className="min-h-screen pt-24 px-4 pb-12 max-w-7xl mx-auto print:p-0 print:pt-0 print:m-0 print:min-h-0 print:w-full">
+      <div className="min-h-screen pt-24 px-4 pb-12 max-w-7xl mx-auto print:p-0 print:pt-0 print:m-0 print:min-h-0 print:w-full relative">
+        <ConfirmModal 
+            isOpen={showCancelConfirm}
+            title="Cancel Order"
+            message="Are you sure you want to cancel this order? This action cannot be undone."
+            confirmText="Yes, Cancel Order"
+            onConfirm={confirmCancel}
+            onCancel={() => setShowCancelConfirm(false)}
+        />
         <Helmet>
           <title>Order #{order.id} | Tracking</title>
           <meta name="robots" content="noindex, nofollow" />
@@ -266,15 +279,18 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                                    download={f.name}
                                    target="_blank" 
                                    rel="noopener noreferrer"
-                                   className="flex items-center justify-between p-4 bg-white hover:bg-gray-50 border border-gray-200 rounded-2xl group transition-all shadow-sm"
+                                   className="flex items-center justify-between p-4 bg-blue-600 hover:bg-blue-700 text-white border border-blue-700 rounded-2xl group transition-all shadow-md group-hover:shadow-lg"
                                  >
                                     <div className="flex items-center gap-4">
-                                       <div className="p-2 bg-green-100 rounded-lg text-green-700 group-hover:scale-110 transition-transform">
+                                       <div className="p-2 bg-white/20 rounded-lg text-white group-hover:scale-110 transition-transform">
                                           <ImageIcon size={16} />
                                        </div>
-                                       <span className="text-xs font-bold text-gray-700 group-hover:text-gray-900 truncate max-w-[180px]">{f.name}</span>
+                                       <span className="text-xs font-bold text-white truncate max-w-[180px]">{f.name}</span>
                                     </div>
-                                    <Download size={18} className="text-gray-400 group-hover:text-green-600 group-hover:scale-110 transition-all" />
+                                    <div className="flex items-center gap-2 bg-white/20 px-3 py-1.5 rounded-lg text-white font-bold uppercase tracking-wider text-[10px]">
+                                       <Download size={14} className="group-hover:-translate-y-0.5 transition-transform animate-bounce" />
+                                       Get {f.name}
+                                    </div>
                                  </a>
                               ))}
                             </div>

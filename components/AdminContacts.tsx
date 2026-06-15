@@ -5,6 +5,9 @@ import { saveOrder, generateOrderId } from '../services/storageService';
 import { uploadFile } from '../services/fileUploadService';
 import { SERVICES } from '../constants';
 import { OrderStatus } from '../types';
+import { ConfirmModal } from './ConfirmModal';
+
+import { AdminFooterSettings } from './AdminFooterSettings';
 
 export const AdminContacts: React.FC = () => {
     const [contacts, setContacts] = useState<ContactMessage[]>([]);
@@ -12,6 +15,7 @@ export const AdminContacts: React.FC = () => {
     const [orderModalOpen, setOrderModalOpen] = useState(false);
     const [selectedContact, setSelectedContact] = useState<ContactMessage | null>(null);
     const [submittingOrder, setSubmittingOrder] = useState(false);
+    const [contactToDelete, setContactToDelete] = useState<{ id: string, idx: number } | null>(null);
 
     // Order form state
     const [serviceId, setServiceId] = useState(SERVICES[0].id);
@@ -43,13 +47,20 @@ export const AdminContacts: React.FC = () => {
         }
     };
 
-    const handleDelete = async (id: string, idx: number) => {
+    const confirmDelete = async () => {
+        if (!contactToDelete) return;
+        const { id, idx } = contactToDelete;
+        setContactToDelete(null);
         try {
             await deleteContact(id);
             setContacts(contacts.filter((_, i) => i !== idx));
         } catch (e) {
             console.error(e);
         }
+    };
+
+    const handleDelete = (id: string, idx: number) => {
+        setContactToDelete({ id, idx });
     };
 
     const markAsRead = async (id: string, idx: number) => {
@@ -130,7 +141,18 @@ export const AdminContacts: React.FC = () => {
     };
 
     return (
-        <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 max-w-4xl mx-auto">
+        <div className="space-y-8 pb-12">
+            <AdminFooterSettings />
+            
+            <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 max-w-4xl mx-auto relative">
+                <ConfirmModal 
+                isOpen={contactToDelete !== null}
+                title="Delete Contact Message"
+                message="Are you sure you want to delete this message? This action is permanent."
+                confirmText="Yes, Delete Forever"
+                onConfirm={confirmDelete}
+                onCancel={() => setContactToDelete(null)}
+            />
             <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
                 <Mail className="text-blue-600" size={20} /> Messages & Contacts
             </h3>
@@ -278,6 +300,7 @@ export const AdminContacts: React.FC = () => {
                     </div>
                 </div>
             )}
+        </div>
         </div>
     );
 }

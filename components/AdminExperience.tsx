@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { getExperience, deleteExperience, updateExperience, addExperience, ExperienceItem } from '../services/dataService';
 import { Loader2, Trash2, Briefcase, Plus, Save, Eye, EyeOff } from 'lucide-react';
+import { ConfirmModal } from './ConfirmModal';
 
 export const AdminExperience: React.FC = () => {
     const [experience, setExperience] = useState<ExperienceItem[]>([]);
     const [loading, setLoading] = useState(true);
+    const [itemToDelete, setItemToDelete] = useState<number | null>(null);
 
     useEffect(() => {
         loadData();
@@ -23,7 +25,7 @@ export const AdminExperience: React.FC = () => {
     };
 
     const handleAdd = () => {
-        setExperience([{ role: 'New Role', company: 'Company Name', period: '2022 - Present', description: 'Job responsibilities' }, ...experience]);
+        setExperience([{ id: 'temp_' + Date.now(), role: 'New Role', company: 'Company Name', period: '2022 - Present', description: 'Job responsibilities' }, ...experience]);
     };
 
     const handleChange = (index: number, field: keyof ExperienceItem, value: any) => {
@@ -35,10 +37,12 @@ export const AdminExperience: React.FC = () => {
     const handleSave = async (index: number) => {
         const item = experience[index];
         try {
-            if (item.id) {
+            if (item.id && !item.id.toString().startsWith('temp_')) {
                 await updateExperience(item.id, item);
             } else {
-                const ref = await addExperience(item);
+                const obj = { ...item };
+                if (obj.id && obj.id.toString().startsWith('temp_')) delete obj.id;
+                const ref = await addExperience(obj);
                 const newArr = [...experience];
                 newArr[index].id = ref.id;
                 setExperience(newArr);
@@ -50,16 +54,31 @@ export const AdminExperience: React.FC = () => {
         }
     };
 
-    const handleDelete = async (index: number) => {
+    const confirmDelete = async () => {
+        if (itemToDelete === null) return;
+        const index = itemToDelete;
         const item = experience[index];
-        if (item.id) {
+        setItemToDelete(null);
+        if (item.id && !item.id.toString().startsWith('temp_')) {
             await deleteExperience(item.id);
         }
         setExperience(experience.filter((_, i) => i !== index));
     };
 
+    const handleDelete = (index: number) => {
+        setItemToDelete(index);
+    };
+
     return (
-        <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 max-w-4xl mx-auto">
+        <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 max-w-4xl mx-auto relative">
+            <ConfirmModal 
+                isOpen={itemToDelete !== null}
+                title="Delete Experience Entry"
+                message="Are you sure you want to delete this? This action is permanent."
+                confirmText="Yes, Delete Forever"
+                onConfirm={confirmDelete}
+                onCancel={() => setItemToDelete(null)}
+            />
             <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                     <Briefcase className="text-blue-600" size={20} /> Work Experience
