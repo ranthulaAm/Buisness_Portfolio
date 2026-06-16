@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { Package, CheckCircle2, AlertCircle, Clock, DollarSign, Download, Home, MessageCircle, Edit2, Trash2, Eye, Copy, Loader2, Info, X, Send, ShieldAlert, Check, ImageIcon, Search, Printer } from 'lucide-react';
 import { listenToOrderById, updateOrder, cancelOrder, listenToOrdersByClientId } from '../services/storageService';
-import { getInvoiceConfig } from '../services/dataService';
+import { getInvoiceConfig, deleteTestimonial } from '../services/dataService';
 import { downloadInvoice } from '../utils/invoiceGenerator';
 import { Order, OrderStatus, User } from '../types';
 import { PrintableInvoice } from '../components/PrintableInvoice';
@@ -29,6 +29,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
   const [revisionNotes, setRevisionNotes] = useState('');
   const [isSubmittingAction, setIsSubmittingAction] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [isDownloadingInvoice, setIsDownloadingInvoice] = useState(false);
   
   // Back button param sync
   const lightboxParam = searchParams.get('lightbox');
@@ -61,13 +62,27 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
 
   const [rating, setRating] = useState(0);
   const [feedback, setFeedback] = useState('');
+  const [isEditingFeedback, setIsEditingFeedback] = useState(false);
+  const [feedbackSuccess, setFeedbackSuccess] = useState(false);
+
+  useEffect(() => {
+     if (order && order.rating && !isEditingFeedback) {
+        setRating(order.rating);
+        setFeedback(order.feedback || '');
+     }
+  }, [order, isEditingFeedback]);
 
   const handleSubmitFeedback = async () => {
     if (!order) return;
     setIsSubmittingAction(true);
     try {
-      await updateOrder({ ...order, rating, feedback });
-      alert("Thank you for your feedback!");
+      if (order.testimonialId) {
+          await deleteTestimonial(order.testimonialId);
+      }
+      await updateOrder({ ...order, rating, feedback, isFeedbackRead: false, testimonialId: '' });
+      setIsEditingFeedback(false);
+      setFeedbackSuccess(true);
+      setTimeout(() => setFeedbackSuccess(false), 5000);
     } catch (e) {
       console.error(e);
       alert("Failed to submit feedback.");
@@ -83,14 +98,25 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
       setTrackingId(idFromUrl);
       setError('');
       setIsLoading(true);
-      const unsubscribe = listenToOrderById(idFromUrl, (foundOrder) => {
+      const unsubscribe = listenToOrderById(idFromUrl, (foundOrder, fetchError) => {
         setIsLoading(false);
         if (foundOrder) {
           setOrder(foundOrder);
           setError('');
         } else {
           setOrder(null);
-          setError('Order not found.');
+          const isPermissionError = fetchError && (fetchError.message.includes('permission') || (fetchError as any).code === 'permission-denied');
+          
+          if (isPermissionError) {
+             setError('Sign in required to view this project securely.');
+             if (!user && !searchParams.get('auth')) {
+                const params = new URLSearchParams(searchParams);
+                params.set('auth', 'login');
+                navigate(`/tracking?${params.toString()}`, { replace: true });
+             }
+          } else {
+             setError('Order not found.');
+          }
         }
       });
       return () => unsubscribe();
@@ -98,7 +124,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
       setOrder(null);
       setIsLoading(false);
     }
-  }, [searchParams]);
+  }, [searchParams, user, navigate]);
 
   // Fetch list of orders for logged-in user
   useEffect(() => {
@@ -289,7 +315,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                                     </div>
                                     <div className="flex items-center gap-2 bg-white/20 px-3 py-1.5 rounded-lg text-white font-bold uppercase tracking-wider text-[10px]">
                                        <Download size={14} className="group-hover:-translate-y-0.5 transition-transform animate-bounce" />
-                                       Get {f.name}
+                                       Download Final Assets
                                     </div>
                                  </a>
                               ))}
@@ -299,16 +325,23 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                               <button onClick={() => window.print()} className="flex-1 flex items-center justify-center gap-2 bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 font-bold uppercase tracking-widest text-[10px] py-4 rounded-xl transition-colors shadow-sm">
                                  <Printer size={16} /> Print Invoice
                               </button>
-                              <button onClick={() => downloadInvoice(order)} className="flex-1 flex items-center justify-center gap-2 bg-white hover:bg-green-50 border border-green-600 text-green-700 font-bold uppercase tracking-widest text-[10px] py-4 rounded-xl transition-colors shadow-sm">
-                                 <Download size={16} /> Download (PDF)
+                              <button disabled={isDownloadingInvoice} onClick={async () => {
+                                 setIsDownloadingInvoice(true);
+                                 try {
+                                    await downloadInvoice(order);
+                                 } finally {
+                                    setIsDownloadingInvoice(false);
+                                 }
+                              }} className="flex-1 flex items-center justify-center gap-2 bg-white hover:bg-green-50 border border-green-600 text-green-700 font-bold uppercase tracking-widest text-[10px] py-4 rounded-xl transition-colors shadow-sm disabled:opacity-50">
+                                 {isDownloadingInvoice ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />} {isDownloadingInvoice ? 'Preparing...' : 'Download (PDF)'}
                               </button>
                             </div>
                          </div>
                       )}
 
-                      {!order.rating && (
+                      {(!order.rating || isEditingFeedback) && (
                          <div className="p-8 bg-gray-50 border border-gray-200 rounded-3xl animate-fade-in shadow-sm mt-4">
-                           <h4 className="text-lg font-display text-gray-900 mb-4">How was your experience?</h4>
+                           <h4 className="text-lg font-display text-gray-900 mb-4">{isEditingFeedback ? 'Edit your rating' : 'How was your experience?'}</h4>
                            <div className="flex justify-center gap-2 mb-6">
                              {[1, 2, 3, 4, 5].map((star) => (
                                <button key={star} onClick={() => setRating(star)} className={`text-4xl transition-colors hover:scale-110 ${rating >= star ? 'text-yellow-400' : 'text-gray-300 hover:text-yellow-200'}`}>
@@ -316,27 +349,63 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                                </button>
                              ))}
                            </div>
-                           <textarea
-                             value={feedback}
-                             onChange={e => setFeedback(e.target.value)}
-                             placeholder="Leave your thoughts (optional)..."
-                             className="w-full bg-white border border-gray-200 rounded-xl p-4 outline-none focus:border-purple-500 min-h-[100px] text-sm mb-6 resize-none shadow-sm font-medium"
-                           />
-                           <button
-                             onClick={handleSubmitFeedback}
-                             disabled={!rating || isSubmittingAction}
-                             className="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-xl py-4 font-black uppercase text-[10px] tracking-widest disabled:opacity-50 transition-all shadow-md"
-                           >
-                             Submit Feedback
-                           </button>
+                           {(rating > 0) && (
+                             <div className="animate-fade-in">
+                               <textarea
+                                 value={feedback}
+                                 onChange={e => setFeedback(e.target.value)}
+                                 placeholder="Tell us what you liked (or didn't like)..."
+                                 className="w-full bg-white border border-gray-200 rounded-xl p-4 outline-none focus:border-purple-500 min-h-[100px] text-sm mb-6 resize-none shadow-sm font-medium"
+                               />
+                               <div className="flex gap-2">
+                                  {isEditingFeedback && (
+                                     <button
+                                       onClick={() => {
+                                          setIsEditingFeedback(false);
+                                          setRating(order.rating || 0);
+                                          setFeedback(order.feedback || '');
+                                       }}
+                                       className="w-1/3 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-xl py-4 font-black uppercase text-[10px] tracking-widest transition-all shadow-sm"
+                                     >
+                                       Cancel
+                                     </button>
+                                  )}
+                                  <button
+                                    onClick={handleSubmitFeedback}
+                                    disabled={!rating || isSubmittingAction}
+                                    className="flex-1 bg-purple-600 hover:bg-purple-700 text-white rounded-xl py-4 font-black uppercase text-[10px] tracking-widest disabled:opacity-50 transition-all shadow-md"
+                                  >
+                                    Submit Feedback
+                                  </button>
+                               </div>
+                             </div>
+                           )}
                          </div>
                       )}
 
-                      {order.rating && (
-                        <div className="p-6 bg-purple-50 border border-purple-100 rounded-2xl flex flex-col items-center gap-3 text-center shadow-sm mt-4">
-                          <CheckCircle2 className="text-purple-600" size={24} />
-                          <span className="text-sm font-bold text-gray-900">Thank you for your feedback!</span>
-                          <span className="text-xs text-gray-500">Your review has been captured.</span>
+                      {(order.rating && !isEditingFeedback) && (
+                        <div className="p-6 bg-purple-50 border border-purple-100 rounded-2xl flex flex-col items-center gap-3 text-center shadow-sm mt-4 relative">
+                          <CheckCircle2 className="text-purple-600 mb-1" size={28} />
+                          {feedbackSuccess ? (
+                             <>
+                               <span className="text-sm font-bold text-gray-900">Successfully updated!</span>
+                               <span className="text-xs text-gray-500">Your updated review has been submitted to admins.</span>
+                             </>
+                          ) : (
+                             <>
+                               <span className="text-sm font-bold text-gray-900">Thank you for your feedback!</span>
+                               <div className="flex gap-1 text-lg my-1">
+                                  {[1, 2, 3, 4, 5].map(s => <span key={s} className={s <= (order.rating || 0) ? 'text-yellow-400' : 'text-gray-300'}>★</span>)}
+                               </div>
+                               {order.feedback && <p className="text-xs text-gray-600 italic">"{order.feedback}"</p>}
+                               <button 
+                                  onClick={() => setIsEditingFeedback(true)}
+                                  className="mt-2 text-xs font-bold text-purple-600 hover:text-purple-700 flex items-center gap-1 bg-white px-3 py-1.5 rounded-full border border-purple-200 shadow-sm"
+                               >
+                                  <Edit2 size={12} /> Edit Review
+                               </button>
+                             </>
+                          )}
                         </div>
                       )}
                    </div>
@@ -483,6 +552,22 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
              </Link>
           </div>
        </div>
+
+       {error && (
+         <div className="mb-8 p-6 bg-red-50 border border-red-200 rounded-2xl flex flex-col items-center justify-center text-center">
+            <ShieldAlert className="text-red-500 mb-2" size={32} />
+            <p className="text-red-700 font-bold">{error}</p>
+            {!user && (
+               <button onClick={() => {
+                  const params = new URLSearchParams(searchParams);
+                  params.set('auth', 'login');
+                  navigate(`/tracking?${params.toString()}`, { replace: false });
+               }} className="mt-4 px-6 py-2 bg-red-600 text-white text-xs font-bold uppercase tracking-widest rounded-full hover:bg-red-700 transition-colors">
+                 Sign In
+               </button>
+            )}
+         </div>
+       )}
 
        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
          {userOrders.filter(o => o.id.toLowerCase().includes(searchQuery.toLowerCase()) || (o.serviceType && o.serviceType.toLowerCase().includes(searchQuery.toLowerCase()))).map((o) => {

@@ -52,6 +52,7 @@ export interface Order {
   rating?: number;
   feedback?: string;
   isFeedbackRead?: boolean;
+  testimonialId?: string;
 
   status: OrderStatus;
   estimatedCompletion: string;

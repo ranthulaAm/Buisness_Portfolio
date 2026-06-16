@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { User, Order, OrderStatus } from '../types';
 import { listenToOrders, updateOrder } from '../services/storageService';
-import { Package, Clock, MessageSquare, ArrowRight, User as UserIcon, Download } from 'lucide-react';
+import { Package, Clock, MessageSquare, ArrowRight, User as UserIcon, Download, Loader2 } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ClientProfile } from '../components/ClientProfile';
 import { downloadInvoice } from '../utils/invoiceGenerator';
@@ -36,7 +36,11 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user }) => {
 
   useEffect(() => {
     if (!user) {
-      navigate('/');
+      if (!searchParams.get('auth')) {
+         const params = new URLSearchParams(searchParams);
+         params.set('auth', 'login');
+         navigate(`/dashboard?${params.toString()}`, { replace: true });
+      }
       return;
     }
     const unsubscribe = listenToOrders((data) => {
@@ -172,6 +176,7 @@ const InteractiveButton = ({ children, onClick, className = '' }: { children: Re
 const ProjectCard = ({ order, onRequestRevision }: { order: Order; onRequestRevision: (n: string) => void }) => {
   const [notes, setNotes] = useState("");
   const [showRevisionForm, setShowRevisionForm] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const navigate = useNavigate();
 
   const isCompleted = order.status === OrderStatus.COMPLETED;
@@ -209,8 +214,15 @@ const ProjectCard = ({ order, onRequestRevision }: { order: Order; onRequestRevi
           )}
 
           {isCompleted && (
-             <button onClick={() => downloadInvoice(order)} className="border border-green-200 text-green-700 bg-green-50 px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-green-100 transition-colors flex items-center gap-2">
-                <Download size={14} /> Download Invoice
+             <button disabled={isDownloading} onClick={async () => {
+                setIsDownloading(true);
+                try {
+                   await downloadInvoice(order);
+                } finally {
+                   setIsDownloading(false);
+                }
+             }} className="border border-green-200 text-green-700 bg-green-50 px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-green-100 transition-colors flex items-center gap-2 disabled:opacity-50">
+                {isDownloading ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />} {isDownloading ? 'Working...' : 'Download Invoice'}
              </button>
           )}
 
@@ -223,10 +235,24 @@ const ProjectCard = ({ order, onRequestRevision }: { order: Order; onRequestRevi
                rel="noreferrer"
                className="border-2 border-blue-600 text-white bg-blue-600 shadow-md px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-blue-700 hover:border-blue-700 transition-colors flex items-center gap-2 group"
              >
-                <Download size={14} className="group-hover:-translate-y-0.5 transition-transform animate-bounce" /> Get {file.name}
+                <Download size={14} className="group-hover:-translate-y-0.5 transition-transform animate-bounce" /> Download Final Assets
              </a>
           ))}
         </div>
+
+        {isCompleted && !order.rating && (
+           <div className="mt-8 bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-3xl border border-purple-100 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+               <div>
+                   <h4 className="font-bold text-gray-900 text-sm tracking-wide">How was your experience?</h4>
+                   <p className="text-xs text-gray-500 mt-1">Please rate this project to help us improve.</p>
+               </div>
+               <div className="flex gap-2">
+                   <button onClick={() => navigate(`/tracking?id=${order.id}`)} className="bg-purple-600 text-white font-bold uppercase tracking-widest text-[10px] px-6 py-3 rounded-full shadow-sm hover:bg-purple-700 transition-colors">
+                      Review Project
+                   </button>
+               </div>
+           </div>
+        )}
 
         {showRevisionForm && (
           <div className="mt-8 bg-gray-50 p-6 rounded-3xl border border-gray-200 animate-fade-in text-left">

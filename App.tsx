@@ -58,7 +58,10 @@ const AppContent: React.FC = () => {
   };
 
   // Intro State
-  const [showIntro, setShowIntro] = useState(true);
+  const [showIntro, setShowIntro] = useState(() => {
+     // If user is accessing a deep link (like /tracking or /dashboard), skip the intro entirely.
+     return location.pathname === '/';
+  });
 
   // Firebase Auth Listener
   useEffect(() => {

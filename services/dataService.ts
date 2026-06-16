@@ -207,6 +207,7 @@ export const updateAdminEmails = async (emails: string[]): Promise<void> => {
 
 export interface InvoiceConfig {
   logoUrl: string;
+  logoBase64?: string;
   primaryColor: string;
   secondaryColor: string;
   layoutStyle: 'modern' | 'classic' | 'minimal';
@@ -223,6 +224,7 @@ export const getInvoiceConfig = async (): Promise<InvoiceConfig> => {
       const data = docItem.data();
       return { 
         logoUrl: data.logoUrl || '', 
+        logoBase64: data.logoBase64 || '',
         primaryColor: data.primaryColor || '#000000', 
         secondaryColor: data.secondaryColor || '#666666',
         layoutStyle: data.layoutStyle || 'modern',
@@ -233,7 +235,7 @@ export const getInvoiceConfig = async (): Promise<InvoiceConfig> => {
   } catch (e) {
     console.error("Error getting invoice config:", e);
   }
-  return { logoUrl: '', primaryColor: '#000000', secondaryColor: '#666666', layoutStyle: 'modern', companyName: 'My Company', companyAddress: '' };
+  return { logoUrl: '', logoBase64: '', primaryColor: '#000000', secondaryColor: '#666666', layoutStyle: 'modern', companyName: 'My Company', companyAddress: '' };
 };
 
 export const updateInvoiceConfig = async (config: InvoiceConfig) => {

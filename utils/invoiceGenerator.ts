@@ -10,7 +10,7 @@ export const downloadInvoice = async (order: Order) => {
   // Hex to RGB parser for custom colors
   const hexToRgb = (hex: string) => {
     let r = 0, g = 0, b = 0;
-    if (hex.length == 7) {
+    if (hex.length === 7) {
       r = parseInt(hex.substring(1, 3), 16);
       g = parseInt(hex.substring(3, 5), 16);
       b = parseInt(hex.substring(5, 7), 16);
@@ -18,8 +18,8 @@ export const downloadInvoice = async (order: Order) => {
     return [r, g, b];
   };
 
-  const primaryRgb = hexToRgb(config.primaryColor);
-  const secondaryRgb = hexToRgb(config.secondaryColor);
+  const primaryRgb = hexToRgb(config.primaryColor || '#000000');
+  const secondaryRgb = hexToRgb(config.secondaryColor || '#666666');
 
   // Set font base on layout style
   if (config.layoutStyle === 'classic') {
@@ -28,114 +28,255 @@ export const downloadInvoice = async (order: Order) => {
     doc.setFont("helvetica");
   }
 
-  // Header Background for modern
-  if (config.layoutStyle === 'modern') {
-    doc.setFillColor(primaryRgb[0], primaryRgb[1], primaryRgb[2]);
-    doc.rect(0, 0, 210, 45, 'F');
-  }
-
-  const headerY = config.layoutStyle === 'modern' ? 20 : 20;
-
   const getBase64ImageFromUrl = async (imageUrl: string): Promise<string> => {
+    const cacheKey = `invoice_logo_cache_${imageUrl}`;
     try {
-      const response = await fetch(imageUrl, { mode: 'cors' });
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) return cached;
+    } catch (e) {
+        // ignore storage errors
+    }
+
+    const convertToPngIfNeeded = async (dataUrl: string): Promise<string> => {
+      if (dataUrl.startsWith('data:image/svg+xml') || imageUrl.toLowerCase().endsWith('.svg')) {
+        return new Promise<string>((resolve, reject) => {
+          const img = new Image();
+          img.crossOrigin = "Anonymous";
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            // Scale up for good print quality (approx 1000px wide)
+            const scale = 1000 / (img.width || 1000);
+            canvas.width = 1000;
+            canvas.height = (img.height || 1000) * scale;
+            const ctx = canvas.getContext("2d");
+            if (ctx) {
+              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+              try {
+                resolve(canvas.toDataURL("image/png"));
+              } catch (e) {
+                resolve(dataUrl); // fallback if CORS taint occurs (unlikely on dataURL)
+              }
+            } else {
+              resolve(dataUrl);
+            }
+          };
+          img.onerror = () => resolve(dataUrl);
+          img.src = dataUrl;
+        });
+      }
+      return dataUrl;
+    };
+
+    const fetchAsBase64 = async (url: string) => {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), 3000); // 3 second timeout for proxy
+      const response = await fetch(url, { signal: controller.signal }); 
+      clearTimeout(id);
       if (!response.ok) throw new Error('Network response was not ok');
       const blob = await response.blob();
-      return new Promise((resolve, reject) => {
+      return new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
-        reader.onloadend = () => {
-           resolve(reader.result as string);
-        };
+        reader.onloadend = () => resolve(reader.result as string);
         reader.onerror = reject;
         reader.readAsDataURL(blob);
       });
-    } catch (err) {
-      // Fallback to Image object approach if fetch fails (e.g., due to strict CORS but image load works)
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.crossOrigin = "Anonymous";
-        img.onload = () => {
-          const canvas = document.createElement("canvas");
-          canvas.width = img.width;
-          canvas.height = img.height;
-          const ctx = canvas.getContext("2d");
-          if (ctx) {
-            ctx.drawImage(img, 0, 0);
-            resolve(canvas.toDataURL("image/png"));
-          } else {
-            reject(new Error("Unable to get canvas context"));
+    };
+
+    const executeFetchFlow = async (): Promise<string> => {
+      try {
+        const rawBase64 = await fetchAsBase64(imageUrl);
+        return await convertToPngIfNeeded(rawBase64);
+      } catch (err) {
+        // Fallback 1: Try with AllOrigins proxy
+        try {
+          const rawBase64 = await fetchAsBase64(`https://api.allorigins.win/raw?url=${encodeURIComponent(imageUrl)}`);
+          return await convertToPngIfNeeded(rawBase64);
+        } catch (err2) {
+          // Fallback 2: Try with corsproxy.io
+          try {
+            const rawBase64 = await fetchAsBase64(`https://corsproxy.io/?${encodeURIComponent(imageUrl)}`);
+            return await convertToPngIfNeeded(rawBase64);
+          } catch (err3) {
+              // Third Fallback: Image object with crossOrigin
+              return new Promise<string>((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = "Anonymous";
+                img.onload = () => {
+                  const canvas = document.createElement("canvas");
+                  const scale = 1000 / (img.width || 1000);
+                  canvas.width = 1000;
+                  canvas.height = (img.height || 1000) * scale;
+                  const ctx = canvas.getContext("2d");
+                  if (ctx) {
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    try {
+                        resolve(canvas.toDataURL("image/png"));
+                    } catch (e) {
+                        reject(e); // Security error if tainted
+                    }
+                  } else {
+                    reject(new Error("Unable to get canvas context"));
+                  }
+                };
+                img.onerror = (e) => reject(e);
+                img.src = imageUrl;
+              });
           }
-        };
-        img.onerror = (e) => reject(e);
-        img.src = imageUrl;
-      });
+        }
+      }
+    };
+
+    const finalBase64 = await executeFetchFlow();
+    try {
+        localStorage.setItem(cacheKey, finalBase64);
+    } catch (e) {
+        // Handle max quota exceeded (clear old cache if needed, for simplicity just ignore)
     }
+    return finalBase64;
   };
   
-  // Header Logo/Company
-  doc.setFontSize(22);
+  // Create a helper to get image size
+  const getImageDimensions = (dataUrl: string): Promise<{w: number, h: number}> => {
+      return new Promise((resolve) => {
+          const img = new Image();
+          img.onload = () => resolve({ w: img.width, h: img.height });
+          img.onerror = () => resolve({ w: 0, h: 0 });
+          img.src = dataUrl;
+      });
+  };
+
+  const startY = 15;
+  let curY = startY;
+
+  // Header Background for modern
   if (config.layoutStyle === 'modern') {
-    doc.setTextColor(255, 255, 255);
-  } else {
-    doc.setTextColor(primaryRgb[0], primaryRgb[1], primaryRgb[2]);
+    doc.setFillColor(primaryRgb[0], primaryRgb[1], primaryRgb[2]);
+    doc.rect(0, 0, 210, 60, 'F');
   }
+
+  // Header
+  // Right side: INVOICE and Address
+  doc.setFontSize(28);
+  doc.setFont(config.layoutStyle === 'classic' ? 'times' : 'helvetica', 'bold');
+  if (config.layoutStyle === 'modern') {
+      doc.setTextColor(255, 255, 255);
+  } else {
+      doc.setTextColor(primaryRgb[0], primaryRgb[1], primaryRgb[2]); // Match preview style where INVOICE is primary color if not modern
+  }
+  doc.text("INVOICE", 195, curY + 10, { align: 'right' });
   
-  let companyY = headerY;
-  // Use image if provided
-  if (config.logoUrl) {
+  doc.setFont(config.layoutStyle === 'classic' ? 'times' : 'helvetica', 'normal');
+  doc.setFontSize(10);
+  if (config.layoutStyle === 'modern') {
+      doc.setTextColor(240, 240, 240);
+  } else {
+      doc.setTextColor(71, 85, 105); // gray-600
+  }
+  const lines = doc.splitTextToSize(config.companyAddress || '123 Example Street\nCity, Country', 60);
+  doc.text(lines, 195, curY + 18, { align: 'right' });
+
+  // Left side: Logo or Company Name
+  doc.setFontSize(18);
+  doc.setFont(config.layoutStyle === 'classic' ? 'times' : 'helvetica', 'bold');
+  if (config.layoutStyle === 'modern') {
+      doc.setTextColor(255, 255, 255);
+  } else {
+      doc.setTextColor(0, 0, 0);
+  }
+
+  let finalHeaderY = config.layoutStyle === 'modern' ? 60 : (curY + Math.max(30, lines.length * 6) + 10);
+
+  if (config.logoBase64 || config.logoUrl) {
     try {
-      const dataUrl = await getBase64ImageFromUrl(config.logoUrl);
-      const isJpeg = dataUrl.startsWith('data:image/jpeg') || dataUrl.startsWith('data:image/jpg');
-      const imgType = isJpeg ? "JPEG" : "PNG";
-      doc.addImage(dataUrl, imgType, 14, 10, 30, 30, undefined, 'FAST');
-      companyY = 45; // move company text down slightly if logo exists
-      doc.setFontSize(16);
-      doc.text(config.companyName || "Company Name", 14, companyY);
+      let dataUrl = config.logoBase64;
+      if (!dataUrl) {
+          dataUrl = await getBase64ImageFromUrl(config.logoUrl);
+      }
+      
+      if (dataUrl) {
+          const isJpeg = dataUrl.startsWith('data:image/jpeg') || dataUrl.startsWith('data:image/jpg');
+          const imgType = isJpeg ? "JPEG" : "PNG";
+          const dims = await getImageDimensions(dataUrl);
+          
+          let renderW = 30;
+          let renderH = 30;
+          if (dims.w > 0 && dims.h > 0) {
+              const aspect = dims.w / dims.h;
+              renderH = 22;
+              renderW = renderH * aspect;
+              if (renderW > 45) {
+                  renderW = 45;
+                  renderH = renderW / aspect;
+              }
+          }
+          
+          doc.addImage(dataUrl, imgType, 14, curY, renderW, renderH, undefined, 'FAST');
+          
+          if (config.companyName) {
+             doc.text(config.companyName, 14, curY + renderH + 8);
+          }
+          
+          if (config.layoutStyle !== 'modern') {
+              finalHeaderY = Math.max(finalHeaderY, curY + renderH + 20); 
+          }
+          
+      } else {
+          if (config.companyName) doc.text(config.companyName, 14, curY + 12);
+      }
     } catch(e) {
       console.error("Failed to load invoice logo", e);
-      doc.text(config.companyName || "Company Name", 14, companyY);
+      if (config.companyName) doc.text(config.companyName, 14, curY + 12);
     }
   } else {
-    doc.text(config.companyName || "Company Name", 14, companyY);
+    if (config.companyName) doc.text(config.companyName, 14, curY + 12);
   }
 
-  // 'INVOICE' text
-  doc.setFontSize(16);
-  if (config.layoutStyle === 'modern') {
-    doc.setTextColor(255, 255, 255);
+  curY = finalHeaderY;
+
+  if (config.layoutStyle !== 'modern') {
+      // Draw separation line
+      doc.setDrawColor(203, 213, 225); // gray-300
+      doc.setLineWidth(0.5);
+      doc.line(14, curY, 195, curY);
+      curY += 15;
   } else {
-    doc.setTextColor(secondaryRgb[0], secondaryRgb[1], secondaryRgb[2]);
+      curY += 15; // Adds a bit of padding below the modern header block before Billed To info
   }
-  doc.text("INVOICE", 150, 20); // fixed pos for "INVOICE"
-  
-  // Company Address
-  doc.setFontSize(10);
-  if (config.layoutStyle === 'modern') {
-    doc.setTextColor(240, 240, 240);
-  } else {
-    doc.setTextColor(100);
-  }
-  const lines = doc.splitTextToSize(config.companyAddress || '', 55);
-  doc.text(lines, 150, 27);
 
-  let curY = config.layoutStyle === 'modern' ? 55 : (companyY + 10);
-
-  doc.setFontSize(10);
-  doc.setTextColor(100);
-  doc.text(`Order Number: ${order.id}`, 14, curY);
-  doc.text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`, 14, curY + 5);
-  doc.text(`Status: ${order.status}`, 14, curY + 10);
+  // Second row: Billed To vs Order Details
+  const detailsY = curY;
   
-  // Client Info
-  curY = curY + 20;
-  doc.setFontSize(12);
-  doc.setTextColor(0);
-  doc.text("Billed To:", 14, curY);
+  // Left: Billed To
+  doc.setFontSize(9);
+  doc.setTextColor(100, 116, 139); // gray-500
+  doc.text("BILLED TO", 14, curY);
+  
+  doc.setFontSize(11);
+  doc.setTextColor(0, 0, 0);
+  doc.setFont(config.layoutStyle === 'classic' ? 'times' : 'helvetica', 'bold');
+  doc.text(order.clientName, 14, curY + 6);
+  
+  doc.setFont(config.layoutStyle === 'classic' ? 'times' : 'helvetica', 'normal');
   doc.setFontSize(10);
-  doc.setTextColor(100);
-  doc.text(`Name: ${order.clientName}`, 14, curY + 7);
-  doc.text(`Email: ${order.email}`, 14, curY + 12);
-  doc.text(`Service: ${order.serviceType}`, 14, curY + 17);
+  doc.setTextColor(71, 85, 105);
+  doc.text(order.email, 14, curY + 11);
+
+  // Right: Order Info
+  doc.setFontSize(9);
+  doc.setFont(config.layoutStyle === 'classic' ? 'times' : 'helvetica', 'bold');
+  doc.setTextColor(100, 116, 139);
+  
+  doc.text("ORDER NUMBER:", 120, curY);
+  doc.text("DATE:", 120, curY + 6);
+  doc.text("STATUS:", 120, curY + 12);
+
+  doc.setFont(config.layoutStyle === 'classic' ? 'times' : 'helvetica', 'normal');
+  doc.setTextColor(0, 0, 0);
+  doc.text(order.id, 160, curY);
+  doc.text(new Date(order.createdAt).toLocaleDateString(), 160, curY + 6);
+  doc.text(order.status.toUpperCase(), 160, curY + 12);
+
+  curY += 25;
 
   const tableData: any[][] = [
     [order.serviceType, `LKR ${order.originalPrice !== undefined ? order.originalPrice.toLocaleString() : order.price.toLocaleString()}`]
@@ -145,25 +286,39 @@ export const downloadInvoice = async (order: Order) => {
     tableData.push([`Special Offer Discount (${order.discountApplied}%)`, `- LKR ${(order.originalPrice - order.price).toLocaleString()}`]);
   }
 
-  curY = curY + 25;
-
   // Cost Details Table
   autoTable(doc, {
     startY: curY,
     head: [['Description', 'Amount']],
     body: tableData,
-    foot: [['Total Paid', `LKR ${order.price.toLocaleString()}`]],
     theme: config.layoutStyle === 'minimal' ? 'plain' : 'grid',
-    headStyles: { fillColor: [secondaryRgb[0], secondaryRgb[1], secondaryRgb[2]] as any },
-    footStyles: { fillColor: [243, 244, 246] as any, textColor: 0, fontStyle: 'bold' }
+    headStyles: { fillColor: [secondaryRgb[0], secondaryRgb[1], secondaryRgb[2]], textColor: 255, fontStyle: 'bold' },
+    bodyStyles: { textColor: 0 },
+    columnStyles: { 1: { halign: 'right' } }
   });
 
+  const finalY = (doc as any).lastAutoTable.finalY + 10;
+  
+  // Total line
+  doc.setFontSize(12);
+  doc.setFont(config.layoutStyle === 'classic' ? 'times' : 'helvetica', 'bold');
+  doc.setTextColor(primaryRgb[0], primaryRgb[1], primaryRgb[2]);
+  doc.text("Total Paid", 120, finalY);
+  doc.text(`LKR ${order.price.toLocaleString()}`, 195, finalY, { align: 'right' });
+  
+  doc.setDrawColor(203, 213, 225);
+  doc.line(120, finalY - 6, 195, finalY - 6);
+  doc.line(120, finalY + 4, 195, finalY + 4);
+
   // Footer
-  const finalY = (doc as any).lastAutoTable.finalY || 150;
+  doc.setFont(config.layoutStyle === 'classic' ? 'times' : 'helvetica', 'italic');
   doc.setFontSize(10);
-  doc.setTextColor(150);
-  doc.text("Thank you for your business!", 105, finalY + 20, { align: "center" });
-  doc.text("If you have any problems, please contact us with your Order Number.", 105, finalY + 25, { align: "center" });
+  doc.setTextColor(148, 163, 184); // gray-400
+  doc.text("Thank you for your business!", 105, finalY + 30, { align: "center" });
+  if (order.id) {
+     doc.setFont(config.layoutStyle === 'classic' ? 'times' : 'helvetica', 'normal');
+     doc.text(`If you have any problems, please contact us with your Order Number.`, 105, finalY + 35, { align: "center" });
+  }
 
   doc.save(`Invoice_${order.id}.pdf`);
 };

@@ -267,7 +267,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
   };
 
   const sendWhatsAppNotification = (order: Order, status: OrderStatus) => {
-      const url = `https://api.whatsapp.com/send?phone=${order.mobile.replace(/[^0-9]/g, '')}&text=Order Update: ${status}`;
+      const appUrl = window.location.origin;
+      const trackingLink = `${appUrl}/#/tracking?id=${order.id}`;
+      const messageText = `Hi ${order.clientName},\n\nYour order (${order.id}) status has been updated to: *${status}*.\n\nYou can view the details and download assets here:\n${trackingLink}`;
+      const url = `https://api.whatsapp.com/send?phone=${order.mobile.replace(/[^0-9]/g, '')}&text=${encodeURIComponent(messageText)}`;
       window.open(url, '_blank');
   };
 
@@ -710,15 +713,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                                   <button onClick={() => updateOrder({...o, isFeedbackRead: true})} className="flex-1 bg-white border border-gray-200 hover:border-gray-300 text-gray-700 text-xs uppercase tracking-widest font-black py-2.5 rounded-xl transition-all">Mark Read</button>
                               )}
                               <button onClick={async () => { 
-                                 await updateOrder({...o, isFeedbackRead: true}); 
                                  try {
-                                     await addTestimonial({
+                                     const ref = await addTestimonial({
                                          clientName: o.clientName,
                                          projectRole: o.serviceType,
                                          feedback: o.feedback || '',
                                          order: 0,
                                          rating: o.rating
                                      });
+                                     await updateOrder({...o, isFeedbackRead: true, testimonialId: ref.id}); 
                                      alert("Testimonial added to public website!");
                                  } catch (e) {
                                      console.error(e);

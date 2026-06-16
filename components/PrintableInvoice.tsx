@@ -43,14 +43,13 @@ export const PrintableInvoice: React.FC<{ order: Order }> = ({ order }) => {
              position: static !important;
           }
           @page {
-             size: A4;
-             margin: 1cm;
+             margin: 1cm; /* Let browser handle the size */
           }
         }
       `}</style>
       
-      <div id="print-invoice-container" className="hidden print:block print:w-[210mm] print:min-h-[297mm] print:m-0 print:p-0">
-        <div id="print-invoice" className="w-full h-full bg-white text-black p-8 mx-auto" style={{ fontFamily: config.layoutStyle === 'classic' ? 'serif' : 'sans-serif' }}>
+      <div id="print-invoice-container" className="hidden print:block print:w-full print:m-0 print:p-0">
+        <div id="print-invoice" className="w-full bg-white text-black p-8 mx-auto" style={{ fontFamily: config.layoutStyle === 'classic' ? 'serif' : 'sans-serif' }}>
         <div className="flex justify-between items-start border-b border-gray-300 pb-8 mb-8">
           <div>
             {config.logoUrl ? (
@@ -58,7 +57,7 @@ export const PrintableInvoice: React.FC<{ order: Order }> = ({ order }) => {
             ) : (
                 <div className="text-2xl font-bold mb-4">{config.companyName || 'Company Name'}</div>
             )}
-            {!config.logoUrl && <h1 className="font-bold text-2xl">{config.companyName || 'Your Company'}</h1>}
+            {/* Removed duplicated h1 tag here */}
           </div>
           <div className="text-right">
             <h2 className="text-4xl font-black mb-2 text-gray-800 tracking-widest">INVOICE</h2>

@@ -59,7 +59,7 @@ export const listenToOrders = (callback: (orders: Order[]) => void): Unsubscribe
   });
 };
 
-export const listenToOrderById = (id: string, callback: (order: Order | null) => void): Unsubscribe => {
+export const listenToOrderById = (id: string, callback: (order: Order | null, error?: Error) => void): Unsubscribe => {
   const docRef = doc(db, ORDERS_COLLECTION, id);
   return onSnapshot(docRef, (docSnap) => {
     if (docSnap.exists()) {
@@ -67,6 +67,9 @@ export const listenToOrderById = (id: string, callback: (order: Order | null) =>
     } else {
       callback(null);
     }
+  }, (error) => {
+    console.error("Firestore onSnapshot error (listenToOrderById):", error);
+    callback(null, error);
   });
 };
 

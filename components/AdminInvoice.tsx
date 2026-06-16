@@ -54,14 +54,52 @@ export const AdminInvoice: React.FC = () => {
             setUploadingLogo(true);
             setLogoProgress(0);
             
-            const path = `uploads/invoices/logo_${Date.now()}_${file.name}`;
-            const url = await uploadFileWithProgress(file, path, (p) => setLogoProgress(p));
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = async () => {
+                let base64 = reader.result as string;
+                
+                // If it's an SVG, convert it to a PNG base64 String for better jsPDF compatibility
+                if (file.type === 'image/svg+xml') {
+                    base64 = await new Promise<string>((resolve, reject) => {
+                         const img = new Image();
+                         img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            // Scale up for good print quality (approx 1000px wide)
+                            const scale = 1000 / img.width;
+                            canvas.width = 1000;
+                            canvas.height = img.height * scale;
+                            const ctx = canvas.getContext('2d');
+                            if (ctx) {
+                                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                                resolve(canvas.toDataURL('image/png'));
+                            } else {
+                                resolve(reader.result as string); // fallback
+                            }
+                         };
+                         img.onerror = () => resolve(reader.result as string); // fallback
+                         img.src = reader.result as string;
+                    });
+                }
+                
+                const path = `uploads/invoices/logo_${Date.now()}_${file.name.replace('.svg', '.png')}`;
+                const url = await uploadFileWithProgress(file, path, (p) => setLogoProgress(p));
+                
+                setConfig(prev => ({ ...prev, logoUrl: url, logoBase64: base64 }));
+                
+                setUploadingLogo(false);
+                setLogoProgress(0);
+                if (logoInputRef.current) logoInputRef.current.value = '';
+            };
             
-            setConfig(prev => ({ ...prev, logoUrl: url }));
+            reader.onerror = (error) => {
+                 console.error("Failed to read file", error);
+                 alert("Failed to read file for base64 conversion.");
+                 setUploadingLogo(false);
+            };
         } catch (error) {
             console.error("Failed to upload logo", error);
             alert("Failed to upload logo.");
-        } finally {
             setUploadingLogo(false);
             setLogoProgress(0);
             if (logoInputRef.current) logoInputRef.current.value = '';

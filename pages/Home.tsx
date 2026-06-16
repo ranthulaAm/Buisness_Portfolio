@@ -21,6 +21,8 @@ import {
 } from '../services/dataService';
 import { InteractiveButton } from '../components/InteractiveButton';
 import { OfferBanner } from '../components/OfferBanner';
+import { listenToOrders } from '../services/storageService';
+import { Order, OrderStatus } from '../types';
 
 interface HomeProps {
   user: User | null;
@@ -199,6 +201,19 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
   // Contact form state
   const [contactForm, setContactForm] = useState({ name: '', email: '', whatsapp: '', message: '' });
   const [contactStatus, setContactStatus] = useState<'idle' | 'loading' | 'success'>('idle');
+
+  const [unratedOrder, setUnratedOrder] = useState<Order | null>(null);
+
+  useEffect(() => {
+     if (user) {
+        const unsub = listenToOrders((allOrders) => {
+           const myOrders = allOrders.filter(o => o.email.toLowerCase() === user.email.toLowerCase());
+           const completedUnrated = myOrders.find(o => o.status === OrderStatus.COMPLETED && !o.rating);
+           setUnratedOrder(completedUnrated || null);
+        });
+        return unsub;
+     }
+  }, [user]);
 
   useEffect(() => {
     if (user) {
@@ -581,32 +596,47 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
 
       {/* 6. TESTIMONIALS */}
       {testimonials.length > 0 && (
-        <section className="py-24 bg-white">
-          <div className="px-6 md:px-12 max-w-7xl mx-auto">
-            <div className="flex flex-col items-center mb-16 text-center">
+        <section className="py-24 bg-white overflow-hidden relative">
+          <style dangerouslySetInnerHTML={{__html: `
+             @keyframes marquee {
+                0% { transform: translateX(0); }
+                100% { transform: translateX(-50%); }
+             }
+             .animate-marquee {
+                animation: marquee ${Math.max(20, testimonials.length * 8)}s linear infinite;
+             }
+             .animate-marquee:hover {
+                animation-play-state: paused;
+             }
+          `}} />
+          <div className="px-6 md:px-12 max-w-7xl mx-auto mb-16 relative z-10">
+            <div className="flex flex-col items-center text-center">
                <h2 className="text-4xl md:text-6xl font-display tracking-tight text-gray-900 mb-4">Client Feedback</h2>
                <p className="text-gray-500 max-w-lg text-sm">Real stories from the brands and individuals I've collaborated with.</p>
             </div>
-            
-            <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-8 hide-scrollbar" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-              {testimonials.map((t, idx) => (
-                <div key={t.id || idx} className="min-w-[300px] md:min-w-[400px] bg-gray-50 border border-gray-100 p-8 rounded-[2rem] snap-center flex-shrink-0 relative mt-8 flex flex-col">
-                   <div className="absolute -top-6 left-8 bg-purple-600 text-white w-12 h-12 flex items-center justify-center rounded-full shadow-lg font-serif italic text-3xl">"</div>
-                   <p className="text-gray-600 font-medium leading-relaxed mb-8 pt-4 text-sm md:text-base flex-1">
-                      {t.feedback}
-                   </p>
-                   {t.rating && (
-                     <div className="flex gap-1 text-lg mb-4">
-                        {[1, 2, 3, 4, 5].map(s => <span key={s} className={s <= t.rating! ? 'text-yellow-400' : 'text-gray-300'}>★</span>)}
-                     </div>
-                   )}
-                   <div>
-                      <div className="font-bold text-gray-900 text-lg">{t.clientName}</div>
-                      <div className="text-xs uppercase tracking-widest text-purple-600 font-bold mt-1">{t.projectRole}</div>
-                   </div>
-                </div>
-              ))}
-            </div>
+          </div>
+          
+          <div className="relative w-full overflow-hidden flex">
+             <div className="flex gap-6 pb-8 animate-marquee pl-6 w-max">
+               {/* Double the list to create a seamless loop effect */}
+               {[...testimonials, ...testimonials].map((t, idx) => (
+                 <div key={`${t.id || 't'}-${idx}`} className="w-[300px] md:w-[400px] bg-gray-50 border border-gray-100 p-8 rounded-[2rem] flex-shrink-0 relative mt-8 flex flex-col hover:shadow-lg transition-shadow">
+                    <div className="absolute -top-6 left-8 bg-purple-600 text-white w-12 h-12 flex items-center justify-center rounded-full shadow-lg font-serif italic text-3xl leading-none pt-4">"</div>
+                    <p className="text-gray-600 font-medium leading-relaxed mb-8 pt-4 text-sm md:text-base flex-1">
+                       {t.feedback}
+                    </p>
+                    {t.rating && (
+                      <div className="flex gap-1 text-lg mb-4">
+                         {[1, 2, 3, 4, 5].map(s => <span key={s} className={s <= t.rating! ? 'text-yellow-400' : 'text-gray-300'}>★</span>)}
+                      </div>
+                    )}
+                    <div>
+                       <div className="font-bold text-gray-900 text-lg">{t.clientName}</div>
+                       <div className="text-xs uppercase tracking-widest text-purple-600 font-bold mt-1">{t.projectRole}</div>
+                    </div>
+                 </div>
+               ))}
+             </div>
           </div>
         </section>
       )}
@@ -771,6 +801,22 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* RATING PROMPT FOR UNRATED COMPLETED PROJECTS */}
+      {unratedOrder && (
+         <div className="fixed bottom-6 right-6 z-[100] bg-white p-6 rounded-2xl shadow-2xl border border-gray-200 w-80 animate-[slideUp_0.3s_ease-out_forwards]">
+             <button onClick={() => setUnratedOrder(null)} className="absolute top-3 right-3 p-1 rounded-full text-gray-400 hover:text-gray-900 transition-colors bg-gray-100 hover:bg-gray-200">
+                <X size={16} />
+             </button>
+             <h4 className="font-bold text-sm mb-2 text-gray-900 leading-tight">Rate your experience!</h4>
+             <p className="text-xs text-gray-500 mb-5 leading-relaxed">
+                Your project "{unratedOrder.serviceType}" was completed. Let us know how we did!
+             </p>
+             <InteractiveButton onClick={() => navigate(`/tracking?id=${unratedOrder.id}`)} className="text-[10px] px-4 py-3 w-full flex justify-center items-center">
+                Review & Download Assets
+             </InteractiveButton>
+         </div>
       )}
 
     </div>
