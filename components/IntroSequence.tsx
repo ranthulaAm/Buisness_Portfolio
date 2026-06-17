@@ -84,7 +84,7 @@ export const IntroSequence: React.FC<IntroSequenceProps> = ({ onComplete, skipAn
         <div className={`flex flex-col items-center gap-4 transition-all duration-1000 ${showButtons ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <button 
             onClick={handleEnter}
-            className="group relative bg-white text-black px-10 py-4 rounded-full font-bold uppercase tracking-[0.2em] hover:bg-accent-magenta hover:text-white transition-all duration-300 scale-100 hover:scale-105 shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:shadow-[0_0_50px_rgba(213,0,249,0.5)] flex items-center gap-3"
+            className="group relative bg-white dark:bg-white text-black px-10 py-4 rounded-full font-bold uppercase tracking-[0.2em] hover:bg-accent-magenta hover:text-white dark:hover:text-white transition-all duration-300 scale-100 hover:scale-105 shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:shadow-[0_0_50px_rgba(213,0,249,0.5)] flex items-center gap-3"
           >
             <span>Get Started</span>
             <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
@@ -112,12 +112,12 @@ export const IntroSequence: React.FC<IntroSequenceProps> = ({ onComplete, skipAn
               onError={handleImageError}
             />
             {/* Fallback Element */}
-            <div id="intro-logo-fallback" style={{ display: 'none' }} className="w-full h-full border-2 border-white/20 rounded-full items-center justify-center bg-white/5 backdrop-blur-sm absolute inset-0">
+            <div id="intro-logo-fallback" style={{ display: 'none' }} className="w-full h-full border-2 border-white dark:border-slate-800/20 rounded-full items-center justify-center bg-white/5 backdrop-blur-sm absolute inset-0">
                <span className="font-display font-bold text-2xl text-white">RA</span>
             </div>
          </div>
 
-         <div className="text-[10px] md:text-xs font-sans uppercase tracking-[0.3em] text-white/40 border border-white/10 px-3 py-1.5 rounded-full bg-white/5 text-center">
+         <div className="text-[10px] md:text-xs font-sans uppercase tracking-[0.3em] text-white/40 border border-white dark:border-slate-800/10 px-3 py-1.5 rounded-full bg-white/5 text-center">
             Personal Portfolio
          </div>
       </div>

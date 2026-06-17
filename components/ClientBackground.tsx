@@ -57,9 +57,16 @@ export const ClientBackground = () => {
       animationId = requestAnimationFrame(animate);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+      const isDark = document.documentElement.classList.contains('dark');
+      const pColor = isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)';
+
       for (let i = 0; i < particles.length; i++) {
         particles[i].update(canvas.width, canvas.height);
-        particles[i].draw(ctx);
+        
+        ctx.beginPath();
+        ctx.arc(particles[i].x, particles[i].y, particles[i].radius, 0, Math.PI * 2);
+        ctx.fillStyle = pColor;
+        ctx.fill();
 
         for (let j = i + 1; j < particles.length; j++) {
           const dx = particles[i].x - particles[j].x;
@@ -70,7 +77,7 @@ export const ClientBackground = () => {
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.strokeStyle = `rgba(0, 0, 0, ${0.1 - dist / 1200})`;
+            ctx.strokeStyle = isDark ? `rgba(255, 255, 255, ${0.1 - dist / 1200})` : `rgba(0, 0, 0, ${0.1 - dist / 1200})`;
             ctx.lineWidth = 0.5;
             ctx.stroke();
           }
@@ -89,7 +96,7 @@ export const ClientBackground = () => {
   }, []);
 
   return (
-    <div className="fixed inset-0 w-full h-full -z-10 pointer-events-none bg-gray-50">
+    <div className="fixed inset-0 w-full h-full -z-10 pointer-events-none bg-gray-50 dark:bg-slate-800">
       <canvas ref={canvasRef} className="absolute inset-0" />
     </div>
   );

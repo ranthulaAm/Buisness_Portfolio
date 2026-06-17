@@ -170,32 +170,32 @@ const PhotoshopColorPicker: React.FC<{ color: string; onChange: (hex: string) =>
   const cmyk = rgbToCmyk(rgb.r, rgb.g, rgb.b);
 
   return (
-    <div className="bg-white border border-gray-200 p-5 rounded-[2.5rem] shadow-sm w-full max-w-sm animate-fade-in h-fit">
+    <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 p-5 rounded-[2.5rem] shadow-sm w-full max-w-sm animate-fade-in h-fit">
       <div className="flex gap-4 h-48 mb-5">
         <div className="relative flex-1">
-          <canvas ref={canvasRef} width={220} height={220} className="w-full h-full rounded-2xl cursor-crosshair border border-gray-200 touch-none" onMouseDown={(e) => { setIsDraggingSV(true); updateSV(e.clientX, e.clientY); }} onTouchStart={(e) => { setIsDraggingSV(true); updateSV(e.touches[0].clientX, e.touches[0].clientY); }} />
-          <div className="absolute w-4 h-4 border-2 border-white rounded-full shadow-lg pointer-events-none -translate-x-1/2 -translate-y-1/2" style={{ left: `${s}%`, top: `${100 - v}%`, backgroundColor: color }} />
+          <canvas ref={canvasRef} width={220} height={220} className="w-full h-full rounded-2xl cursor-crosshair border border-gray-200 dark:border-slate-700 touch-none" onMouseDown={(e) => { setIsDraggingSV(true); updateSV(e.clientX, e.clientY); }} onTouchStart={(e) => { setIsDraggingSV(true); updateSV(e.touches[0].clientX, e.touches[0].clientY); }} />
+          <div className="absolute w-4 h-4 border-2 border-white dark:border-slate-800 rounded-full shadow-lg pointer-events-none -translate-x-1/2 -translate-y-1/2" style={{ left: `${s}%`, top: `${100 - v}%`, backgroundColor: color }} />
         </div>
-        <div className="w-8 h-full relative rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
+        <div className="w-8 h-full relative rounded-xl overflow-hidden border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800">
           <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)' }} />
           <input type="range" min="0" max="360" value={h} onChange={(e) => { const newH = parseInt(e.target.value); setH(newH); onChange(hsvToHex(newH, s, v)); }} className="absolute top-0 left-0 w-48 h-8 origin-top-left rotate-90 translate-x-8 cursor-pointer appearance-none bg-transparent opacity-0 z-10" />
-          <div className="absolute w-full h-2 border-y border-white shadow-md pointer-events-none" style={{ top: `${(h / 360) * 100}%` }} />
+          <div className="absolute w-full h-2 border-y border-white dark:border-slate-800 shadow-md pointer-events-none" style={{ top: `${(h / 360) * 100}%` }} />
         </div>
       </div>
       <div className="bg-gray-55 p-4 rounded-2xl border border-gray-150 mb-5">
         <div className="flex items-center justify-between gap-6 mb-4">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl border-2 border-gray-200 shadow-inner" style={{ backgroundColor: color }}></div>
+            <div className="w-12 h-12 rounded-xl border-2 border-gray-200 dark:border-slate-700 shadow-inner" style={{ backgroundColor: color }}></div>
             <div className="text-left">
               <div className={`text-[9px] font-black uppercase tracking-widest mb-1 ${isPrintMode ? 'text-orange-500' : 'text-purple-600'}`}>{isPrintMode ? 'Print (CMYK)' : 'Web (RGB)'}</div>
-              <div className="text-gray-900 font-mono text-sm font-bold uppercase tracking-wider">{color}</div>
+              <div className="text-gray-900 dark:text-slate-100 font-mono text-sm font-bold uppercase tracking-wider">{color}</div>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-[10px] font-mono text-gray-500 border-l border-gray-200 pl-5">
+          <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-[10px] font-mono text-gray-500 dark:text-slate-400 border-l border-gray-200 dark:border-slate-700 pl-5">
             {isPrintMode ? (<><div>C:{cmyk.c}%</div><div>M:{cmyk.m}%</div><div>Y:{cmyk.y}%</div><div>K:{cmyk.k}%</div></>) : (<><div>R:{rgb.r}</div><div>G:{rgb.g}</div><div>B:{rgb.b}</div><div className="opacity-0">.</div></>)}
           </div>
         </div>
-        <button type="button" disabled={!canAdd} onClick={() => onAdd(color)} className={`w-full py-3 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 ${canAdd ? 'bg-purple-600 text-white hover:bg-purple-700 shadow-sm' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>
+        <button type="button" disabled={!canAdd} onClick={() => onAdd(color)} className={`w-full py-3 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 ${canAdd ? 'bg-purple-600 text-white hover:bg-purple-700 shadow-sm' : 'bg-gray-100 dark:bg-slate-800 text-gray-400 cursor-not-allowed'}`}>
           {canAdd ? <><Plus size={14} /> Add to Palette</> : 'Palette Full'}
         </button>
       </div>
@@ -628,7 +628,7 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
 
   const renderDynamicForm = () => {
     const type = formData.serviceType;
-    const inputClass = (errKey: string) => `w-full bg-slate-50 border rounded-2xl px-6 py-4 text-gray-900 placeholder:text-gray-400 outline-none transition-all focus:bg-white ${errors[errKey] ? 'border-red-500 bg-red-50/20 shadow-sm' : 'border-zinc-300 focus:border-purple-600 focus:ring-4 focus:ring-purple-100 shadow-sm'}`;
+    const inputClass = (errKey: string) => `w-full bg-slate-50 border rounded-2xl px-6 py-4 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 outline-none transition-all focus:bg-white dark:bg-slate-900 ${errors[errKey] ? 'border-red-500 bg-red-50/20 shadow-sm' : 'border-zinc-300 focus:border-purple-600 focus:ring-4 focus:ring-purple-100 shadow-sm'}`;
     const ErrorMsg = ({ name }: { name: string }) => errors[name] ? <div className="text-red-500 text-[10px] font-bold mt-1.5 flex items-center gap-1.5"><AlertCircle size={10} /> {errors[name]}</div> : null;
     
     if (['s_social', 's_banner', 's_flyer'].includes(type)) {
@@ -640,7 +640,7 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
            <div className="space-y-3">
             <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Social Media Links</label>
             {formData.socialLinks.map((link, i) => (
-              <div key={i} className="flex gap-3"><select value={link.platform} onChange={(e) => updateList('socialLinks', i, 'platform', e.target.value)} className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 text-gray-900 text-xs outline-none focus:border-purple-600 focus:bg-white"><option className="bg-white">WhatsApp</option><option className="bg-white">Facebook</option><option className="bg-white">Instagram</option><option className="bg-white">TikTok</option><option className="bg-white">LinkedIn</option></select><input value={link.handle} onChange={(e) => updateList('socialLinks', i, 'handle', e.target.value)} placeholder="@handle" className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 text-gray-900 text-xs outline-none focus:border-purple-600 focus:bg-white" />{formData.socialLinks.length > 1 && <button type="button" onClick={() => removeItem('socialLinks', i)} className="text-gray-400 hover:text-red-500"><MinusCircle size={20} /></button>}</div>
+              <div key={i} className="flex gap-3"><select value={link.platform} onChange={(e) => updateList('socialLinks', i, 'platform', e.target.value)} className="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2 text-gray-900 dark:text-slate-100 text-xs outline-none focus:border-purple-600 focus:bg-white dark:bg-slate-900"><option className="bg-white dark:bg-slate-900">WhatsApp</option><option className="bg-white dark:bg-slate-900">Facebook</option><option className="bg-white dark:bg-slate-900">Instagram</option><option className="bg-white dark:bg-slate-900">TikTok</option><option className="bg-white dark:bg-slate-900">LinkedIn</option></select><input value={link.handle} onChange={(e) => updateList('socialLinks', i, 'handle', e.target.value)} placeholder="@handle" className="flex-1 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2 text-gray-900 dark:text-slate-100 text-xs outline-none focus:border-purple-600 focus:bg-white dark:bg-slate-900" />{formData.socialLinks.length > 1 && <button type="button" onClick={() => removeItem('socialLinks', i)} className="text-gray-400 hover:text-red-500"><MinusCircle size={20} /></button>}</div>
             ))}
             <button type="button" onClick={() => addItem('socialLinks', { platform: 'WhatsApp', handle: '' })} className="flex items-center gap-2 text-[10px] text-purple-600 font-black uppercase tracking-widest hover:text-purple-800"><PlusCircle size={16} /> Add Another</button>
           </div>
@@ -668,15 +668,15 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
       <OfferBanner />
       <div className="pt-24 pb-12 px-4 max-w-7xl mx-auto w-full">
         <div className="mb-8">
-        <Link to="/" className="inline-flex items-center gap-3 text-gray-600 hover:text-gray-900 transition-all bg-white border border-gray-200 px-5 py-2.5 rounded-full shadow-sm"><HomeIcon size={18} /><span className="text-xs font-black uppercase tracking-widest">Back to Home</span></Link>
+        <Link to="/" className="inline-flex items-center gap-3 text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:text-slate-100 transition-all bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 px-5 py-2.5 rounded-full shadow-sm"><HomeIcon size={18} /><span className="text-xs font-black uppercase tracking-widest">Back to Home</span></Link>
       </div>
-      <div className="mb-10 text-center"><h1 className="text-5xl md:text-7xl font-display text-gray-900 mb-4 uppercase tracking-tighter leading-none">{editOrderId ? 'Edit Project' : selectedServiceTitle}</h1><p className="text-gray-500 font-light text-lg">{editOrderId ? 'Update your requirements' : 'Just 4 simple steps to bring your idea to life.'}</p></div>
+      <div className="mb-10 text-center"><h1 className="text-5xl md:text-7xl font-display text-gray-900 dark:text-slate-100 mb-4 uppercase tracking-tighter leading-none">{editOrderId ? 'Edit Project' : selectedServiceTitle}</h1><p className="text-gray-500 dark:text-slate-400 font-light text-lg">{editOrderId ? 'Update your requirements' : 'Just 4 simple steps to bring your idea to life.'}</p></div>
 
-      <div ref={formRef} className="bg-white rounded-[2rem] shadow-[0_15px_60px_rgba(0,0,0,0.07)] relative overflow-hidden flex flex-col md:flex-row min-h-[650px] border border-zinc-300">
-        <div className="hidden md:flex flex-col w-64 bg-gray-50/70 border-r border-gray-100 p-10">
+      <div ref={formRef} className="bg-white dark:bg-slate-900 rounded-[2rem] shadow-[0_15px_60px_rgba(0,0,0,0.07)] relative overflow-hidden flex flex-col md:flex-row min-h-[650px] border border-zinc-300">
+        <div className="hidden md:flex flex-col w-64 bg-gray-50/70 border-r border-gray-100 dark:border-slate-700 p-10">
           {[1, 2, 3, 4].map(s => (
-            <div key={s} className={`flex items-center gap-4 mb-10 transition-all ${step === s ? 'text-purple-600 font-bold' : step > s ? 'text-gray-900' : 'text-gray-300'}`}>
-              <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center font-black text-sm transition-all ${step === s ? 'border-purple-600 text-purple-600 bg-purple-50' : step > s ? 'border-purple-600 bg-purple-600 text-white shadow-[0_4px_12px_rgba(147,51,234,0.15)]' : 'border-gray-200 text-gray-300'}`}>{step > s ? <Check size={18} strokeWidth={3} /> : s}</div>
+            <div key={s} className={`flex items-center gap-4 mb-10 transition-all ${step === s ? 'text-purple-600 font-bold' : step > s ? 'text-gray-900 dark:text-slate-100' : 'text-gray-300'}`}>
+              <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center font-black text-sm transition-all ${step === s ? 'border-purple-600 text-purple-600 bg-purple-50' : step > s ? 'border-purple-600 bg-purple-600 text-white shadow-[0_4px_12px_rgba(147,51,234,0.15)]' : 'border-gray-200 dark:border-slate-700 text-gray-300'}`}>{step > s ? <Check size={18} strokeWidth={3} /> : s}</div>
               <span className="font-black text-[10px] tracking-widest uppercase">{s === 1 ? 'Basic Info' : s === 2 ? 'Details' : s === 3 ? 'Style' : 'Finish'}</span>
             </div>
           ))}
@@ -687,47 +687,47 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
             
             {/* STEP 1: BASIC INFO */}
             <div className={getStepClasses(1)}>
-              <h3 className="text-3xl font-display text-gray-900 mb-8 uppercase tracking-tight border-b border-gray-100 pb-4">Basic Info</h3>
+              <h3 className="text-3xl font-display text-gray-900 dark:text-slate-100 mb-8 uppercase tracking-tight border-b border-gray-100 dark:border-slate-700 pb-4">Basic Info</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="md:col-span-2"><label className="block text-[10px] font-black text-purple-600 mb-3 uppercase tracking-widest font-extrabold">Service</label><select name="serviceType" value={formData.serviceType} onChange={handleInputChange} disabled={!!editOrderId} className={`w-full bg-slate-50 border border-zinc-300 rounded-2xl px-6 py-5 text-gray-950 font-bold cursor-pointer outline-none focus:border-purple-600 focus:bg-white transition-all shadow-sm ${editOrderId ? 'opacity-50 cursor-not-allowed' : ''}`}>{services.map(s => <option key={s.id} value={s.id} className="bg-white text-gray-900">{s.title} — LKR {s.price}</option>)}</select></div>
-                <div><input name="name" value={formData.name} onChange={handleInputChange} placeholder="Full Name *" className={`w-full bg-slate-50 border rounded-2xl px-6 py-4 text-gray-900 placeholder:text-gray-400 outline-none focus:border-purple-600 focus:bg-white transition-all shadow-sm ${errors.name ? 'border-red-500 bg-red-50/20' : 'border-zinc-300'}`} />{errors.name && <div className="text-red-500 text-[10px] font-bold mt-1 flex items-center gap-1"><AlertCircle size={10} /> {errors.name}</div>}</div>
+                <div className="md:col-span-2"><label className="block text-[10px] font-black text-purple-600 mb-3 uppercase tracking-widest font-extrabold">Service</label><select name="serviceType" value={formData.serviceType} onChange={handleInputChange} disabled={!!editOrderId} className={`w-full bg-slate-50 border border-zinc-300 rounded-2xl px-6 py-5 text-gray-950 font-bold cursor-pointer outline-none focus:border-purple-600 focus:bg-white dark:bg-slate-900 transition-all shadow-sm ${editOrderId ? 'opacity-50 cursor-not-allowed' : ''}`}>{services.map(s => <option key={s.id} value={s.id} className="bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100">{s.title} — LKR {s.price}</option>)}</select></div>
+                <div><input name="name" value={formData.name} onChange={handleInputChange} placeholder="Full Name *" className={`w-full bg-slate-50 border rounded-2xl px-6 py-4 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 outline-none focus:border-purple-600 focus:bg-white dark:bg-slate-900 transition-all shadow-sm ${errors.name ? 'border-red-500 bg-red-50/20' : 'border-zinc-300'}`} />{errors.name && <div className="text-red-500 text-[10px] font-bold mt-1 flex items-center gap-1"><AlertCircle size={10} /> {errors.name}</div>}</div>
                 <div>
                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">WhatsApp Number *</label>
                     <div className="flex gap-2">
                         <select 
                             value={countryCode} 
                             onChange={e => setCountryCode(e.target.value)}
-                            className="bg-slate-50 border border-zinc-300 rounded-2xl px-4 py-4 text-gray-900 outline-none focus:border-purple-600 focus:bg-white appearance-none text-center min-w-[80px] shadow-sm font-bold"
+                            className="bg-slate-50 border border-zinc-300 rounded-2xl px-4 py-4 text-gray-900 dark:text-slate-100 outline-none focus:border-purple-600 focus:bg-white dark:bg-slate-900 appearance-none text-center min-w-[80px] shadow-sm font-bold"
                         >
-                            <option value="+94" className="bg-white text-gray-900">🇱🇰 +94</option>
-                            <option value="+1" className="bg-white text-gray-900">🇺🇸 +1</option>
-                            <option value="+44" className="bg-white text-gray-900">🇬🇧 +44</option>
-                            <option value="+61" className="bg-white text-gray-900">🇦🇺 +61</option>
-                            <option value="+91" className="bg-white text-gray-900">🇮🇳 +91</option>
-                            <option value="+971" className="bg-white text-gray-900">🇦🇪 +971</option>
-                            <option value="" className="bg-white text-gray-900">Other</option>
+                            <option value="+94" className="bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100">🇱🇰 +94</option>
+                            <option value="+1" className="bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100">🇺🇸 +1</option>
+                            <option value="+44" className="bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100">🇬🇧 +44</option>
+                            <option value="+61" className="bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100">🇦🇺 +61</option>
+                            <option value="+91" className="bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100">🇮🇳 +91</option>
+                            <option value="+971" className="bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100">🇦🇪 +971</option>
+                            <option value="" className="bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100">Other</option>
                         </select>
                         <input 
                             type="tel" 
                             value={phoneInput} 
                             onChange={e => setPhoneInput(e.target.value.replace(/[^0-9]/g, ''))} 
                             placeholder="77 123 4567" 
-                            className={`flex-1 bg-slate-50 border rounded-2xl px-6 py-4 text-gray-900 placeholder:text-gray-400 ${errors.mobile ? 'border-red-500 bg-red-50/20' : 'border-zinc-300'} outline-none focus:border-purple-600 focus:bg-white transition-all shadow-sm font-semibold`} 
+                            className={`flex-1 bg-slate-50 border rounded-2xl px-6 py-4 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 ${errors.mobile ? 'border-red-500 bg-red-50/20' : 'border-zinc-300'} outline-none focus:border-purple-600 focus:bg-white dark:bg-slate-900 transition-all shadow-sm font-semibold`} 
                         />
                     </div>
                     {errors.mobile && <div className="text-red-500 text-[10px] font-bold mt-1 flex items-center gap-1"><AlertCircle size={10} /> {errors.mobile}</div>}
                 </div>
-                <div className="md:col-span-2"><input name="email" value={formData.email} onChange={handleInputChange} placeholder="Email Address *" className={`w-full bg-slate-50 border rounded-2xl px-6 py-4 text-gray-900 placeholder:text-gray-400 outline-none focus:border-purple-600 focus:bg-white transition-all shadow-sm ${errors.email ? 'border-red-500 bg-red-50/20' : 'border-zinc-300'}`} />{errors.email && <div className="text-red-500 text-[10px] font-bold mt-1 flex items-center gap-1"><AlertCircle size={10} /> {errors.email}</div>}</div>
+                <div className="md:col-span-2"><input name="email" value={formData.email} onChange={handleInputChange} placeholder="Email Address *" className={`w-full bg-slate-50 border rounded-2xl px-6 py-4 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 outline-none focus:border-purple-600 focus:bg-white dark:bg-slate-900 transition-all shadow-sm ${errors.email ? 'border-red-500 bg-red-50/20' : 'border-zinc-300'}`} />{errors.email && <div className="text-red-500 text-[10px] font-bold mt-1 flex items-center gap-1"><AlertCircle size={10} /> {errors.email}</div>}</div>
               </div>
             </div>
 
             {/* STEP 2: PROJECT DETAILS */}
             <div className={getStepClasses(2)}>
-              <h3 className="text-3xl font-display text-gray-900 mb-8 uppercase tracking-tight border-b border-gray-100 pb-4">Project Details</h3>
+              <h3 className="text-3xl font-display text-gray-900 dark:text-slate-100 mb-8 uppercase tracking-tight border-b border-gray-100 dark:border-slate-700 pb-4">Project Details</h3>
               <div className="space-y-10">
                 {renderDynamicForm()}
                 
-                <div className="pt-8 border-t border-gray-100">
+                <div className="pt-8 border-t border-gray-100 dark:border-slate-700">
                   <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-4">Extra Context & Inspiration Boards</label>
                   <textarea 
                     name="extraDetails" 
@@ -735,12 +735,12 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
                     value={formData.extraDetails} 
                     onChange={handleInputChange} 
                     placeholder="Provide any additional context, specific color preferences, or links to inspiration boards here..." 
-                    className="w-full bg-slate-50 border border-zinc-300 rounded-2xl px-6 py-4 text-gray-900 placeholder:text-gray-400 outline-none focus:border-purple-600 focus:bg-white transition-all shadow-sm"
+                    className="w-full bg-slate-50 border border-zinc-300 rounded-2xl px-6 py-4 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 outline-none focus:border-purple-600 focus:bg-white dark:bg-slate-900 transition-all shadow-sm"
                   ></textarea>
                 </div>
 
-                <div className="pt-8 border-t border-gray-100"><label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4 block">Can't describe it in text? Use voice:</label><div className="flex items-center gap-4"><button type="button" onClick={isRecording ? stopRecording : startRecording} className={`flex items-center gap-3 px-6 py-3 rounded-full font-bold text-xs uppercase tracking-widest transition-all ${isRecording ? 'bg-pink-500 text-white animate-pulse' : 'bg-gray-100 text-gray-700 hover:bg-gray-250 border border-gray-200 hover:bg-gray-200'}`}>{isRecording ? <><Square size={14} fill="white" /> Stop Recording</> : <><Mic size={14} /> Record Voice</>}</button>{isRecording && <span className="text-pink-500 text-xs font-bold animate-pulse">Recording...</span>}</div></div>
-                {formData.voiceClips.length > 0 && <div className="space-y-3"><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Voice Notes</label>{formData.voiceClips.map((clip, i) => (<div key={i} className="flex items-center justify-between bg-gray-50 border border-gray-200 p-3 rounded-2xl"><div className="flex items-center gap-3"><Play size={14} className="text-purple-600" /><span className="text-xs font-bold text-gray-700">{clip.name}</span></div><div className="flex items-center gap-4"><audio src={clip.url} controls className="h-8 max-w-[150px] opacity-60" /><button type="button" onClick={() => removeVoiceClip(i)} className="text-gray-400 hover:text-red-500"><Trash2 size={16} /></button></div></div>))}</div>}
+                <div className="pt-8 border-t border-gray-100 dark:border-slate-700"><label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4 block">Can't describe it in text? Use voice:</label><div className="flex items-center gap-4"><button type="button" onClick={isRecording ? stopRecording : startRecording} className={`flex items-center gap-3 px-6 py-3 rounded-full font-bold text-xs uppercase tracking-widest transition-all ${isRecording ? 'bg-pink-500 text-white animate-pulse' : 'bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-gray-250 border border-gray-200 dark:border-slate-700 hover:bg-gray-200'}`}>{isRecording ? <><Square size={14} fill="white" /> Stop Recording</> : <><Mic size={14} /> Record Voice</>}</button>{isRecording && <span className="text-pink-500 text-xs font-bold animate-pulse">Recording...</span>}</div></div>
+                {formData.voiceClips.length > 0 && <div className="space-y-3"><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Voice Notes</label>{formData.voiceClips.map((clip, i) => (<div key={i} className="flex items-center justify-between bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 p-3 rounded-2xl"><div className="flex items-center gap-3"><Play size={14} className="text-purple-600" /><span className="text-xs font-bold text-gray-700 dark:text-slate-300">{clip.name}</span></div><div className="flex items-center gap-4"><audio src={clip.url} controls className="h-8 max-w-[150px] opacity-60" /><button type="button" onClick={() => removeVoiceClip(i)} className="text-gray-400 hover:text-red-500"><Trash2 size={16} /></button></div></div>))}</div>}
               </div>
             </div>
 
@@ -748,8 +748,8 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
             <div className={getStepClasses(3)}>
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-12">
                 <div className="space-y-8">
-                  <div className="flex items-center justify-between border-b border-gray-100 pb-4">
-                    <h3 className="text-3xl font-display text-gray-900 uppercase tracking-tight">Dimension & Layout</h3>
+                  <div className="flex items-center justify-between border-b border-gray-100 dark:border-slate-700 pb-4">
+                    <h3 className="text-3xl font-display text-gray-900 dark:text-slate-100 uppercase tracking-tight">Dimension & Layout</h3>
                     <div className="text-[9px] font-black text-purple-600 bg-purple-50 px-3 py-1 rounded-full uppercase tracking-widest border border-purple-200">{selectedServiceTitle} Mode</div>
                   </div>
                   <div className="space-y-4">
@@ -759,41 +759,41 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
                         const Icon = p.icon;
                         const isSelected = formData.dimensions.width === p.width && formData.dimensions.height === p.height;
                         return (
-                          <button key={p.id} type="button" onClick={() => applyPreset(p.id)} className={`p-4 rounded-2xl text-left transition-all border group relative overflow-hidden ${isSelected ? 'bg-purple-50 border-purple-600' : 'bg-gray-50/50 border-gray-200 hover:border-gray-300'}`}>
-                            <div className="flex items-center justify-between mb-3"><Icon size={18} className={isSelected ? 'text-purple-600' : 'text-gray-400 group-hover:text-gray-600'} />{isSelected && <Check size={14} className="text-purple-600" />}</div>
-                            <div className={`text-[11px] font-black uppercase tracking-wider mb-1 ${isSelected ? 'text-gray-950' : 'text-gray-650 group-hover:text-gray-800'}`}>{p.name}</div>
-                            <div className="text-[10px] font-mono text-gray-400 group-hover:text-gray-500">{p.width}x{p.height}{p.unit} @ {p.ppi}ppi</div>
+                          <button key={p.id} type="button" onClick={() => applyPreset(p.id)} className={`p-4 rounded-2xl text-left transition-all border group relative overflow-hidden ${isSelected ? 'bg-purple-50 border-purple-600' : 'bg-gray-50/50 border-gray-200 dark:border-slate-700 hover:border-gray-300 dark:border-slate-600'}`}>
+                            <div className="flex items-center justify-between mb-3"><Icon size={18} className={isSelected ? 'text-purple-600' : 'text-gray-400 group-hover:text-gray-600 dark:text-slate-400'} />{isSelected && <Check size={14} className="text-purple-600" />}</div>
+                            <div className={`text-[11px] font-black uppercase tracking-wider mb-1 ${isSelected ? 'text-gray-950' : 'text-gray-650 group-hover:text-gray-800 dark:text-slate-200'}`}>{p.name}</div>
+                            <div className="text-[10px] font-mono text-gray-400 group-hover:text-gray-500 dark:text-slate-400">{p.width}x{p.height}{p.unit} @ {p.ppi}ppi</div>
                           </button>
                         );
                       })}
-                      {currentPresets.length === 0 && <div className="col-span-full py-8 text-center bg-gray-5 border border-dashed border-gray-200 rounded-2xl"><p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest italic">Manual setup required for this mode</p></div>}
+                      {currentPresets.length === 0 && <div className="col-span-full py-8 text-center bg-gray-5 border border-dashed border-gray-200 dark:border-slate-700 rounded-2xl"><p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest italic">Manual setup required for this mode</p></div>}
                     </div>
                   </div>
 
                   <div className="bg-slate-50 rounded-3xl p-8 border border-zinc-300 space-y-8 shadow-sm">
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                      <div className="space-y-2"><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Width</label><input type="number" value={formData.dimensions.width} onChange={(e) => handleDimensionChange('width', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-5 py-4 text-gray-900 font-mono text-sm focus:border-purple-600 outline-none transition-all h-12" /></div>
-                      <div className="space-y-2"><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Height</label><input type="number" value={formData.dimensions.height} onChange={(e) => handleDimensionChange('height', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-5 py-4 text-gray-900 font-mono text-sm focus:border-purple-600 outline-none transition-all h-12" /></div>
-                      <div className="space-y-2"><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Unit</label><select value={formData.dimensions.unit} onChange={(e) => handleDimensionChange('unit', e.target.value)} className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-xs outline-none focus:border-purple-600 cursor-pointer h-12"><option value="px">Pixels (px)</option><option value="in">Inches (in)</option><option value="mm">Millimeters (mm)</option><option value="cm">Centimeters (cm)</option><option value="m">Meters (m)</option><option value="pt">Points (pt)</option><option value="pc">Picas (pc)</option><option value="ft">Feet (ft)</option><option value="yd">Yards (yd)</option></select></div>
+                      <div className="space-y-2"><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Width</label><input type="number" value={formData.dimensions.width} onChange={(e) => handleDimensionChange('width', e.target.value)} className="w-full bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-5 py-4 text-gray-900 dark:text-slate-100 font-mono text-sm focus:border-purple-600 outline-none transition-all h-12" /></div>
+                      <div className="space-y-2"><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Height</label><input type="number" value={formData.dimensions.height} onChange={(e) => handleDimensionChange('height', e.target.value)} className="w-full bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-5 py-4 text-gray-900 dark:text-slate-100 font-mono text-sm focus:border-purple-600 outline-none transition-all h-12" /></div>
+                      <div className="space-y-2"><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Unit</label><select value={formData.dimensions.unit} onChange={(e) => handleDimensionChange('unit', e.target.value)} className="w-full bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-slate-100 text-xs outline-none focus:border-purple-600 cursor-pointer h-12"><option value="px">Pixels (px)</option><option value="in">Inches (in)</option><option value="mm">Millimeters (mm)</option><option value="cm">Centimeters (cm)</option><option value="m">Meters (m)</option><option value="pt">Points (pt)</option><option value="pc">Picas (pc)</option><option value="ft">Feet (ft)</option><option value="yd">Yards (yd)</option></select></div>
                     </div>
 
-                    <div className="flex flex-wrap items-center justify-between gap-8 pt-8 border-t border-gray-100">
+                    <div className="flex flex-wrap items-center justify-between gap-8 pt-8 border-t border-gray-100 dark:border-slate-700">
                       <div className="flex items-center gap-10">
-                        <div className="space-y-3"><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Orientation</label><div className="flex bg-white rounded-xl p-1 text-gray-300 border border-gray-200"><button type="button" onClick={toggleOrientation} className={`p-3 rounded-lg transition-all flex items-center justify-center gap-2 ${formData.dimensions.orientation === 'portrait' ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-400 hover:text-gray-700'}`}><div className="w-3 h-4 border-2 border-current rounded-sm"></div></button><button type="button" onClick={toggleOrientation} className={`p-3 rounded-lg transition-all flex items-center justify-center gap-2 ${formData.dimensions.orientation === 'landscape' ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-400 hover:text-gray-700'}`}><div className="w-4 h-3 border-2 border-current rounded-sm"></div></button></div></div>
-                        <div className="space-y-3"><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Resolution (PPI)</label><select value={formData.dimensions.ppi} onChange={(e) => handleDimensionChange('ppi', e.target.value)} className="bg-white border border-gray-200 rounded-xl px-5 py-3 text-gray-900 text-xs outline-none block focus:border-purple-600 cursor-pointer h-12 align-middle"><option value="72">72 (Screen / Web)</option><option value="150">150 (Digital Print)</option><option value="300">300 (Offset Print)</option></select></div>
+                        <div className="space-y-3"><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Orientation</label><div className="flex bg-white dark:bg-slate-900 rounded-xl p-1 text-gray-300 border border-gray-200 dark:border-slate-700"><button type="button" onClick={toggleOrientation} className={`p-3 rounded-lg transition-all flex items-center justify-center gap-2 ${formData.dimensions.orientation === 'portrait' ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-400 hover:text-gray-700 dark:text-slate-300'}`}><div className="w-3 h-4 border-2 border-current rounded-sm"></div></button><button type="button" onClick={toggleOrientation} className={`p-3 rounded-lg transition-all flex items-center justify-center gap-2 ${formData.dimensions.orientation === 'landscape' ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-400 hover:text-gray-700 dark:text-slate-300'}`}><div className="w-4 h-3 border-2 border-current rounded-sm"></div></button></div></div>
+                        <div className="space-y-3"><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Resolution (PPI)</label><select value={formData.dimensions.ppi} onChange={(e) => handleDimensionChange('ppi', e.target.value)} className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-5 py-3 text-gray-900 dark:text-slate-100 text-xs outline-none block focus:border-purple-600 cursor-pointer h-12 align-middle"><option value="72">72 (Screen / Web)</option><option value="150">150 (Digital Print)</option><option value="300">300 (Offset Print)</option></select></div>
                       </div>
                       <div className="text-right flex flex-col items-end"><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Scale Ratio</label><div className="text-purple-600 font-mono text-3xl font-black leading-none">{formData.dimensions.aspectRatio}</div><div className="text-[9px] text-gray-400 font-bold uppercase mt-1">calculated scale</div></div>
                     </div>
                   </div>
 
-                  <div><label className="text-[10px] font-black text-gray-400 mb-3 block uppercase tracking-widest">Style Keywords</label><input name="keywords" value={formData.keywords} onChange={handleInputChange} placeholder="Modern, Bold, Minimalist, Luxury..." className="w-full bg-gray-55 border border-gray-200 rounded-2xl px-6 py-4 text-gray-900 placeholder:text-gray-400 outline-none focus:border-purple-600 focus:bg-white transition-all shadow-sm" /></div>
+                  <div><label className="text-[10px] font-black text-gray-400 mb-3 block uppercase tracking-widest">Style Keywords</label><input name="keywords" value={formData.keywords} onChange={handleInputChange} placeholder="Modern, Bold, Minimalist, Luxury..." className="w-full bg-gray-55 border border-gray-200 dark:border-slate-700 rounded-2xl px-6 py-4 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 outline-none focus:border-purple-600 focus:bg-white dark:bg-slate-900 transition-all shadow-sm" /></div>
                 </div>
 
                 <div className="space-y-8 font-sans">
-                  <h3 className="text-3xl font-display text-gray-900 mb-6 uppercase tracking-tight border-b border-gray-100 pb-4">Style & Colors</h3>
+                  <h3 className="text-3xl font-display text-gray-900 dark:text-slate-100 mb-6 uppercase tracking-tight border-b border-gray-100 dark:border-slate-700 pb-4">Style & Colors</h3>
                   <div className="flex flex-col items-center xl:items-start gap-10">
                     <PhotoshopColorPicker color={customColor} onChange={setCustomColor} onAdd={(c) => formData.colorPalette.length < 5 && !formData.colorPalette.includes(c) && setFormData(p => ({ ...p, colorPalette: [...p.colorPalette, c] }))} isPrintMode={isPrintMode} canAdd={formData.colorPalette.length < 5} />
-                    <div className="w-full max-w-sm"><label className="text-[10px] font-black text-gray-400 mb-5 block uppercase tracking-widest flex items-center justify-between">Chosen Palette <span className="text-[9px] font-mono text-gray-400">{formData.colorPalette.length}/5 Colors</span></label><div className="flex flex-wrap gap-4">{formData.colorPalette.length === 0 && <div className="w-full py-4 text-center border border-dashed border-gray-200 rounded-2xl"><span className="text-[10px] text-gray-400 uppercase font-black italic tracking-widest">Add colors from picker above</span></div>}{formData.colorPalette.map(c => (<div key={c} className="flex items-center gap-3 bg-white rounded-full px-5 py-2.5 border border-gray-200 group animate-fade-in hover:border-gray-300 transition-all shadow-md"><div className="w-4 h-4 rounded-full shadow-sm" style={{ backgroundColor: c }}></div><span className="text-[10px] font-mono font-black uppercase text-gray-700">{c}</span><button type="button" onClick={() => setFormData(prev => ({ ...prev, colorPalette: prev.colorPalette.filter(x => x !== c) }))} className="text-gray-400 hover:text-red-500 transition-colors ml-2"><X size={14} /></button></div>))}</div></div>
+                    <div className="w-full max-w-sm"><label className="text-[10px] font-black text-gray-400 mb-5 block uppercase tracking-widest flex items-center justify-between">Chosen Palette <span className="text-[9px] font-mono text-gray-400">{formData.colorPalette.length}/5 Colors</span></label><div className="flex flex-wrap gap-4">{formData.colorPalette.length === 0 && <div className="w-full py-4 text-center border border-dashed border-gray-200 dark:border-slate-700 rounded-2xl"><span className="text-[10px] text-gray-400 uppercase font-black italic tracking-widest">Add colors from picker above</span></div>}{formData.colorPalette.map(c => (<div key={c} className="flex items-center gap-3 bg-white dark:bg-slate-900 rounded-full px-5 py-2.5 border border-gray-200 dark:border-slate-700 group animate-fade-in hover:border-gray-300 dark:border-slate-600 transition-all shadow-md"><div className="w-4 h-4 rounded-full shadow-sm" style={{ backgroundColor: c }}></div><span className="text-[10px] font-mono font-black uppercase text-gray-700 dark:text-slate-300">{c}</span><button type="button" onClick={() => setFormData(prev => ({ ...prev, colorPalette: prev.colorPalette.filter(x => x !== c) }))} className="text-gray-400 hover:text-red-500 transition-colors ml-2"><X size={14} /></button></div>))}</div></div>
                   </div>
                 </div>
               </div>
@@ -801,23 +801,23 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
 
             {/* STEP 4: UPLOAD & FINISH */}
             <div className={getStepClasses(4)}>
-              <h3 className="text-3xl font-display text-gray-900 mb-8 uppercase tracking-tight border-b border-gray-100 pb-4">Upload Assets</h3>
+              <h3 className="text-3xl font-display text-gray-900 dark:text-slate-100 mb-8 uppercase tracking-tight border-b border-gray-100 dark:border-slate-700 pb-4">Upload Assets</h3>
               <div className="space-y-8">
-                <div className="border-2 border-dashed border-gray-200 rounded-[2.5rem] p-12 text-center bg-gray-50/50 hover:bg-gray-100/30 hover:border-gray-300 transition-all relative group cursor-pointer"><input type="file" multiple className="absolute inset-0 opacity-0 cursor-pointer z-20" onChange={(e) => e.target.files?.length && setFormData(p => ({ ...p, files: [...p.files, ...Array.from(e.target.files!)] }))} /><Upload className="mx-auto mb-4 text-purple-600 animate-pulse" size={40} /><p className="text-lg font-bold uppercase tracking-widest text-gray-600 group-hover:text-gray-900">Choose Photos or Logos</p></div>
+                <div className="border-2 border-dashed border-gray-200 dark:border-slate-700 rounded-[2.5rem] p-12 text-center bg-gray-50/50 hover:bg-gray-100 dark:hover:bg-slate-700/30 hover:border-gray-300 dark:border-slate-600 transition-all relative group cursor-pointer"><input type="file" multiple className="absolute inset-0 opacity-0 cursor-pointer z-20" onChange={(e) => e.target.files?.length && setFormData(p => ({ ...p, files: [...p.files, ...Array.from(e.target.files!)] }))} /><Upload className="mx-auto mb-4 text-purple-600 animate-pulse" size={40} /><p className="text-lg font-bold uppercase tracking-widest text-gray-600 dark:text-slate-400 group-hover:text-gray-900 dark:text-slate-100">Choose Photos or Logos</p></div>
                 {formData.files.length > 0 && <div className="flex gap-2 flex-wrap">{formData.files.map((f, i) => (
-                    <div key={i} className="text-[9px] font-bold bg-white border border-gray-200 pl-4 pr-2 py-2 rounded-full text-gray-500 flex items-center gap-2 group hover:bg-red-500/10 hover:text-red-600 hover:border-red-200 transition-colors">
+                    <div key={i} className="text-[9px] font-bold bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 pl-4 pr-2 py-2 rounded-full text-gray-500 dark:text-slate-400 flex items-center gap-2 group hover:bg-red-500/10 hover:text-red-600 hover:border-red-200 transition-colors">
                         <Check size={10} className="text-green-500 group-hover:hidden" />
                         <Trash2 size={10} className="hidden group-hover:block" />
                         {f.name}
-                        <button type="button" onClick={() => removeFile(i)} className="p-1 hover:text-red-700 rounded-full hover:bg-gray-100 transition-colors"><X size={12} /></button>
+                        <button type="button" onClick={() => removeFile(i)} className="p-1 hover:text-red-700 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 dark:bg-slate-800 transition-colors"><X size={12} /></button>
                     </div>
                 ))}</div>}
-                <div className="bg-gray-50 p-8 rounded-[2rem] border border-gray-200"><div className="text-purple-600 font-black text-[10px] uppercase mb-4 tracking-widest flex items-center gap-2"><ShieldCheck size={14} /> Ready to start</div><div className="grid grid-cols-2 gap-8 text-xs"><div><p className="text-gray-400 uppercase text-[9px] mb-2 font-black">Project Type</p><p className="text-gray-800 font-bold">{selectedServiceTitle}</p></div><div><p className="text-gray-400 uppercase text-[9px] mb-2 font-black">Color Mode</p><p className="text-gray-800 font-bold">{isPrintMode ? 'Print Ready (CMYK)' : 'Web (RGB)'}</p></div></div></div>
+                <div className="bg-gray-50 dark:bg-slate-800 p-8 rounded-[2rem] border border-gray-200 dark:border-slate-700"><div className="text-purple-600 font-black text-[10px] uppercase mb-4 tracking-widest flex items-center gap-2"><ShieldCheck size={14} /> Ready to start</div><div className="grid grid-cols-2 gap-8 text-xs"><div><p className="text-gray-400 uppercase text-[9px] mb-2 font-black">Project Type</p><p className="text-gray-800 dark:text-slate-200 font-bold">{selectedServiceTitle}</p></div><div><p className="text-gray-400 uppercase text-[9px] mb-2 font-black">Color Mode</p><p className="text-gray-800 dark:text-slate-200 font-bold">{isPrintMode ? 'Print Ready (CMYK)' : 'Web (RGB)'}</p></div></div></div>
               </div>
             </div>
 
-            <div className="mt-auto flex justify-between items-center pt-10 border-t border-gray-100 sticky bottom-0 bg-transparent pb-4">
-               {step > 1 ? <button type="button" onClick={() => changeStep(step - 1)} className="text-gray-400 hover:text-gray-900 uppercase text-[10px] font-black tracking-widest flex items-center gap-3"><ArrowLeft size={16} /> Go Back</button> : <div />}
+            <div className="mt-auto flex justify-between items-center pt-10 border-t border-gray-100 dark:border-slate-700 sticky bottom-0 bg-transparent pb-4">
+               {step > 1 ? <button type="button" onClick={() => changeStep(step - 1)} className="text-gray-400 hover:text-gray-900 dark:text-slate-100 uppercase text-[10px] font-black tracking-widest flex items-center gap-3"><ArrowLeft size={16} /> Go Back</button> : <div />}
                {step < 4 ? <button type="button" onClick={handleNextStep} className="bg-purple-600 text-white px-12 py-5 rounded-full font-black text-[10px] uppercase tracking-widest hover:bg-purple-700 transition-all shadow-md">Continue</button> : 
                <button type="submit" disabled={isSubmitting} className="bg-purple-600 text-white px-14 py-5 rounded-full font-black text-[10px] uppercase tracking-widest shadow-lg hover:scale-105 transition-all disabled:opacity-50 flex items-center gap-2 hover:bg-purple-700">
                  {isSubmitting && <Loader size={14} className="animate-spin" />}

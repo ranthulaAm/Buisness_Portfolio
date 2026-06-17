@@ -70,10 +70,10 @@ export const AdminGuard: React.FC<AdminGuardProps> = ({ children, user }) => {
   // 1. Loading State
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-55 text-gray-900 relative z-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-55 text-gray-900 dark:text-slate-100 relative z-50">
         <div className="text-center">
           <Loader2 className="animate-spin text-purple-600 mx-auto mb-4" size={32} />
-          <p className="text-sm font-bold uppercase tracking-widest text-gray-500">Checking Credentials...</p>
+          <p className="text-sm font-bold uppercase tracking-widest text-gray-500 dark:text-slate-400">Checking Credentials...</p>
         </div>
       </div>
     );
@@ -82,12 +82,12 @@ export const AdminGuard: React.FC<AdminGuardProps> = ({ children, user }) => {
   // 2. Not Logged In
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-55 text-gray-900 relative z-50 px-4">
-        <div className="relative bg-white border border-gray-300 p-8 md:p-12 rounded-3xl w-full max-w-md text-center shadow-[0_15px_50px_rgba(0,0,0,0.08)]">
+      <div className="min-h-screen flex items-center justify-center bg-gray-55 text-gray-900 dark:text-slate-100 relative z-50 px-4">
+        <div className="relative bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 p-8 md:p-12 rounded-3xl w-full max-w-md text-center shadow-[0_15px_50px_rgba(0,0,0,0.08)]">
           <button 
             type="button"
             onClick={handleBack}
-            className="absolute top-6 left-6 text-gray-400 hover:text-gray-700 transition-colors p-2.5 rounded-full hover:bg-gray-50 border border-transparent hover:border-gray-200"
+            className="absolute top-6 left-6 text-gray-400 hover:text-gray-700 dark:text-slate-300 transition-colors p-2.5 rounded-full hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-800 border border-transparent hover:border-gray-200 dark:border-slate-700"
             title="Back to Home"
           >
             <ArrowLeft size={18} />
@@ -97,8 +97,8 @@ export const AdminGuard: React.FC<AdminGuardProps> = ({ children, user }) => {
              <Lock size={24} className="animate-pulse" />
           </div>
           
-          <h1 className="text-2xl font-bold font-display text-gray-900 mb-2">Admin Sign-In Required</h1>
-          <p className="text-gray-500 text-sm mb-8 leading-relaxed">This area is restricted to system administrators. Please sign in to verify your access permission.</p>
+          <h1 className="text-2xl font-bold font-display text-gray-900 dark:text-slate-100 mb-2">Admin Sign-In Required</h1>
+          <p className="text-gray-500 dark:text-slate-400 text-sm mb-8 leading-relaxed">This area is restricted to system administrators. Please sign in to verify your access permission.</p>
           
           <button 
             type="button"
@@ -122,27 +122,27 @@ export const AdminGuard: React.FC<AdminGuardProps> = ({ children, user }) => {
 
   if (!isAuthorized) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-55 text-gray-900 relative z-50 px-4">
-        <div className="relative bg-white border border-gray-300 p-8 md:p-12 rounded-3xl w-full max-w-md text-center shadow-[0_15px_50px_rgba(0,0,0,0.08)] animate-fade-in">
+      <div className="min-h-screen flex items-center justify-center bg-gray-55 text-gray-900 dark:text-slate-100 relative z-50 px-4">
+        <div className="relative bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 p-8 md:p-12 rounded-3xl w-full max-w-md text-center shadow-[0_15px_50px_rgba(0,0,0,0.08)] animate-fade-in">
           
           <div className="mx-auto bg-red-50 border border-red-100 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 text-red-600 shadow-sm">
              <ShieldAlert size={26} />
           </div>
           
           <h1 className="text-2xl font-bold font-display text-red-600 mb-2">Access Denied</h1>
-          <p className="text-gray-500 text-sm mb-6 leading-relaxed">
-            Your account <span className="font-mono font-bold text-gray-900">{user.email}</span> is not registered as an authorized administrator.
+          <p className="text-gray-500 dark:text-slate-400 text-sm mb-6 leading-relaxed">
+            Your account <span className="font-mono font-bold text-gray-900 dark:text-slate-100">{user.email}</span> is not registered as an authorized administrator.
           </p>
 
-          <p className="text-xs text-gray-400 bg-gray-50 border border-gray-200 p-3.5 rounded-xl mb-8 font-medium">
-            Contact the system owner (<span className="font-mono font-bold text-gray-700">ranthuls112@gmail.com</span>) to receive admin clearance.
+          <p className="text-xs text-gray-400 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 p-3.5 rounded-xl mb-8 font-medium">
+            Contact the system owner (<span className="font-mono font-bold text-gray-700 dark:text-slate-300">ranthuls112@gmail.com</span>) to receive admin clearance.
           </p>
           
           <div className="flex gap-4">
             <button 
               type="button"
               onClick={handleBack}
-              className="flex-1 border border-gray-300 hover:border-gray-450 hover:bg-gray-50 text-gray-700 font-bold py-3.5 rounded-xl transition-all text-xs uppercase tracking-wider shadow-sm"
+              className="flex-1 border border-gray-300 dark:border-slate-600 hover:border-gray-450 hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-800 text-gray-700 dark:text-slate-300 font-bold py-3.5 rounded-xl transition-all text-xs uppercase tracking-wider shadow-sm"
             >
                Go Home
             </button>
@@ -163,13 +163,13 @@ export const AdminGuard: React.FC<AdminGuardProps> = ({ children, user }) => {
   // 4. Authorized, require Password Confirmation
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-55 text-gray-900 relative z-50 px-4">
-        <form onSubmit={handleLogin} className="relative bg-white border border-gray-300 p-8 md:p-12 rounded-3xl w-full max-w-sm text-center shadow-[0_15px_50px_rgba(0,0,0,0.08)] animate-fade-in">
+      <div className="min-h-screen flex items-center justify-center bg-gray-55 text-gray-900 dark:text-slate-100 relative z-50 px-4">
+        <form onSubmit={handleLogin} className="relative bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 p-8 md:p-12 rounded-3xl w-full max-w-sm text-center shadow-[0_15px_50px_rgba(0,0,0,0.08)] animate-fade-in">
           
           <button 
             type="button"
             onClick={handleBack}
-            className="absolute top-6 left-6 text-gray-400 hover:text-gray-700 transition-colors p-2.5 rounded-full hover:bg-gray-50 border border-transparent hover:border-gray-200"
+            className="absolute top-6 left-6 text-gray-400 hover:text-gray-700 dark:text-slate-300 transition-colors p-2.5 rounded-full hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-800 border border-transparent hover:border-gray-200 dark:border-slate-700"
             title="Back to Home"
           >
             <ArrowLeft size={18} />
@@ -179,13 +179,13 @@ export const AdminGuard: React.FC<AdminGuardProps> = ({ children, user }) => {
              <Key size={24} />
           </div>
           
-          <h1 className="text-2xl font-bold font-display text-gray-900 mb-1">Verify Identity</h1>
+          <h1 className="text-2xl font-bold font-display text-gray-900 dark:text-slate-100 mb-1">Verify Identity</h1>
           
-          <div className="text-xs text-gray-500 font-medium bg-gray-50 border border-gray-200 px-3 py-1.5 rounded-full inline-block mb-8 max-w-full truncate">
-            Admin: <span className="font-mono font-bold text-gray-800">{user.email}</span>
+          <div className="text-xs text-gray-500 dark:text-slate-400 font-medium bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 px-3 py-1.5 rounded-full inline-block mb-8 max-w-full truncate">
+            Admin: <span className="font-mono font-bold text-gray-800 dark:text-slate-200">{user.email}</span>
           </div>
           
-          <p className="text-gray-500 text-sm mb-6">Enter your master admin password to decrypt control systems.</p>
+          <p className="text-gray-500 dark:text-slate-400 text-sm mb-6">Enter your master admin password to decrypt control systems.</p>
           
           <div className="space-y-4">
             <input 
@@ -193,7 +193,7 @@ export const AdminGuard: React.FC<AdminGuardProps> = ({ children, user }) => {
               value={password} 
               onChange={e => setPassword(e.target.value)} 
               placeholder="Admin Password"
-              className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-3.5 text-gray-900 text-center outline-none focus:border-purple-600 focus:bg-white transition-all text-sm placeholder:text-gray-400 font-sans"
+              className="w-full bg-gray-50 dark:bg-slate-800 border border-gray-300 dark:border-slate-600 rounded-xl px-4 py-3.5 text-gray-900 dark:text-slate-100 text-center outline-none focus:border-purple-600 focus:bg-white dark:bg-slate-900 transition-all text-sm placeholder:text-gray-400 font-sans"
               autoFocus
             />
             <button 

@@ -163,7 +163,7 @@ export const AdminPortfolio: React.FC = () => {
     };
 
     return (
-        <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 relative">
+        <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-6 relative">
             <ConfirmModal 
                 isOpen={itemToDelete !== null}
                 title="Delete Portfolio Item"
@@ -173,7 +173,7 @@ export const AdminPortfolio: React.FC = () => {
                 onCancel={() => setItemToDelete(null)}
             />
             <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-bold text-gray-900">Live Portfolio Manager</h3>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100">Live Portfolio Manager</h3>
                 <button onClick={handleAddPortfolio} className="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors">
                     <Plus size={16} /> Add New Work
                 </button>
@@ -184,7 +184,7 @@ export const AdminPortfolio: React.FC = () => {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {portfolio.map((item, i) => (
-                        <div key={item.id || i} className="border border-gray-200 rounded-2xl overflow-hidden shadow-sm flex flex-col group bg-gray-50/50 relative">
+                        <div key={item.id || i} className="border border-gray-200 dark:border-slate-700 rounded-2xl overflow-hidden shadow-sm flex flex-col group bg-gray-50/50 relative">
                             
                             {/* Image Selection / Viewer */}
                             <div className="h-56 bg-gray-200 flex-shrink-0 relative overflow-hidden flex items-center justify-center">
@@ -201,7 +201,7 @@ export const AdminPortfolio: React.FC = () => {
                                     {uploadingIdx === i ? (
                                         <div className="w-full max-w-[150px]">
                                             <div className="h-2 w-full bg-gray-700 rounded-full overflow-hidden mb-2">
-                                                <div className="h-full bg-white transition-all" style={{ width: `${progress}%` }}></div>
+                                                <div className="h-full bg-white dark:bg-slate-900 transition-all" style={{ width: `${progress}%` }}></div>
                                             </div>
                                             <span className="text-white text-xs font-bold text-center block">Uploading {Math.round(progress)}%</span>
                                         </div>
@@ -224,12 +224,12 @@ export const AdminPortfolio: React.FC = () => {
                             </div>
                             
                             {/* Details Editor */}
-                            <div className="p-5 bg-white flex-1 flex flex-col gap-4">
+                            <div className="p-5 bg-white dark:bg-slate-900 flex-1 flex flex-col gap-4">
                                 <div className="flex gap-2 mb-2 absolute top-2 right-2 z-20">
-                                    <button onClick={() => handleMoveUp(i)} disabled={i === 0 || loading} className="bg-white/90 p-1.5 rounded-md hover:bg-gray-100 shadow-sm disabled:opacity-50">
+                                    <button onClick={() => handleMoveUp(i)} disabled={i === 0 || loading} className="bg-white/90 dark:bg-slate-900/90 p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-slate-700 dark:bg-slate-800 shadow-sm disabled:opacity-50">
                                         <ArrowUp size={16} />
                                     </button>
-                                    <button onClick={() => handleMoveDown(i)} disabled={i === portfolio.length - 1 || loading} className="bg-white/90 p-1.5 rounded-md hover:bg-gray-100 shadow-sm disabled:opacity-50">
+                                    <button onClick={() => handleMoveDown(i)} disabled={i === portfolio.length - 1 || loading} className="bg-white/90 dark:bg-slate-900/90 p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-slate-700 dark:bg-slate-800 shadow-sm disabled:opacity-50">
                                         <ArrowDown size={16} />
                                     </button>
                                 </div>
@@ -239,7 +239,7 @@ export const AdminPortfolio: React.FC = () => {
                                         type="text" 
                                         value={item.title} 
                                         onChange={(e) => handlePortfolioChange(i, 'title', e.target.value)}
-                                        className="font-bold text-lg text-gray-900 border-b border-transparent hover:border-gray-300 focus:border-blue-500 outline-none transition-colors w-full"
+                                        className="font-bold text-lg text-gray-900 dark:text-slate-100 border-b border-transparent hover:border-gray-300 dark:border-slate-600 focus:border-blue-500 outline-none transition-colors w-full"
                                         placeholder="Project Title"
                                     />
                                 </div>
@@ -251,7 +251,7 @@ export const AdminPortfolio: React.FC = () => {
                                             type="text" 
                                             value={item.videoUrl || ''} 
                                             onChange={(e) => handlePortfolioChange(i, 'videoUrl', e.target.value)}
-                                            className="text-sm font-bold text-blue-600 border-b border-transparent hover:border-gray-300 focus:border-blue-500 outline-none transition-colors flex-1"
+                                            className="text-sm font-bold text-blue-600 border-b border-transparent hover:border-gray-300 dark:border-slate-600 focus:border-blue-500 outline-none transition-colors flex-1"
                                             placeholder="URL or use upload ->"
                                         />
                                         <label className="cursor-pointer bg-blue-50 hover:bg-blue-100 text-blue-600 px-3 py-1.5 rounded text-xs font-bold transition-colors shadow-sm">
@@ -275,7 +275,7 @@ export const AdminPortfolio: React.FC = () => {
                                         type="text" 
                                         value={item.category} 
                                         onChange={(e) => handlePortfolioChange(i, 'category', e.target.value)}
-                                        className="text-sm font-bold text-green-600 uppercase tracking-widest border-b border-transparent hover:border-gray-300 focus:border-blue-500 outline-none transition-colors w-full"
+                                        className="text-sm font-bold text-green-600 uppercase tracking-widest border-b border-transparent hover:border-gray-300 dark:border-slate-600 focus:border-blue-500 outline-none transition-colors w-full"
                                         placeholder="Category"
                                     />
                                 </div>
@@ -285,12 +285,12 @@ export const AdminPortfolio: React.FC = () => {
                                     <textarea 
                                         value={item.description}
                                         onChange={(e) => handlePortfolioChange(i, 'description', e.target.value)}
-                                        className="text-sm text-gray-600 flex-1 min-h-[80px] resize-none border border-transparent hover:border-gray-200 focus:border-blue-500 bg-transparent rounded p-1 outline-none transition-colors w-full"
+                                        className="text-sm text-gray-600 dark:text-slate-400 flex-1 min-h-[80px] resize-none border border-transparent hover:border-gray-200 dark:border-slate-700 focus:border-blue-500 bg-transparent rounded p-1 outline-none transition-colors w-full"
                                         placeholder="Description..."
                                     />
                                 </div>
                                 
-                                <div className="flex gap-3 justify-end mt-2 pt-4 border-t border-gray-100">
+                                <div className="flex gap-3 justify-end mt-2 pt-4 border-t border-gray-100 dark:border-slate-700">
                                      <button onClick={() => handleDeletePortfolioItem(i)} className="text-gray-400 hover:text-red-500 hover:bg-red-50 p-2.5 rounded-lg transition-colors" title="Delete">
                                          <Trash2 size={18} />
                                      </button>

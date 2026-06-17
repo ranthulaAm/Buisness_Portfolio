@@ -344,7 +344,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
   }, [selectedWork]);
 
   return (
-    <div className="flex flex-col min-h-screen text-gray-900">
+    <div className="flex flex-col min-h-screen text-gray-900 dark:text-slate-100">
       <Helmet>
         <title>Ranthul's Portfolio | Digital Creator</title>
         <meta name="description" content="Immersive brand experiences crafted with precision. Visual soundscapes for your digital identity." />
@@ -355,28 +355,28 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
       {/* 1. HERO SECTION */}
       <section className="min-h-[90vh] flex flex-col justify-center items-center text-center px-4 md:px-12 max-w-7xl mx-auto pt-20 relative z-10">
         <div className="max-w-5xl">
-            <h1 className="text-3xl sm:text-4xl md:text-8xl font-display font-bold mb-8 tracking-tight md:tracking-tighter leading-tight md:leading-none animate-fade-in select-none">
-              <span className="block text-gray-900 mb-2 md:mb-0">Bring your ideas</span>
-              <span className="block text-gray-900 mb-2 md:mb-0">to life with</span>
+            <h1 className="text-4xl sm:text-5xl md:text-8xl font-display font-bold mb-6 md:mb-8 tracking-tight md:tracking-tighter leading-tight md:leading-none animate-fade-in select-none">
+              <span className="block text-gray-900 dark:text-slate-100 mb-1 md:mb-0">Bring your ideas</span>
+              <span className="block text-gray-900 dark:text-slate-100 mb-1 md:mb-0">to life with</span>
               <span className="block bg-clip-text text-transparent bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 animate-gradient pb-2">vivid visuals!</span>
             </h1>
             
-            <p className="text-base md:text-2xl text-gray-500 max-w-2xl mx-auto mb-12 md:mb-16 font-light leading-relaxed animate-fade-in px-2" style={{ animationDelay: '0.2s' }}>
+            <p className="text-sm sm:text-base md:text-2xl text-gray-500 dark:text-slate-400 max-w-2xl mx-auto mb-8 md:mb-16 font-light leading-relaxed animate-fade-in px-4" style={{ animationDelay: '0.2s' }}>
               Immersive brand experiences crafted with precision. <br className="hidden md:block" />
               Visual soundscapes for your digital identity.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in w-full max-w-sm sm:max-w-none mx-auto" style={{ animationDelay: '0.4s' }}>
-                <InteractiveButton onClick={() => navigate('/order')} className="w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in w-full max-w-xs sm:max-w-none mx-auto" style={{ animationDelay: '0.4s' }}>
+                <InteractiveButton onClick={() => navigate('/order')} className="w-full sm:w-auto h-14 sm:h-auto flex items-center justify-center">
                    START PROJECT
                 </InteractiveButton>
 
-                <InteractiveButton onClick={() => navigate('/tracking')} className="w-full sm:w-auto !bg-gray-100 !text-gray-900 hover:!bg-gray-200">
+                <InteractiveButton onClick={() => navigate('/tracking')} className="w-full sm:w-auto h-14 sm:h-auto flex items-center justify-center !bg-gray-100 dark:!bg-slate-800 !text-gray-900 dark:!text-slate-100 hover:!bg-gray-200 dark:hover:!bg-slate-700">
                    TRACK ORDER
                 </InteractiveButton>
 
                 {!user && (
-                  <InteractiveButton onClick={onLoginClick} className="w-full sm:w-auto !bg-purple-100 !text-purple-600 hover:!bg-purple-200">
+                  <InteractiveButton onClick={onLoginClick} className="w-full sm:w-auto h-14 sm:h-auto flex items-center justify-center !bg-purple-100 !text-purple-600 hover:!bg-purple-200 dark:!bg-purple-900/30 dark:!text-purple-400 dark:hover:!bg-purple-900/50">
                      SIGN IN
                   </InteractiveButton>
                 )}
@@ -388,15 +388,15 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
       {skills.filter(s => !s.hidden).length > 0 && (
         <section className="py-24">
           <div className="px-6 md:px-12 max-w-7xl mx-auto">
-            <h2 className="text-4xl md:text-6xl font-display tracking-tight text-gray-900 mb-16 text-center">Software Skills</h2>
+            <h2 className="text-4xl md:text-6xl font-display tracking-tight text-gray-900 dark:text-slate-100 mb-16 text-center">Software Skills</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {skills.filter(s => !s.hidden).map((skill, idx) => (
-                <div key={skill.id || `skill-${idx}`} className="bg-white border border-gray-100 p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+                <div key={skill.id || `skill-${idx}`} className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-700 p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
                   <div className="flex justify-between items-end mb-4">
-                    <h4 className="font-bold text-gray-900 text-lg">{skill.name}</h4>
+                    <h4 className="font-bold text-gray-900 dark:text-slate-100 text-lg">{skill.name}</h4>
                     <span className="text-sm font-mono text-gray-400 font-bold">{skill.level}%</span>
                   </div>
-                  <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                  <div className="h-2 w-full bg-gray-100 dark:bg-slate-800 rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-1000 ease-out"
                       style={{ width: `${skill.level}%` }}
@@ -411,15 +411,15 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
 
       {/* 3. EXPERIENCE & EDUCATION */}
       {(experience.filter(e => !e.hidden).length > 0 || education.filter(e => !e.hidden).length > 0) && (
-        <section className="py-24 bg-gray-50 border-y border-gray-100">
+        <section className="py-24 bg-gray-50 dark:bg-slate-800 border-y border-gray-100 dark:border-slate-700">
           <div className="px-6 md:px-12 max-w-7xl mx-auto">
-            <h2 className="text-4xl md:text-6xl font-display tracking-tight text-gray-900 mb-16 text-center">Journey & Background</h2>
+            <h2 className="text-4xl md:text-6xl font-display tracking-tight text-gray-900 dark:text-slate-100 mb-16 text-center">Journey & Background</h2>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
               {/* Experience */}
               {experience.filter(e => !e.hidden).length > 0 && (
                 <div>
-                  <h3 className="text-2xl font-display font-medium text-gray-900 mb-8 border-b border-gray-200 pb-4 flex items-center gap-3">
+                  <h3 className="text-2xl font-display font-medium text-gray-900 dark:text-slate-100 mb-8 border-b border-gray-200 dark:border-slate-700 pb-4 flex items-center gap-3">
                     <span className="w-2 h-2 bg-purple-600 rounded-full"></span>
                     Professional Experience
                   </h3>
@@ -428,9 +428,9 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
                       <div key={exp.id || `exp-${idx}`} className="relative pl-6 border-l-2 border-purple-100 pb-4">
                         <div className="absolute w-3 h-3 bg-purple-500 rounded-full -left-[7px] top-1.5 shadow-[0_0_0_4px_white]"></div>
                         <div className="text-sm font-mono text-purple-600 font-bold mb-1 tracking-wider">{exp.period}</div>
-                        <h4 className="text-xl font-bold text-gray-900 mb-1">{exp.role}</h4>
-                        <div className="text-sm font-semibold text-gray-500 uppercase tracking-widest mb-3">{exp.company}</div>
-                        <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-wrap">{exp.description}</p>
+                        <h4 className="text-xl font-bold text-gray-900 dark:text-slate-100 mb-1">{exp.role}</h4>
+                        <div className="text-sm font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-3">{exp.company}</div>
+                        <p className="text-gray-600 dark:text-slate-400 text-sm leading-relaxed whitespace-pre-wrap">{exp.description}</p>
                       </div>
                     ))}
                   </div>
@@ -440,7 +440,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
               {/* Education */}
               {education.filter(e => !e.hidden).length > 0 && (
                 <div>
-                  <h3 className="text-2xl font-display font-medium text-gray-900 mb-8 border-b border-gray-200 pb-4 flex items-center gap-3">
+                  <h3 className="text-2xl font-display font-medium text-gray-900 dark:text-slate-100 mb-8 border-b border-gray-200 dark:border-slate-700 pb-4 flex items-center gap-3">
                     <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
                     Education
                   </h3>
@@ -449,9 +449,9 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
                       <div key={edu.id || `edu-${idx}`} className="relative pl-6 border-l-2 border-blue-100 pb-4">
                         <div className="absolute w-3 h-3 bg-blue-500 rounded-full -left-[7px] top-1.5 shadow-[0_0_0_4px_white]"></div>
                         <div className="text-sm font-mono text-blue-600 font-bold mb-1 tracking-wider">{edu.year}</div>
-                        <h4 className="text-xl font-bold text-gray-900 mb-1">{edu.degree}</h4>
-                        <div className="text-sm font-semibold text-gray-500 uppercase tracking-widest mb-3">{edu.institution}</div>
-                        <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-wrap">{edu.description}</p>
+                        <h4 className="text-xl font-bold text-gray-900 dark:text-slate-100 mb-1">{edu.degree}</h4>
+                        <div className="text-sm font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-3">{edu.institution}</div>
+                        <p className="text-gray-600 dark:text-slate-400 text-sm leading-relaxed whitespace-pre-wrap">{edu.description}</p>
                       </div>
                     ))}
                   </div>
@@ -466,9 +466,9 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
       <section className="py-24">
         <div className="px-6 md:px-12 max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
-             <h2 className="text-5xl md:text-7xl font-display tracking-tighter text-gray-900">Selected<br/>Works</h2>
+             <h2 className="text-5xl md:text-7xl font-display tracking-tighter text-gray-900 dark:text-slate-100">Selected<br/>Works</h2>
              <div className="h-px bg-gray-300 flex-1 mx-8 hidden md:block"></div>
-             <p className="text-gray-500 max-w-xs text-sm">Curated projects that define visual landscapes.</p>
+             <p className="text-gray-500 dark:text-slate-400 max-w-xs text-sm">Curated projects that define visual landscapes.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
@@ -485,10 +485,10 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
                 onClick={() => openWork(item.id)}
                 className={`group relative rounded-xl overflow-hidden transition-all duration-300 
                   ${idx === 0 || idx === 5 ? 'md:col-span-2 aspect-[16/10] md:aspect-[21/9]' : 'aspect-[4/5]'} 
-                  cursor-pointer bg-white border border-gray-200 hover:shadow-2xl`}
+                  cursor-pointer bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 hover:shadow-2xl`}
               >
                 <div className="absolute top-4 right-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-2 group-hover:translate-y-0">
-                  <div className="bg-white/80 backdrop-blur-md p-3 rounded-full border border-gray-200 text-gray-900 hover:bg-gray-900 hover:text-white transition-colors">
+                  <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-3 rounded-full border border-gray-200 dark:border-slate-700 text-gray-900 dark:text-slate-100 hover:bg-gray-900 hover:text-white transition-colors">
                     <Maximize2 size={20} />
                   </div>
                 </div>
@@ -509,14 +509,14 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
                     className="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-105 opacity-90 group-hover:opacity-100" 
                     onError={(e) => {
                       e.currentTarget.style.display = 'none';
-                      e.currentTarget.parentElement?.classList.add('bg-gray-100', 'flex', 'items-center', 'justify-center', 'border', 'border-gray-200');
+                      e.currentTarget.parentElement?.classList.add('bg-gray-100 dark:bg-slate-800', 'flex', 'items-center', 'justify-center', 'border', 'border-gray-200 dark:border-slate-700');
                       const div = document.createElement('div');
                       div.className = 'text-center p-6 w-full';
                       const fileName = item.img.split('/').pop();
                       div.innerHTML = `
                         <div class="text-gray-400 mb-2 font-mono text-xs uppercase tracking-widest">Image Missing</div>
-                        <div class="text-gray-900 font-display text-xl mb-3">${item.title}</div>
-                        <div class="bg-white p-2 rounded text-xs text-orange-500 font-mono break-all border border-orange-200">${fileName}</div>
+                        <div class="text-gray-900 dark:text-slate-100 font-display text-xl mb-3">${item.title}</div>
+                        <div class="bg-white dark:bg-slate-900 p-2 rounded text-xs text-orange-500 font-mono break-all border border-orange-200">${fileName}</div>
                       `;
                       e.currentTarget.parentElement?.appendChild(div);
                     }}
@@ -541,9 +541,9 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
       </section>
 
       {/* 5. SERVICES SECTION */}
-      <section id="services" className="py-24 relative z-10 bg-gray-50 border-y border-gray-100">
+      <section id="services" className="py-24 relative z-10 bg-gray-50 dark:bg-slate-800 border-y border-gray-100 dark:border-slate-700">
         <div className="px-6 md:px-12 max-w-7xl mx-auto mb-12 flex items-end justify-between">
-          <h2 className="text-3xl font-display text-gray-900">Select Mode</h2>
+          <h2 className="text-3xl font-display text-gray-900 dark:text-slate-100">Select Mode</h2>
           <span className="text-xs text-gray-400 uppercase tracking-widest hidden md:block">Choose your workflow</span>
         </div>
 
@@ -552,7 +552,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
             <Link 
               key={service.id} 
               to={`/order?service=${service.id}`} 
-              className="group relative h-[480px] bg-white rounded-[2rem] p-8 flex flex-col justify-between border border-gray-200 transition-all duration-500 hover:-translate-y-2 overflow-hidden shadow-sm hover:shadow-xl"
+              className="group relative h-[480px] bg-white dark:bg-slate-900 rounded-[2rem] p-8 flex flex-col justify-between border border-gray-200 dark:border-slate-700 transition-all duration-500 hover:-translate-y-2 overflow-hidden shadow-sm hover:shadow-xl"
             >
               <div className="absolute top-0 left-0 w-full h-full opacity-10 group-hover:opacity-20 transition-opacity duration-700 pointer-events-none invert mix-blend-multiply">
                 <ServiceVisual id={service.id} />
@@ -560,30 +560,30 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
               
               <div className="relative z-10">
                  <div className="flex justify-between items-start mb-4">
-                   <span className="text-xs font-mono text-gray-400 border border-gray-200 px-2 py-1 rounded-full text-center">0{idx + 1}</span>
+                   <span className="text-xs font-mono text-gray-400 border border-gray-200 dark:border-slate-700 px-2 py-1 rounded-full text-center">0{idx + 1}</span>
                    <ArrowRight className="text-transparent group-hover:text-purple-600 transition-all duration-300 -translate-x-4 group-hover:translate-x-0" />
                  </div>
-                 <h3 className="text-2xl md:text-3xl font-display mb-2 leading-tight text-gray-900">{service.title}</h3>
-                 <p className="text-gray-500 text-xs md:text-sm leading-relaxed">{service.description}</p>
+                 <h3 className="text-2xl md:text-3xl font-display mb-2 leading-tight text-gray-900 dark:text-slate-100">{service.title}</h3>
+                 <p className="text-gray-500 dark:text-slate-400 text-xs md:text-sm leading-relaxed">{service.description}</p>
               </div>
 
-              <div className="relative z-10 border-t border-gray-100 pt-6">
+              <div className="relative z-10 border-t border-gray-100 dark:border-slate-700 pt-6">
                 <div className="mb-4">
                     {service.discountPercentage && service.discountPercentage > 0 && service.originalPrice ? (
                          <div className="flex flex-col gap-1">
                            <div className="flex items-center gap-3">
-                             <div className="text-4xl font-light text-gray-900">LKR {service.price.toLocaleString()}</div>
+                             <div className="text-4xl font-light text-gray-900 dark:text-slate-100">LKR {service.price.toLocaleString()}</div>
                              <span className="bg-rose-100 text-rose-600 px-2 py-1 rounded font-black text-sm uppercase tracking-widest animate-pulse border border-rose-200 shadow-sm">{service.discountPercentage}% OFF</span>
                            </div>
                            <span className="text-base text-gray-400 line-through">LKR {service.originalPrice.toLocaleString()}</span>
                          </div>
                     ) : (
-                         <div className="text-4xl font-light text-gray-900">LKR {service.price.toLocaleString()}</div>
+                         <div className="text-4xl font-light text-gray-900 dark:text-slate-100">LKR {service.price.toLocaleString()}</div>
                     )}
                 </div>
                 <ul className="space-y-2">
                   {service.features.slice(0, 3).map((f, i) => (
-                     <li key={i} className="text-xs text-gray-600 flex items-center gap-2">
+                     <li key={i} className="text-xs text-gray-600 dark:text-slate-400 flex items-center gap-2">
                        <div className="w-1.5 h-1.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div> {f}
                      </li>
                   ))}
@@ -596,7 +596,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
 
       {/* 6. TESTIMONIALS */}
       {testimonials.length > 0 && (
-        <section className="py-24 bg-white overflow-hidden relative">
+        <section className="py-24 bg-white dark:bg-slate-900 overflow-hidden relative">
           <style dangerouslySetInnerHTML={{__html: `
              @keyframes marquee {
                 0% { transform: translateX(0); }
@@ -611,8 +611,8 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
           `}} />
           <div className="px-6 md:px-12 max-w-7xl mx-auto mb-16 relative z-10">
             <div className="flex flex-col items-center text-center">
-               <h2 className="text-4xl md:text-6xl font-display tracking-tight text-gray-900 mb-4">Client Feedback</h2>
-               <p className="text-gray-500 max-w-lg text-sm">Real stories from the brands and individuals I've collaborated with.</p>
+               <h2 className="text-4xl md:text-6xl font-display tracking-tight text-gray-900 dark:text-slate-100 mb-4">Client Feedback</h2>
+               <p className="text-gray-500 dark:text-slate-400 max-w-lg text-sm">Real stories from the brands and individuals I've collaborated with.</p>
             </div>
           </div>
           
@@ -620,9 +620,9 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
              <div className="flex gap-6 pb-8 animate-marquee pl-6 w-max">
                {/* Double the list to create a seamless loop effect */}
                {[...testimonials, ...testimonials].map((t, idx) => (
-                 <div key={`${t.id || 't'}-${idx}`} className="w-[300px] md:w-[400px] bg-gray-50 border border-gray-100 p-8 rounded-[2rem] flex-shrink-0 relative mt-8 flex flex-col hover:shadow-lg transition-shadow">
+                 <div key={`${t.id || 't'}-${idx}`} className="w-[300px] md:w-[400px] bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700 p-8 rounded-[2rem] flex-shrink-0 relative mt-8 flex flex-col hover:shadow-lg transition-shadow">
                     <div className="absolute -top-6 left-8 bg-purple-600 text-white w-12 h-12 flex items-center justify-center rounded-full shadow-lg font-serif italic text-3xl leading-none pt-4">"</div>
-                    <p className="text-gray-600 font-medium leading-relaxed mb-8 pt-4 text-sm md:text-base flex-1">
+                    <p className="text-gray-600 dark:text-slate-400 font-medium leading-relaxed mb-8 pt-4 text-sm md:text-base flex-1">
                        {t.feedback}
                     </p>
                     {t.rating && (
@@ -631,7 +631,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
                       </div>
                     )}
                     <div>
-                       <div className="font-bold text-gray-900 text-lg">{t.clientName}</div>
+                       <div className="font-bold text-gray-900 dark:text-slate-100 text-lg">{t.clientName}</div>
                        <div className="text-xs uppercase tracking-widest text-purple-600 font-bold mt-1">{t.projectRole}</div>
                     </div>
                  </div>
@@ -642,24 +642,24 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
       )}
 
       {/* 6.5 FAQ SECTION */}
-      <section className="py-24 bg-gray-50">
+      <section className="py-24 bg-gray-50 dark:bg-slate-800">
         <div className="px-6 md:px-12 max-w-4xl mx-auto">
           <div className="flex flex-col items-center mb-16 text-center">
-             <h2 className="text-4xl md:text-6xl font-display tracking-tight text-gray-900 mb-4">Frequently Asked Questions</h2>
-             <p className="text-gray-500 max-w-lg text-sm">Everything you need to know about the product and billing.</p>
+             <h2 className="text-4xl md:text-6xl font-display tracking-tight text-gray-900 dark:text-slate-100 mb-4">Frequently Asked Questions</h2>
+             <p className="text-gray-500 dark:text-slate-400 max-w-lg text-sm">Everything you need to know about the product and billing.</p>
           </div>
           <div className="space-y-4">
              {FAQS.map((faq, idx) => (
-               <div key={idx} className="bg-white border border-gray-200 rounded-2xl overflow-hidden transition-all shadow-sm">
+               <div key={idx} className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl overflow-hidden transition-all shadow-sm">
                  <button 
                    onClick={() => setOpenFaq(openFaq === idx ? null : idx)} 
-                   className="w-full px-6 py-5 text-left flex justify-between items-center bg-white hover:bg-gray-50 transition-colors"
+                   className="w-full px-6 py-5 text-left flex justify-between items-center bg-white dark:bg-slate-900 hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-800 transition-colors"
                   >
-                   <span className="font-medium text-gray-900">{faq.question}</span>
+                   <span className="font-medium text-gray-900 dark:text-slate-100">{faq.question}</span>
                    <ChevronDown size={20} className={`text-gray-400 transition-transform duration-300 ${openFaq === idx ? 'rotate-180' : ''}`} />
                  </button>
                  <div className={`overflow-hidden transition-all duration-300 ${openFaq === idx ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
-                   <div className="px-6 pb-5 pt-0 text-gray-500 text-sm leading-relaxed">
+                   <div className="px-6 pb-5 pt-0 text-gray-500 dark:text-slate-400 text-sm leading-relaxed">
                      {faq.answer}
                    </div>
                  </div>
@@ -681,7 +681,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
             Have a project in mind? Looking to collaborate? Fill out the form below and I'll get back to you as soon as possible.
           </p>
           
-          <form onSubmit={handleContactSubmit} className="bg-white/5 backdrop-blur-md border border-white/20 p-8 md:p-10 rounded-3xl text-left max-w-2xl mx-auto shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+          <form onSubmit={handleContactSubmit} className="bg-white/5 backdrop-blur-md border border-white dark:border-slate-800/20 p-8 md:p-10 rounded-3xl text-left max-w-2xl mx-auto shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
             <div className="mb-6">
               <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Your Name</label>
               <input 
@@ -689,7 +689,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
                 required
                 value={contactForm.name}
                 onChange={e => setContactForm({ ...contactForm, name: e.target.value })}
-                className="w-full bg-black/20 border border-white/20 rounded-xl px-4 py-3 text-white outline-none focus:border-purple-500 transition-colors shadow-inner"
+                className="w-full bg-black/20 border border-white dark:border-slate-800/20 rounded-xl px-4 py-3 text-white outline-none focus:border-purple-500 transition-colors shadow-inner"
                 placeholder="John Doe"
               />
             </div>
@@ -702,7 +702,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
                   required
                   value={contactForm.email}
                   onChange={e => setContactForm({ ...contactForm, email: e.target.value })}
-                  className="w-full bg-black/20 border border-white/20 rounded-xl px-4 py-3 text-white outline-none focus:border-purple-500 transition-colors shadow-inner"
+                  className="w-full bg-black/20 border border-white dark:border-slate-800/20 rounded-xl px-4 py-3 text-white outline-none focus:border-purple-500 transition-colors shadow-inner"
                   placeholder="john@example.com"
                 />
               </div>
@@ -714,7 +714,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
                 type="text" 
                 value={contactForm.whatsapp}
                 onChange={e => setContactForm({ ...contactForm, whatsapp: e.target.value })}
-                className="w-full bg-black/20 border border-white/20 rounded-xl px-4 py-3 text-white outline-none focus:border-purple-500 transition-colors shadow-inner"
+                className="w-full bg-black/20 border border-white dark:border-slate-800/20 rounded-xl px-4 py-3 text-white outline-none focus:border-purple-500 transition-colors shadow-inner"
                 placeholder="+1 234 567 890"
               />
             </div>
@@ -725,7 +725,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
                 required
                 value={contactForm.message}
                 onChange={e => setContactForm({ ...contactForm, message: e.target.value })}
-                className="w-full bg-black/20 border border-white/20 rounded-xl px-4 py-3 text-white outline-none focus:border-purple-500 transition-colors min-h-[120px] resize-none shadow-inner"
+                className="w-full bg-black/20 border border-white dark:border-slate-800/20 rounded-xl px-4 py-3 text-white outline-none focus:border-purple-500 transition-colors min-h-[120px] resize-none shadow-inner"
                 placeholder="Tell me about your project..."
               />
             </div>
@@ -733,7 +733,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
             <button 
               type="submit" 
               disabled={contactStatus !== 'idle'}
-              className="w-full bg-white text-gray-900 font-bold py-4 rounded-xl hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 font-bold py-4 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-700 dark:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {contactStatus === 'loading' ? 'Sending...' : contactStatus === 'success' ? 'Message Sent!' : 'Send Message'}
               {contactStatus === 'idle' && <ArrowRight size={18} />}
@@ -751,7 +751,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
             {/* Close Button Mobile (Sticky-style) */}
             <button 
               onClick={closeLightbox} 
-              className="fixed top-6 right-6 text-gray-500 hover:text-gray-900 pointer-events-auto transition-all z-[110] p-2 bg-white/80 backdrop-blur-md rounded-full border border-gray-200 md:hidden shadow-sm"
+              className="fixed top-6 right-6 text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:text-slate-100 pointer-events-auto transition-all z-[110] p-2 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-full border border-gray-200 dark:border-slate-700 md:hidden shadow-sm"
             >
               <X size={24} />
             </button>
@@ -759,7 +759,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
             {/* Close Button Desktop */}
             <button 
               onClick={closeLightbox} 
-              className="absolute -top-12 -right-12 text-gray-400 hover:text-gray-900 pointer-events-auto transition-colors z-50 p-2 group hidden md:flex items-center"
+              className="absolute -top-12 -right-12 text-gray-400 hover:text-gray-900 dark:text-slate-100 pointer-events-auto transition-colors z-50 p-2 group hidden md:flex items-center"
             >
               <span className="mr-2 text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">Close</span>
               <X size={32} />
@@ -767,7 +767,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
 
             <div className="flex flex-col md:flex-row gap-6 md:gap-12 pointer-events-auto items-center">
               {/* Image Container */}
-              <div className="flex-1 w-full flex items-center justify-center relative rounded-2xl overflow-hidden shadow-2xl bg-gray-50 border border-gray-100">
+              <div className="flex-1 w-full flex items-center justify-center relative rounded-2xl overflow-hidden shadow-2xl bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700">
                  <img 
                    src={selectedWork.img} 
                    alt={selectedWork.title} 
@@ -776,13 +776,13 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
               </div>
 
               {/* Text Container */}
-              <div className="w-full md:w-[400px] flex flex-col justify-center bg-white/60 md:bg-transparent backdrop-blur-xl md:backdrop-blur-none p-6 md:p-0 rounded-2xl md:rounded-none border border-gray-300 md:border-none shadow-[0_8px_32px_rgba(0,0,0,0.12)] md:shadow-none">
+              <div className="w-full md:w-[400px] flex flex-col justify-center bg-white/60 md:bg-transparent backdrop-blur-xl md:backdrop-blur-none p-6 md:p-0 rounded-2xl md:rounded-none border border-gray-300 dark:border-slate-600 md:border-none shadow-[0_8px_32px_rgba(0,0,0,0.12)] md:shadow-none">
                   <div className="flex items-center gap-3 mb-4">
                      <span className="h-px w-8 bg-purple-500"></span>
                      <span className="text-purple-600 text-xs font-bold uppercase tracking-widest">{selectedWork.category}</span>
                   </div>
-                  <h2 className="text-3xl md:text-5xl font-display font-bold text-gray-900 mb-6 leading-tight">{selectedWork.title}</h2>
-                  <p className="text-gray-600 text-sm md:text-base leading-relaxed font-light border-l border-gray-200 pl-5 py-1 mb-8">
+                  <h2 className="text-3xl md:text-5xl font-display font-bold text-gray-900 dark:text-slate-100 mb-6 leading-tight">{selectedWork.title}</h2>
+                  <p className="text-gray-600 dark:text-slate-400 text-sm md:text-base leading-relaxed font-light border-l border-gray-200 dark:border-slate-700 pl-5 py-1 mb-8">
                     {selectedWork.description}
                   </p>
                   
@@ -793,7 +793,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
                      }}>
                         Start Similar Project
                      </InteractiveButton>
-                     <button onClick={closeLightbox} className="md:hidden w-full py-4 bg-gray-100 text-gray-500 border border-gray-200 font-bold rounded-full uppercase tracking-wider text-xs shadow-sm hover:bg-gray-200">
+                     <button onClick={closeLightbox} className="md:hidden w-full py-4 bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400 border border-gray-200 dark:border-slate-700 font-bold rounded-full uppercase tracking-wider text-xs shadow-sm hover:bg-gray-200">
                         Back to Portfolio
                      </button>
                   </div>
@@ -805,12 +805,12 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
 
       {/* RATING PROMPT FOR UNRATED COMPLETED PROJECTS */}
       {unratedOrder && (
-         <div className="fixed bottom-6 right-6 z-[100] bg-white p-6 rounded-2xl shadow-2xl border border-gray-200 w-80 animate-[slideUp_0.3s_ease-out_forwards]">
-             <button onClick={() => setUnratedOrder(null)} className="absolute top-3 right-3 p-1 rounded-full text-gray-400 hover:text-gray-900 transition-colors bg-gray-100 hover:bg-gray-200">
+         <div className="fixed bottom-6 right-6 z-[100] bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-2xl border border-gray-200 dark:border-slate-700 w-80 animate-[slideUp_0.3s_ease-out_forwards]">
+             <button onClick={() => setUnratedOrder(null)} className="absolute top-3 right-3 p-1 rounded-full text-gray-400 hover:text-gray-900 dark:text-slate-100 transition-colors bg-gray-100 dark:bg-slate-800 hover:bg-gray-200">
                 <X size={16} />
              </button>
-             <h4 className="font-bold text-sm mb-2 text-gray-900 leading-tight">Rate your experience!</h4>
-             <p className="text-xs text-gray-500 mb-5 leading-relaxed">
+             <h4 className="font-bold text-sm mb-2 text-gray-900 dark:text-slate-100 leading-tight">Rate your experience!</h4>
+             <p className="text-xs text-gray-500 dark:text-slate-400 mb-5 leading-relaxed">
                 Your project "{unratedOrder.serviceType}" was completed. Let us know how we did!
              </p>
              <InteractiveButton onClick={() => navigate(`/tracking?id=${unratedOrder.id}`)} className="text-[10px] px-4 py-3 w-full flex justify-center items-center">

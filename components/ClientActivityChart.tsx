@@ -46,8 +46,8 @@ export const ClientActivityChart: React.FC<ClientActivityChartProps> = ({ orders
   }, [orders]);
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 w-full">
-      <h3 className="text-lg font-bold text-gray-900 mb-6">Client Activity (Last 30 Days)</h3>
+    <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-6 w-full">
+      <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 mb-6">Client Activity (Last 30 Days)</h3>
       <div className="h-[300px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data}>

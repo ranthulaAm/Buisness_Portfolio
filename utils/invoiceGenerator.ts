@@ -297,27 +297,49 @@ export const downloadInvoice = async (order: Order) => {
     columnStyles: { 1: { halign: 'right' } }
   });
 
-  const finalY = (doc as any).lastAutoTable.finalY + 10;
+  let curFinalY = (doc as any).lastAutoTable.finalY + 10;
   
-  // Total line
-  doc.setFontSize(12);
-  doc.setFont(config.layoutStyle === 'classic' ? 'times' : 'helvetica', 'bold');
-  doc.setTextColor(primaryRgb[0], primaryRgb[1], primaryRgb[2]);
-  doc.text("Total Paid", 120, finalY);
-  doc.text(`LKR ${order.price.toLocaleString()}`, 195, finalY, { align: 'right' });
+  if (config.taxRate !== undefined && config.taxRate > 0) {
+      doc.setFontSize(10);
+      doc.setFont(config.layoutStyle === 'classic' ? 'times' : 'helvetica', 'normal');
+      doc.setTextColor(71, 85, 105);
+      doc.text("Subtotal", 120, curFinalY);
+      doc.text(`LKR ${order.price.toLocaleString()}`, 195, curFinalY, { align: 'right' });
+      
+      curFinalY += 6;
+      
+      const taxAmount = order.price * (config.taxRate / 100);
+      doc.text(`${config.taxName || 'Tax'} (${config.taxRate}%)`, 120, curFinalY);
+      doc.text(`LKR ${taxAmount.toLocaleString()}`, 195, curFinalY, { align: 'right' });
+      
+      curFinalY += 10;
+      
+      doc.setFontSize(12);
+      doc.setFont(config.layoutStyle === 'classic' ? 'times' : 'helvetica', 'bold');
+      doc.setTextColor(primaryRgb[0], primaryRgb[1], primaryRgb[2]);
+      doc.text("Total Paid", 120, curFinalY);
+      doc.text(`LKR ${(order.price + taxAmount).toLocaleString()}`, 195, curFinalY, { align: 'right' });
+  } else {
+      // Total line only
+      doc.setFontSize(12);
+      doc.setFont(config.layoutStyle === 'classic' ? 'times' : 'helvetica', 'bold');
+      doc.setTextColor(primaryRgb[0], primaryRgb[1], primaryRgb[2]);
+      doc.text("Total Paid", 120, curFinalY);
+      doc.text(`LKR ${order.price.toLocaleString()}`, 195, curFinalY, { align: 'right' });
+  }
   
   doc.setDrawColor(203, 213, 225);
-  doc.line(120, finalY - 6, 195, finalY - 6);
-  doc.line(120, finalY + 4, 195, finalY + 4);
+  doc.line(120, curFinalY - 6, 195, curFinalY - 6);
+  doc.line(120, curFinalY + 4, 195, curFinalY + 4);
 
   // Footer
   doc.setFont(config.layoutStyle === 'classic' ? 'times' : 'helvetica', 'italic');
   doc.setFontSize(10);
   doc.setTextColor(148, 163, 184); // gray-400
-  doc.text("Thank you for your business!", 105, finalY + 30, { align: "center" });
+  doc.text("Thank you for your business!", 105, curFinalY + 30, { align: "center" });
   if (order.id) {
      doc.setFont(config.layoutStyle === 'classic' ? 'times' : 'helvetica', 'normal');
-     doc.text(`If you have any problems, please contact us with your Order Number.`, 105, finalY + 35, { align: "center" });
+     doc.text(`If you have any problems, please contact us with your Order Number.`, 105, curFinalY + 35, { align: "center" });
   }
 
   doc.save(`Invoice_${order.id}.pdf`);

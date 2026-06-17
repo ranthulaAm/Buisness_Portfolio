@@ -86,7 +86,7 @@ export const AdminTestimonials: React.FC = () => {
     };
 
     return (
-        <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 relative">
+        <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-6 relative">
             <ConfirmModal 
                 isOpen={itemToDelete !== null}
                 title="Delete Testimonial"
@@ -96,7 +96,7 @@ export const AdminTestimonials: React.FC = () => {
                 onCancel={() => setItemToDelete(null)}
             />
             <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-bold text-gray-900">Manage Testimonials</h3>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100">Manage Testimonials</h3>
                 <button onClick={handleAdd} className="bg-purple-600 text-white hover:bg-purple-700 px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors">
                     <Plus size={16} /> Add Testimonial
                 </button>
@@ -107,34 +107,34 @@ export const AdminTestimonials: React.FC = () => {
             ) : (
                 <div className="space-y-6">
                     {testimonials.map((t, idx) => (
-                        <div key={t.id || idx} className="bg-gray-50 border border-gray-200 p-6 rounded-2xl relative flex flex-col md:flex-row gap-6">
+                        <div key={t.id || idx} className="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 p-6 rounded-2xl relative flex flex-col md:flex-row gap-6">
                             <div className="flex-1 flex flex-col gap-4">
                                 <div className="flex flex-col md:flex-row gap-4">
                                     <div className="flex-1">
-                                        <label className="text-[10px] uppercase font-bold text-gray-500 mb-1 block">Client Name</label>
-                                        <input value={t.clientName} onChange={e => handleChange(idx, 'clientName', e.target.value)} className="w-full border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-purple-500" placeholder="e.g. Jane Doe" />
+                                        <label className="text-[10px] uppercase font-bold text-gray-500 dark:text-slate-400 mb-1 block">Client Name</label>
+                                        <input value={t.clientName} onChange={e => handleChange(idx, 'clientName', e.target.value)} className="w-full border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-2 outline-none focus:border-purple-500" placeholder="e.g. Jane Doe" />
                                     </div>
                                     <div className="flex-1">
-                                        <label className="text-[10px] uppercase font-bold text-gray-500 mb-1 block">Project Role / Brand</label>
-                                        <input value={t.projectRole} onChange={e => handleChange(idx, 'projectRole', e.target.value)} className="w-full border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-purple-500" placeholder="e.g. CEO at TechCorp" />
+                                        <label className="text-[10px] uppercase font-bold text-gray-500 dark:text-slate-400 mb-1 block">Project Role / Brand</label>
+                                        <input value={t.projectRole} onChange={e => handleChange(idx, 'projectRole', e.target.value)} className="w-full border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-2 outline-none focus:border-purple-500" placeholder="e.g. CEO at TechCorp" />
                                     </div>
                                     <div>
-                                        <label className="text-[10px] uppercase font-bold text-gray-500 mb-1 block">Rating</label>
-                                        <select value={t.rating || 5} onChange={e => handleChange(idx, 'rating', Number(e.target.value) as any)} className="w-full border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-purple-500 bg-white">
+                                        <label className="text-[10px] uppercase font-bold text-gray-500 dark:text-slate-400 mb-1 block">Rating</label>
+                                        <select value={t.rating || 5} onChange={e => handleChange(idx, 'rating', Number(e.target.value) as any)} className="w-full border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-2 outline-none focus:border-purple-500 bg-white dark:bg-slate-900">
                                             {[5,4,3,2,1].map(r => <option key={r} value={r}>{r} Stars</option>)}
                                         </select>
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="text-[10px] uppercase font-bold text-gray-500 mb-1 block">Feedback</label>
-                                    <textarea value={t.feedback} onChange={e => handleChange(idx, 'feedback', e.target.value)} className="w-full border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-purple-500 min-h-[100px] resize-none" placeholder="Client feedback..." />
+                                    <label className="text-[10px] uppercase font-bold text-gray-500 dark:text-slate-400 mb-1 block">Feedback</label>
+                                    <textarea value={t.feedback} onChange={e => handleChange(idx, 'feedback', e.target.value)} className="w-full border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-2 outline-none focus:border-purple-500 min-h-[100px] resize-none" placeholder="Client feedback..." />
                                 </div>
                             </div>
                             
-                            <div className="flex flex-row md:flex-col items-center justify-between border-t border-gray-200 md:border-t-0 md:border-l md:pl-6 pt-4 md:pt-0 gap-2">
+                            <div className="flex flex-row md:flex-col items-center justify-between border-t border-gray-200 dark:border-slate-700 md:border-t-0 md:border-l md:pl-6 pt-4 md:pt-0 gap-2">
                                 <div className="flex md:flex-col gap-2">
-                                    <button onClick={() => handleMoveUp(idx)} disabled={idx === 0 || loading} className="bg-white border border-gray-200 p-2 rounded hover:bg-gray-100 disabled:opacity-50"><ArrowUp size={16} /></button>
-                                    <button onClick={() => handleMoveDown(idx)} disabled={idx === testimonials.length - 1 || loading} className="bg-white border border-gray-200 p-2 rounded hover:bg-gray-100 disabled:opacity-50"><ArrowDown size={16} /></button>
+                                    <button onClick={() => handleMoveUp(idx)} disabled={idx === 0 || loading} className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 p-2 rounded hover:bg-gray-100 dark:hover:bg-slate-700 dark:bg-slate-800 disabled:opacity-50"><ArrowUp size={16} /></button>
+                                    <button onClick={() => handleMoveDown(idx)} disabled={idx === testimonials.length - 1 || loading} className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 p-2 rounded hover:bg-gray-100 dark:hover:bg-slate-700 dark:bg-slate-800 disabled:opacity-50"><ArrowDown size={16} /></button>
                                 </div>
                                 <div className="flex md:flex-col gap-2">
                                     <button onClick={() => handleSave(idx)} disabled={loading} className="bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-bold disabled:opacity-50 hover:bg-gray-800">
@@ -147,7 +147,7 @@ export const AdminTestimonials: React.FC = () => {
                             </div>
                         </div>
                     ))}
-                    {testimonials.length === 0 && <div className="text-center py-12 text-gray-400 bg-gray-50 rounded-2xl border border-dashed border-gray-200">No testimonials yet.</div>}
+                    {testimonials.length === 0 && <div className="text-center py-12 text-gray-400 bg-gray-50 dark:bg-slate-800 rounded-2xl border border-dashed border-gray-200 dark:border-slate-700">No testimonials yet.</div>}
                 </div>
             )}
         </div>

@@ -14,9 +14,21 @@ export const sendTelegramNotification = async (order: Order): Promise<void> => {
   });
   
   const message = `${order.clientName} placed a new order on ${date}`;
-  
+  await sendTelegramMessage(message);
+};
+
+export const sendRevisionRequestedNotification = async (order: Order, notes: string): Promise<void> => {
+  const message = `🔄 Revision Requested by ${order.clientName}\nOrder: ${order.id}\nNotes: ${notes}`;
+  await sendTelegramMessage(message);
+};
+
+export const sendPaymentAwaitedNotification = async (order: Order): Promise<void> => {
+  const message = `💳 Payment Awaited\n${order.clientName} is now in AWAITING_PAYMENT status for order ${order.id}.`;
+  await sendTelegramMessage(message);
+};
+
+const sendTelegramMessage = async (message: string): Promise<void> => {
   const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-  
   try {
     const response = await fetch(url, {
       method: 'POST',

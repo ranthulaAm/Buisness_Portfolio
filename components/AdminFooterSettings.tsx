@@ -26,59 +26,59 @@ export const AdminFooterSettings: React.FC = () => {
     if (!config) return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-gray-400" /></div>;
 
     return (
-        <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 mb-8 mt-8 max-w-4xl mx-auto">
-            <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+        <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-6 mb-8 mt-8 max-w-4xl mx-auto">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 mb-6 flex items-center gap-2">
                 <LinkIcon className="text-purple-600" size={20} /> Contacts & Location
             </h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <div>
-                    <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Display Email</label>
+                    <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-slate-400 mb-2">Display Email</label>
                     <input 
                         type="email" 
                         value={config.email} 
                         onChange={e => setConfig({...config, email: e.target.value})}
-                        className="w-full border border-gray-300 rounded-xl p-3 outline-none focus:border-purple-500"
+                        className="w-full border border-gray-300 dark:border-slate-600 rounded-xl p-3 outline-none focus:border-purple-500"
                     />
                 </div>
                 <div>
-                    <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Display Phone Number</label>
+                    <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-slate-400 mb-2">Display Phone Number</label>
                     <input 
                         type="text" 
                         value={config.phone} 
                         onChange={e => setConfig({...config, phone: e.target.value})}
-                        className="w-full border border-gray-300 rounded-xl p-3 outline-none focus:border-purple-500"
+                        className="w-full border border-gray-300 dark:border-slate-600 rounded-xl p-3 outline-none focus:border-purple-500"
                     />
                 </div>
                 <div>
-                    <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Instagram URL</label>
+                    <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-slate-400 mb-2">Instagram URL</label>
                     <input 
                         type="text" 
                         value={config.instagram} 
                         onChange={e => setConfig({...config, instagram: e.target.value})}
-                        className="w-full border border-gray-300 rounded-xl p-3 outline-none focus:border-purple-500"
+                        className="w-full border border-gray-300 dark:border-slate-600 rounded-xl p-3 outline-none focus:border-purple-500"
                     />
                 </div>
                 <div>
-                    <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Facebook URL</label>
+                    <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-slate-400 mb-2">Facebook URL</label>
                     <input 
                         type="text" 
                         value={config.facebook} 
                         onChange={e => setConfig({...config, facebook: e.target.value})}
-                        className="w-full border border-gray-300 rounded-xl p-3 outline-none focus:border-purple-500"
+                        className="w-full border border-gray-300 dark:border-slate-600 rounded-xl p-3 outline-none focus:border-purple-500"
                     />
                 </div>
                 <div className="md:col-span-2">
-                    <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Location / Address</label>
+                    <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-slate-400 mb-2">Location / Address</label>
                     <textarea 
                         value={config.location} 
                         onChange={e => setConfig({...config, location: e.target.value})}
-                        className="w-full border border-gray-300 rounded-xl p-3 outline-none focus:border-purple-500 min-h-[80px]"
+                        className="w-full border border-gray-300 dark:border-slate-600 rounded-xl p-3 outline-none focus:border-purple-500 min-h-[80px]"
                     />
                 </div>
             </div>
 
-            <h4 className="text-sm font-bold text-gray-900 mb-4 border-b border-gray-100 pb-2">Extra Websites / URLs</h4>
+            <h4 className="text-sm font-bold text-gray-900 dark:text-slate-100 mb-4 border-b border-gray-100 dark:border-slate-700 pb-2">Extra Websites / URLs</h4>
             <div className="space-y-3 mb-6">
                 {config.extraUrls.map((urlItem, idx) => (
                     <div key={idx} className="flex gap-3">
@@ -91,7 +91,7 @@ export const AdminFooterSettings: React.FC = () => {
                                 newUrls[idx] = { ...newUrls[idx], title: e.target.value };
                                 setConfig({...config, extraUrls: newUrls });
                             }}
-                            className="flex-1 border border-gray-300 rounded-xl p-3 outline-none focus:border-purple-500 text-sm"
+                            className="flex-1 border border-gray-300 dark:border-slate-600 rounded-xl p-3 outline-none focus:border-purple-500 text-sm"
                         />
                         <input 
                             type="text" 
@@ -102,7 +102,7 @@ export const AdminFooterSettings: React.FC = () => {
                                 newUrls[idx] = { ...newUrls[idx], url: e.target.value };
                                 setConfig({...config, extraUrls: newUrls });
                             }}
-                            className="flex-[2] border border-gray-300 rounded-xl p-3 outline-none focus:border-purple-500 text-sm"
+                            className="flex-[2] border border-gray-300 dark:border-slate-600 rounded-xl p-3 outline-none focus:border-purple-500 text-sm"
                         />
                         <button onClick={() => {
                             const newUrls = [...config.extraUrls];
@@ -120,7 +120,7 @@ export const AdminFooterSettings: React.FC = () => {
                 </button>
             </div>
 
-            <div className="flex justify-end pt-6 border-t border-gray-100">
+            <div className="flex justify-end pt-6 border-t border-gray-100 dark:border-slate-700">
                 <button onClick={handleSave} disabled={loading} className="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold uppercase tracking-widest text-xs hover:bg-purple-700 transition-colors flex items-center gap-2 disabled:opacity-50">
                     {loading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />} Save Contact Info
                 </button>

@@ -1,49 +1,42 @@
 
 import { Order, OrderStatus } from '../types';
+import { getEmailConfig } from './dataService';
 
 /**
  * Placeholder service for sending transactional emails.
  * In a production environment, this would connect to an API (e.g., SendGrid, AWS SES, Mailgun).
  */
 export const sendConfirmationEmail = async (order: Order): Promise<boolean> => {
-  return new Promise((resolve) => {
-    // Construct the email body
-    const emailSubject = `Order Confirmation - Tracking #${order.id}`;
+  return new Promise(async (resolve) => {
+    const config = await getEmailConfig();
     const trackingUrl = `${window.location.origin}/#/tracking?id=${order.id}`;
     
-    const emailBody = `
+    const emailSubject = config.emailSubjectTemplate
+        .replace(/{orderId}/g, order.id)
+        .replace(/{clientName}/g, order.clientName)
+        .replace(/{serviceType}/g, order.serviceType);
+        
+    const emailBody = config.emailBodyTemplate
+        .replace(/{orderId}/g, order.id)
+        .replace(/{clientName}/g, order.clientName)
+        .replace(/{serviceType}/g, order.serviceType)
+        .replace(/{price}/g, order.price.toString())
+        .replace(/{estimatedCompletion}/g, order.estimatedCompletion || 'TBA')
+        .replace(/{trackingUrl}/g, trackingUrl);
+    
+    const fullEmailContent = `
 ----------------------------------------------------
 [MOCK EMAIL SERVICE]
 To: ${order.email}
 Subject: ${emailSubject}
 ----------------------------------------------------
-Dear ${order.clientName},
-
-Thank you for choosing DesignFlow! Your order has been successfully placed and is now Pending Review.
-
-== ORDER DETAILS ==
-ID: ${order.id}
-Service: ${order.serviceType}
-Price: LKR ${order.price}
-Estimated Completion: ${order.estimatedCompletion}
-
-== CREATIVE BRIEF ==
-Industry: ${order.industry}
-Keywords: ${order.keywords || 'N/A'}
-
-You can track the live status of your design here:
-${trackingUrl}
-
-We will be in touch shortly if we need any more details.
-
-Best regards,
-The DesignFlow Team
+${emailBody}
 ----------------------------------------------------
     `;
 
     // Simulate network latency (1.5 seconds)
     setTimeout(() => {
-      console.log(emailBody); // Log to console for developer verification
+      console.log(fullEmailContent); // Log to console for developer verification
       resolve(true);
     }, 1500);
   });

@@ -213,6 +213,8 @@ export interface InvoiceConfig {
   layoutStyle: 'modern' | 'classic' | 'minimal';
   companyName: string;
   companyAddress: string;
+  taxRate?: number;
+  taxName?: string;
 }
 
 export const getInvoiceConfig = async (): Promise<InvoiceConfig> => {
@@ -229,17 +231,82 @@ export const getInvoiceConfig = async (): Promise<InvoiceConfig> => {
         secondaryColor: data.secondaryColor || '#666666',
         layoutStyle: data.layoutStyle || 'modern',
         companyName: data.companyName || 'My Company',
-        companyAddress: data.companyAddress || ''
+        companyAddress: data.companyAddress || '',
+        taxRate: data.taxRate || 0,
+        taxName: data.taxName || 'Tax'
       };
     }
   } catch (e) {
     console.error("Error getting invoice config:", e);
   }
-  return { logoUrl: '', logoBase64: '', primaryColor: '#000000', secondaryColor: '#666666', layoutStyle: 'modern', companyName: 'My Company', companyAddress: '' };
+  return { logoUrl: '', logoBase64: '', primaryColor: '#000000', secondaryColor: '#666666', layoutStyle: 'modern', companyName: 'My Company', companyAddress: '', taxRate: 0, taxName: 'Tax' };
 };
 
 export const updateInvoiceConfig = async (config: InvoiceConfig) => {
   const ref = doc(db, 'settings', 'invoice');
+  return await setDoc(ref, config, { merge: true });
+};
+
+export interface EmailConfig {
+  emailSubjectTemplate: string;
+  emailBodyTemplate: string;
+}
+
+export const getEmailConfig = async (): Promise<EmailConfig> => {
+  try {
+    const q = query(collection(db, 'settings'));
+    const snapshot = await getDocs(q);
+    const docItem = snapshot.docs.find(d => d.id === 'email_template');
+    if (docItem) {
+      const data = docItem.data();
+      return { 
+        emailSubjectTemplate: data.emailSubjectTemplate || `Order Confirmation - Tracking #{orderId}`,
+        emailBodyTemplate: data.emailBodyTemplate || `Dear {clientName},
+
+Thank you for choosing DesignFlow! Your order has been successfully placed and is now Pending Review.
+
+== ORDER DETAILS ==
+ID: {orderId}
+Service: {serviceType}
+Price: LKR {price}
+Estimated Completion: {estimatedCompletion}
+
+You can track the live status of your design here:
+{trackingUrl}
+
+We will be in touch shortly.
+
+Best regards,
+The DesignFlow Team`
+      };
+    }
+  } catch (e) {
+    console.error("Error getting email config:", e);
+  }
+  return { 
+    emailSubjectTemplate: `Order Confirmation - Tracking #{orderId}`,
+    emailBodyTemplate: `Dear {clientName},
+
+Thank you for choosing DesignFlow! Your order has been successfully placed and is now Pending Review.
+
+== ORDER DETAILS ==
+ID: {orderId}
+Service: {serviceType}
+Price: LKR {price}
+Estimated Completion: {estimatedCompletion}
+
+You can track the live status of your design here:
+{trackingUrl}
+
+We will be in touch shortly.
+
+Best regards,
+The DesignFlow Team`
+  };
+};
+
+export const updateEmailConfig = async (config: EmailConfig) => {
+  const ref = doc(db, 'settings', 'email_template');
   return await setDoc(ref, config, { merge: true });
 };
 

@@ -182,16 +182,10 @@
         background: #a8a8a8;
       }
 
-      /* High-Contrast/Dark Mode via Inversion Strategy */
-      html.high-contrast {
-        filter: invert(0.9) hue-rotate(180deg) brightness(1.1) contrast(0.95);
-        background-color: #ffffff; /* White inverts to a clean Dark Gray */
-      }
-      html.high-contrast img,
-      html.high-contrast video,
-      html.high-contrast svg.lucide,
-      html.high-contrast [style*="background-image"] {
-        filter: invert(1) hue-rotate(180deg);
+      /* Dark Mode Base */
+      html.dark body {
+        background-color: #0f172a; /* slate-900 */
+        color: #f8fafc; /* slate-50 */
       }
     </style>
   <script type="importmap">

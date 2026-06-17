@@ -77,7 +77,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }
       <div className="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onClick={onClose}></div>
       
       {/* Modal */}
-      <div className="relative glass-effect border border-white/10 rounded-3xl w-full max-w-md p-8 shadow-[0_0_50px_rgba(213,0,249,0.15)] animate-float overflow-hidden">
+      <div className="relative glass-effect border border-white dark:border-slate-800/10 rounded-3xl w-full max-w-md p-8 shadow-[0_0_50px_rgba(213,0,249,0.15)] animate-float overflow-hidden">
         <button onClick={onClose} className="absolute top-6 right-6 text-white/30 hover:text-white transition-colors z-20">
           <X size={24} />
         </button>
@@ -97,7 +97,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full bg-black/40 border border-white/10 rounded-xl py-3.5 pl-12 pr-4 text-white text-sm outline-none focus:border-accent-purple focus:bg-black/60 transition-all placeholder:text-white/20"
+                className="w-full bg-black/40 border border-white dark:border-slate-800/10 rounded-xl py-3.5 pl-12 pr-4 text-white text-sm outline-none focus:border-accent-purple focus:bg-black/60 transition-all placeholder:text-white/20"
               />
             </div>
           </div>
@@ -111,7 +111,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full bg-black/40 border border-white/10 rounded-xl py-3.5 pl-12 pr-4 text-white text-sm outline-none focus:border-accent-purple focus:bg-black/60 transition-all placeholder:text-white/20"
+                className="w-full bg-black/40 border border-white dark:border-slate-800/10 rounded-xl py-3.5 pl-12 pr-4 text-white text-sm outline-none focus:border-accent-purple focus:bg-black/60 transition-all placeholder:text-white/20"
               />
             </div>
           </div>
@@ -127,7 +127,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }
             <button 
               type="submit" 
               disabled={isLoading}
-              className="w-full bg-white text-black font-bold font-sans py-3.5 rounded-xl flex items-center justify-center gap-2 hover:bg-accent-magenta hover:text-white transition-all shadow-lg hover:scale-[1.01] disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-full bg-white dark:bg-slate-900 text-black font-bold font-sans py-3.5 rounded-xl flex items-center justify-center gap-2 hover:bg-accent-magenta hover:text-white transition-all shadow-lg hover:scale-[1.01] disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isLoading ? <Loader size={18} className="animate-spin" /> : (
                 <>
@@ -144,7 +144,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }
                <button 
                 type="button"
                 onClick={toggleMode}
-                className="bg-white/5 text-white font-black py-2.5 px-6 rounded-xl border border-white/10 hover:bg-white/10 transition-all text-[10px] uppercase tracking-widest"
+                className="bg-white/5 text-white font-black py-2.5 px-6 rounded-xl border border-white dark:border-slate-800/10 hover:bg-white/10 transition-all text-[10px] uppercase tracking-widest"
               >
                 {isSignUp ? 'Log In' : 'Sign Up'}
               </button>
@@ -160,7 +160,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }
 
         <div className="flex flex-col items-center gap-3 w-full">
           <button 
-            className="w-full bg-white text-black font-bold text-sm py-3.5 rounded-xl hover:bg-gray-100 transition-colors flex items-center justify-center gap-3 shadow-lg hover:scale-[1.01]"
+            className="w-full bg-white dark:bg-slate-900 text-black font-bold text-sm py-3.5 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-700 dark:bg-slate-800 transition-colors flex items-center justify-center gap-3 shadow-lg hover:scale-[1.01]"
             onClick={handleGoogleLogin}
           >
             <svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg">

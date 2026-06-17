@@ -210,18 +210,18 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
             <div className="space-y-8 pb-12">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* Security Info & Password */}
-                <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
-                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-6">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 mb-4 flex items-center gap-2">
                     <Key size={20} className="text-blue-600" /> Security Settings
                 </h3>
-                <p className="text-sm text-gray-500 mb-4">Change the admin panel access password here.</p>
+                <p className="text-sm text-gray-500 dark:text-slate-400 mb-4">Change the admin panel access password here.</p>
                 <div className="flex items-center gap-4 max-w-sm">
                          <input 
                               type="password" 
                               value={newPassword}
                               onChange={e => setNewPassword(e.target.value)}
                               placeholder="New Admin Password"
-                              className="flex-1 border border-gray-300 rounded-lg px-4 py-2 outline-none focus:border-blue-500 transition-colors"
+                              className="flex-1 border border-gray-300 dark:border-slate-600 rounded-lg px-4 py-2 outline-none focus:border-blue-500 transition-colors"
                          />
                          <button 
                              onClick={handleSavePassword} 
@@ -235,11 +235,11 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
                 </div>
 
                 {/* Authorized Administrators (Add/Remove Users) */}
-                <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
-                    <h3 className="text-lg font-bold text-gray-900 mb-2 flex items-center gap-2">
+                <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-6">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 mb-2 flex items-center gap-2">
                         <ShieldCheck size={20} className="text-green-600" /> Authorized Admins
                     </h3>
-                    <p className="text-sm text-gray-500 mb-4">Grant secondary admin privileges to other registered user emails.</p>
+                    <p className="text-sm text-gray-500 dark:text-slate-400 mb-4">Grant secondary admin privileges to other registered user emails.</p>
                     
                     <form onSubmit={handleAddAdminEmail} className="flex gap-3 mb-6">
                         <div className="relative flex-1">
@@ -249,7 +249,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
                                 value={emailInput}
                                 onChange={e => setEmailInput(e.target.value)}
                                 placeholder="e.g. colleague@example.com"
-                                className="w-full bg-gray-50 border border-gray-300 rounded-xl pl-10 pr-4 py-2.5 outline-none focus:border-purple-600 focus:bg-white transition-all text-sm font-sans placeholder:text-gray-400"
+                                className="w-full bg-gray-50 dark:bg-slate-800 border border-gray-300 dark:border-slate-600 rounded-xl pl-10 pr-4 py-2.5 outline-none focus:border-purple-600 focus:bg-white dark:bg-slate-900 transition-all text-sm font-sans placeholder:text-gray-400"
                             />
                         </div>
                         <button 
@@ -268,7 +268,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
                             <div className="flex items-center gap-3">
                                 <div className="w-8 h-8 rounded-full bg-purple-150 flex items-center justify-center text-purple-700 text-xs font-black">👑</div>
                                 <div>
-                                    <div className="text-xs font-mono font-bold text-gray-900">ranthuls112@gmail.com</div>
+                                    <div className="text-xs font-mono font-bold text-gray-900 dark:text-slate-100">ranthuls112@gmail.com</div>
                                     <div className="text-[10px] text-purple-600 font-bold tracking-wider uppercase">System Owner</div>
                                 </div>
                             </div>
@@ -276,11 +276,11 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
                         </div>
 
                         {adminEmails.map(email => (
-                            <div key={email} className="flex items-center justify-between p-3.5 bg-gray-50 border border-gray-200 rounded-xl">
+                            <div key={email} className="flex items-center justify-between p-3.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs font-black">👤</div>
+                                    <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 dark:text-slate-400 text-xs font-black">👤</div>
                                     <div>
-                                        <div className="text-xs font-mono font-bold text-gray-700">{email}</div>
+                                        <div className="text-xs font-mono font-bold text-gray-700 dark:text-slate-300">{email}</div>
                                         <div className="text-[10px] text-gray-400 font-bold uppercase">Secondary Admin</div>
                                     </div>
                                 </div>
@@ -299,19 +299,19 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
                 </div>
             </div>
             
-            <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 mb-8">
-                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-6 mb-8">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 mb-4 flex items-center gap-2">
                     <Tag size={20} className="text-rose-500" /> Discounts Manager
                 </h3>
-                <p className="text-sm text-gray-500 mb-6">Set global discounts or service-specific percentage overrides.</p>
+                <p className="text-sm text-gray-500 dark:text-slate-400 mb-6">Set global discounts or service-specific percentage overrides.</p>
                 
                 <div className="flex items-center gap-6 p-5 bg-rose-50/50 border border-rose-100 rounded-xl mb-6">
                     <div className="flex items-center gap-3">
                         <label className="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" checked={isGlobalDiscountActive} onChange={(e) => setIsGlobalDiscountActive(e.target.checked)} className="sr-only peer" />
-                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-500"></div>
+                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white dark:border-slate-800 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:bg-slate-900 after:border-gray-300 dark:border-slate-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-500"></div>
                         </label>
-                        <span className="text-sm font-bold text-gray-900">Enable Global Seasonal Discount</span>
+                        <span className="text-sm font-bold text-gray-900 dark:text-slate-100">Enable Global Seasonal Discount</span>
                     </div>
                     
                     {isGlobalDiscountActive && (
@@ -322,14 +322,14 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
                                 max="100" 
                                 value={globalDiscount}
                                 onChange={(e) => setGlobalDiscount(Number(e.target.value))}
-                                className="w-20 border border-gray-300 rounded-lg px-3 py-1.5 outline-none focus:border-rose-500 font-mono text-sm text-center"
+                                className="w-20 border border-gray-300 dark:border-slate-600 rounded-lg px-3 py-1.5 outline-none focus:border-rose-500 font-mono text-sm text-center"
                             />
-                            <span className="text-sm font-bold text-gray-700">% OFF applied globally to all services</span>
+                            <span className="text-sm font-bold text-gray-700 dark:text-slate-300">% OFF applied globally to all services</span>
                         </div>
                     )}
                 </div>
 
-                <h3 className="text-lg font-bold text-gray-900 mb-6 flex justify-between items-center">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 mb-6 flex justify-between items-center">
                     Services Configuration
                     <div className="flex gap-3">
                         <button onClick={() => { setEditingService(null); setShowServiceModal(true); }} className="bg-purple-600 text-white hover:bg-purple-700 px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors">
@@ -343,8 +343,8 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
                 </h3>
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                     {Object.values(serviceConfigs).map(s => (
-                        <div key={s.id} className={`border border-gray-200 rounded-lg p-4 flex items-center justify-between ${s.hidden ? 'bg-gray-100 opacity-70' : 'bg-gray-50'}`}>
-                            <span className="font-medium text-gray-700 text-sm truncate pr-2 max-w-[200px] md:max-w-xs" title={s.title}>{s.title}</span>
+                        <div key={s.id} className={`border border-gray-200 dark:border-slate-700 rounded-lg p-4 flex items-center justify-between ${s.hidden ? 'bg-gray-100 dark:bg-slate-800 opacity-70' : 'bg-gray-50 dark:bg-slate-800'}`}>
+                            <span className="font-medium text-gray-700 dark:text-slate-300 text-sm truncate pr-2 max-w-[200px] md:max-w-xs" title={s.title}>{s.title}</span>
                             <div className="flex items-center gap-4 shrink-0">
                                 <div className="flex items-center gap-2">
                                     <span className="text-gray-400 text-sm font-bold hidden sm:block">LKR</span>
@@ -353,12 +353,12 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
                                         min="0"
                                         value={s.price ?? ''}
                                         onChange={(e) => setServiceConfigs({...serviceConfigs, [s.id]: { ...s, price: Number(e.target.value) }})}
-                                        className="w-24 border border-gray-300 rounded px-2 py-1 outline-none focus:border-blue-500 font-mono text-sm text-right"
+                                        className="w-24 border border-gray-300 dark:border-slate-600 rounded px-2 py-1 outline-none focus:border-blue-500 font-mono text-sm text-right"
                                         placeholder="Base Price"
                                         title="Base Price"
                                     />
                                 </div>
-                                <div className="flex items-center gap-1 border-l border-gray-200 pl-4 ml-2">
+                                <div className="flex items-center gap-1 border-l border-gray-200 dark:border-slate-700 pl-4 ml-2">
                                     <Tag size={12} className="text-rose-400" />
                                     <input 
                                         type="number"
@@ -366,7 +366,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
                                         max="100"
                                         value={s.discountPercentage ?? ''}
                                         onChange={(e) => setServiceConfigs({...serviceConfigs, [s.id]: { ...s, discountPercentage: Number(e.target.value) }})}
-                                        className="w-16 border border-gray-300 rounded px-2 py-1 outline-none focus:border-rose-500 font-mono text-sm text-center text-rose-600 bg-rose-50/20 placeholder:text-gray-300"
+                                        className="w-16 border border-gray-300 dark:border-slate-600 rounded px-2 py-1 outline-none focus:border-rose-500 font-mono text-sm text-center text-rose-600 bg-rose-50/20 placeholder:text-gray-300"
                                         title="Specific % Discount for this service"
                                         placeholder="0%"
                                     />
@@ -396,28 +396,28 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
 
         {showServiceModal && (
             <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-               <div className="bg-white rounded-3xl p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto">
+               <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto">
                    <h3 className="text-2xl font-bold font-display mb-6">{editingService ? 'Edit Custom Service' : 'Add New Service'}</h3>
                    <div className="space-y-4">
                        <div>
-                           <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-gray-500">Service Title</label>
-                           <input type="text" defaultValue={editingService?.title} id="modal_service_title" className="w-full border border-gray-300 rounded-xl p-3 outline-none focus:border-purple-500" />
+                           <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-gray-500 dark:text-slate-400">Service Title</label>
+                           <input type="text" defaultValue={editingService?.title} id="modal_service_title" className="w-full border border-gray-300 dark:border-slate-600 rounded-xl p-3 outline-none focus:border-purple-500" />
                        </div>
                        <div>
-                           <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-gray-500">Description</label>
-                           <textarea defaultValue={editingService?.description} id="modal_service_desc" className="w-full border border-gray-300 rounded-xl p-3 outline-none focus:border-purple-500 min-h-[80px]" />
+                           <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-gray-500 dark:text-slate-400">Description</label>
+                           <textarea defaultValue={editingService?.description} id="modal_service_desc" className="w-full border border-gray-300 dark:border-slate-600 rounded-xl p-3 outline-none focus:border-purple-500 min-h-[80px]" />
                        </div>
                        <div>
-                           <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-gray-500">Image URL</label>
-                           <input type="text" defaultValue={editingService?.image || 'https://picsum.photos/600/800'} id="modal_service_image" className="w-full border border-gray-300 rounded-xl p-3 outline-none focus:border-purple-500" />
+                           <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-gray-500 dark:text-slate-400">Image URL</label>
+                           <input type="text" defaultValue={editingService?.image || 'https://picsum.photos/600/800'} id="modal_service_image" className="w-full border border-gray-300 dark:border-slate-600 rounded-xl p-3 outline-none focus:border-purple-500" />
                        </div>
                        <div>
-                           <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-gray-500">Initial Price (LKR)</label>
-                           <input type="number" defaultValue={editingService?.price || 0} id="modal_service_price" className="w-full border border-gray-300 rounded-xl p-3 outline-none focus:border-purple-500" />
+                           <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-gray-500 dark:text-slate-400">Initial Price (LKR)</label>
+                           <input type="number" defaultValue={editingService?.price || 0} id="modal_service_price" className="w-full border border-gray-300 dark:border-slate-600 rounded-xl p-3 outline-none focus:border-purple-500" />
                        </div>
                    </div>
                    <div className="flex gap-4 mt-8">
-                       <button onClick={() => setShowServiceModal(false)} className="flex-1 py-3 text-gray-500 font-bold uppercase tracking-widest text-xs hover:bg-gray-50 rounded-xl transition-colors">Cancel</button>
+                       <button onClick={() => setShowServiceModal(false)} className="flex-1 py-3 text-gray-500 dark:text-slate-400 font-bold uppercase tracking-widest text-xs hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-800 rounded-xl transition-colors">Cancel</button>
                        <button 
                           onClick={() => {
                               const t = (document.getElementById('modal_service_title') as HTMLInputElement).value;

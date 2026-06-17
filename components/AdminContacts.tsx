@@ -144,7 +144,7 @@ export const AdminContacts: React.FC = () => {
         <div className="space-y-8 pb-12">
             <AdminFooterSettings />
             
-            <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 max-w-4xl mx-auto relative">
+            <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-6 max-w-4xl mx-auto relative">
                 <ConfirmModal 
                 isOpen={contactToDelete !== null}
                 title="Delete Contact Message"
@@ -153,7 +153,7 @@ export const AdminContacts: React.FC = () => {
                 onConfirm={confirmDelete}
                 onCancel={() => setContactToDelete(null)}
             />
-            <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 mb-6 flex items-center gap-2">
                 <Mail className="text-blue-600" size={20} /> Messages & Contacts
             </h3>
 
@@ -164,12 +164,12 @@ export const AdminContacts: React.FC = () => {
             ) : (
                 <div className="space-y-4">
                     {contacts.map((c, i) => (
-                        <div key={c.id || i} className={`border p-5 rounded-xl flex gap-4 \${c.isRead ? 'bg-white border-gray-200' : 'bg-blue-50/30 border-blue-200 shadow-sm'}`}>
+                        <div key={c.id || i} className={`border p-5 rounded-xl flex gap-4 \${c.isRead ? 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-700' : 'bg-blue-50/30 border-blue-200 shadow-sm'}`}>
                             <div className="flex-1">
                                 <div className="flex items-center justify-between mb-2">
                                     <div className="flex items-center gap-3">
-                                        <h4 className={`font-bold \${c.isRead ? 'text-gray-900' : 'text-blue-900'}`}>{c.name}</h4>
-                                        <a href={`mailto:\${c.email}`} className="text-xs font-mono text-gray-500 hover:text-blue-600 bg-gray-100 px-2 py-0.5 rounded transition-colors">{c.email}</a>
+                                        <h4 className={`font-bold \${c.isRead ? 'text-gray-900 dark:text-slate-100' : 'text-blue-900'}`}>{c.name}</h4>
+                                        <a href={`mailto:\${c.email}`} className="text-xs font-mono text-gray-500 dark:text-slate-400 hover:text-blue-600 bg-gray-100 dark:bg-slate-800 px-2 py-0.5 rounded transition-colors">{c.email}</a>
                                         {c.whatsapp && (
                                             <a href={`https://wa.me/${c.whatsapp.replace(/\D/g,'')}`} target="_blank" rel="noreferrer" className="text-xs font-mono text-green-600 hover:text-green-700 bg-green-50 px-2 py-0.5 rounded transition-colors">
                                                 {c.whatsapp}
@@ -180,7 +180,7 @@ export const AdminContacts: React.FC = () => {
                                         {new Date(c.createdAt).toLocaleDateString()}
                                     </span>
                                 </div>
-                                <p className="text-sm text-gray-700 whitespace-pre-wrap">{c.message}</p>
+                                <p className="text-sm text-gray-700 dark:text-slate-300 whitespace-pre-wrap">{c.message}</p>
                             </div>
                             <div className="flex flex-col gap-2 shrink-0">
                                 <button onClick={() => openOrderModal(c)} className="bg-purple-100 text-purple-700 p-2 rounded-lg hover:bg-purple-200 transition flex items-center justify-center" title="Place Order">
@@ -205,35 +205,35 @@ export const AdminContacts: React.FC = () => {
             {/* Order Modal */}
             {orderModalOpen && selectedContact && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-                    <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 relative">
-                        <button onClick={() => setOrderModalOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-900">
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 relative">
+                        <button onClick={() => setOrderModalOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-gray-900 dark:text-slate-100">
                             <X size={24} />
                         </button>
-                        <h2 className="text-2xl font-bold text-gray-900 mb-6">Create Order</h2>
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-6">Create Order</h2>
                         
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Client Name</label>
-                                <input type="text" value={selectedContact.name} readOnly className="w-full border border-gray-200 rounded-lg px-3 py-2 bg-gray-50" />
+                                <label className="block text-xs font-bold uppercase text-gray-500 dark:text-slate-400 mb-1">Client Name</label>
+                                <input type="text" value={selectedContact.name} readOnly className="w-full border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-2 bg-gray-50 dark:bg-slate-800" />
                             </div>
                             
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Client Email</label>
-                                    <input type="text" value={selectedContact.email || ''} readOnly className="w-full border border-gray-200 rounded-lg px-3 py-2 bg-gray-50" />
+                                    <label className="block text-xs font-bold uppercase text-gray-500 dark:text-slate-400 mb-1">Client Email</label>
+                                    <input type="text" value={selectedContact.email || ''} readOnly className="w-full border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-2 bg-gray-50 dark:bg-slate-800" />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold uppercase text-gray-500 mb-1">WhatsApp</label>
-                                    <input type="text" value={selectedContact.whatsapp || ''} readOnly className="w-full border border-gray-200 rounded-lg px-3 py-2 bg-gray-50" />
+                                    <label className="block text-xs font-bold uppercase text-gray-500 dark:text-slate-400 mb-1">WhatsApp</label>
+                                    <input type="text" value={selectedContact.whatsapp || ''} readOnly className="w-full border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-2 bg-gray-50 dark:bg-slate-800" />
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Service Type</label>
+                                <label className="block text-xs font-bold uppercase text-gray-500 dark:text-slate-400 mb-1">Service Type</label>
                                 <select 
                                     value={serviceId} 
                                     onChange={(e) => handleServiceChange(e.target.value)}
-                                    className="w-full border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-blue-500"
+                                    className="w-full border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-2 outline-none focus:border-blue-500"
                                 >
                                     {SERVICES.map(s => (
                                         <option key={s.id} value={s.id}>{s.title}</option>
@@ -242,27 +242,27 @@ export const AdminContacts: React.FC = () => {
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Order Requirements</label>
+                                <label className="block text-xs font-bold uppercase text-gray-500 dark:text-slate-400 mb-1">Order Requirements</label>
                                 <textarea 
                                     value={requirements} 
                                     onChange={(e) => setRequirements(e.target.value)}
-                                    className="w-full border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-blue-500 min-h-[100px]"
+                                    className="w-full border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-2 outline-none focus:border-blue-500 min-h-[100px]"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Quoted Price (LKR)</label>
+                                <label className="block text-xs font-bold uppercase text-gray-500 dark:text-slate-400 mb-1">Quoted Price (LKR)</label>
                                 <input 
                                     type="number" 
                                     value={price} 
                                     onChange={(e) => setPrice(e.target.value)}
-                                    className="w-full border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-blue-500"
+                                    className="w-full border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-2 outline-none focus:border-blue-500"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Project Files (Manual Upload)</label>
-                                <div className="border border-dashed border-gray-300 rounded-xl p-6 text-center bg-gray-50">
+                                <label className="block text-xs font-bold uppercase text-gray-500 dark:text-slate-400 mb-2">Project Files (Manual Upload)</label>
+                                <div className="border border-dashed border-gray-300 dark:border-slate-600 rounded-xl p-6 text-center bg-gray-50 dark:bg-slate-800">
                                     <input 
                                         type="file" 
                                         multiple 
@@ -279,7 +279,7 @@ export const AdminContacts: React.FC = () => {
                                 {files.length > 0 && (
                                     <ul className="mt-2 space-y-1">
                                         {files.map((file, i) => (
-                                            <li key={i} className="text-xs text-gray-600 flex items-center justify-between bg-white p-2 border border-gray-100 rounded">
+                                            <li key={i} className="text-xs text-gray-600 dark:text-slate-400 flex items-center justify-between bg-white dark:bg-slate-900 p-2 border border-gray-100 dark:border-slate-700 rounded">
                                                 <span className="truncate max-w-[200px]">{file.name}</span>
                                                 <span className="text-gray-400">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
                                             </li>
