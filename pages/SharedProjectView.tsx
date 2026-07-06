@@ -110,6 +110,20 @@ export const SharedProjectView: React.FC = () => {
     }
   };
 
+  
+  const handleSingleDownload = async (url: string, filename: string) => {
+    try {
+      const response = await fetch(`/api/proxy-download?url=${encodeURIComponent(url)}`);
+      if (!response.ok) throw new Error("Network response was not ok");
+      const blob = await response.blob();
+      saveAs(blob, filename);
+    } catch (err) {
+      console.error("Download failed:", err);
+      // Fallback
+      window.open(url, "_blank");
+    }
+  };
+
   if (loading) {
     return (
       <div className="py-24 bg-gray-50 dark:bg-slate-900 flex items-center justify-center">
@@ -246,16 +260,16 @@ export const SharedProjectView: React.FC = () => {
                        >
                          {(isImage || isVideo) ? <ImageIcon size={20} /> : <FileText size={20} />}
                        </a>
-                       <a 
-                         href={file.url} 
-                         download={file.name} 
-                         target="_blank" 
-                         rel="noreferrer" 
+                       <button 
+                         onClick={(e) => {
+                           e.stopPropagation();
+                           handleSingleDownload(file.url, file.name);
+                         }}
                          className="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center hover:scale-110 transition-transform"
                          title="Download"
                        >
                          <Download size={20} />
-                       </a>
+                       </button>
                     </div>
                   </div>
                   

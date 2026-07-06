@@ -35,11 +35,9 @@ async function startServer() {
       
       res.setHeader('Access-Control-Allow-Origin', '*');
       
-      if (response.body) {
-        Readable.fromWeb(response.body as any).pipe(res);
-      } else {
-        res.end();
-      }
+      const arrayBuffer = await response.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      res.end(buffer);
     } catch (err) {
       console.error('Proxy error:', err);
       res.status(500).send('Error proxying request');

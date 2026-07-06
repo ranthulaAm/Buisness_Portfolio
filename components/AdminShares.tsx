@@ -71,6 +71,7 @@ export const AdminShares: React.FC = () => {
     if (!project) return;
     
     const filesToUpload = Array.from(e.target.files);
+    let currentFiles = [...project.files];
     
     for (const file of filesToUpload) {
       try {
@@ -79,8 +80,8 @@ export const AdminShares: React.FC = () => {
           setUploadProgress(prev => ({ ...prev, [file.name]: prog }));
         });
         
-        const newFiles = [...project.files, uploadedFile];
-        await updateSharedProject(projectId, { files: newFiles });
+        currentFiles = [...currentFiles, uploadedFile];
+        await updateSharedProject(projectId, { files: currentFiles });
       } catch (err) {
         console.error("Upload failed", err);
       } finally {
@@ -91,6 +92,8 @@ export const AdminShares: React.FC = () => {
         });
       }
     }
+    
+    e.target.value = "";
   };
 
   const deleteFile = async (projectId: string, fileUrl: string) => {
