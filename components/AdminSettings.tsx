@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { getPortfolioItems, getServicesConfig, addPortfolioItem, updatePortfolioItem, deletePortfolioItem, updateServiceConfig, PortfolioItem, ServiceItem, updateAdminPassword, getAdminEmails, updateAdminEmails, getDiscountsConfig, updateDiscountsConfig } from '../services/dataService';
+import { getPortfolioItems, getServicesConfig, addPortfolioItem, updatePortfolioItem, deletePortfolioItem, updateServiceConfig, deleteServiceConfig, PortfolioItem, ServiceItem, updateAdminPassword, getAdminEmails, updateAdminEmails, getDiscountsConfig, updateDiscountsConfig, getDisplayConfig, updateDisplayConfig, DisplayConfig } from '../services/dataService';
 import { SERVICES as DEFAULT_SERVICES, PORTFOLIO_ITEMS as DEFAULT_PORTFOLIO } from '../constants';
-import { Save, Loader2, Plus, Trash2, Key, UserPlus, ShieldCheck, Mail, Eye, EyeOff, Tag, Edit3 } from 'lucide-react';
+import { Save, Loader2, Plus, Trash2, Key, UserPlus, ShieldCheck, Mail, Eye, EyeOff, Tag, Edit3, Upload } from 'lucide-react';
 import { User } from '../types';
+import { uploadFileWithProgress } from '../services/fileUploadService';
+import { MediaRenderer } from './MediaRenderer';
 
 interface AdminSettingsProps {
     user?: User | null;
@@ -14,6 +16,9 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
     const [serviceConfigs, setServiceConfigs] = useState<Record<string, ServiceItem>>({});
     const [showServiceModal, setShowServiceModal] = useState(false);
     const [editingService, setEditingService] = useState<any>(null);
+    const [uploadingServiceImage, setUploadingServiceImage] = useState(false);
+    const [serviceImageProgress, setServiceImageProgress] = useState(0);
+    const [serviceToDelete, setServiceToDelete] = useState<string | null>(null);
     const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
     const [loading, setLoading] = useState(false);
     const [newPassword, setNewPassword] = useState('');
@@ -24,6 +29,9 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
     // Discounts
     const [globalDiscount, setGlobalDiscount] = useState(0);
     const [isGlobalDiscountActive, setIsGlobalDiscountActive] = useState(false);
+    
+    // Display Config
+    const [showServiceAnimations, setShowServiceAnimations] = useState(false);
 
     useEffect(() => {
         loadData();
@@ -36,9 +44,15 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
             const loadedConfigs: Record<string, ServiceItem> = { ...configs };
             DEFAULT_SERVICES.forEach(s => {
                 if (!loadedConfigs[s.id]) {
-                    loadedConfigs[s.id] = { id: s.id, price: s.price, title: s.title };
+                    loadedConfigs[s.id] = { id: s.id, price: s.price, title: s.title, description: s.description, features: s.features, image: s.image };
                 } else {
-                    loadedConfigs[s.id] = { ...loadedConfigs[s.id], title: loadedConfigs[s.id].title || s.title };
+                    loadedConfigs[s.id] = { 
+                        ...loadedConfigs[s.id], 
+                        title: loadedConfigs[s.id].title || s.title,
+                        description: loadedConfigs[s.id].description || s.description,
+                        features: loadedConfigs[s.id].features || s.features,
+                        image: loadedConfigs[s.id].image || s.image
+                    };
                 }
             });
             setServiceConfigs(loadedConfigs);
@@ -56,6 +70,9 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
             const discountInfo = await getDiscountsConfig();
             setGlobalDiscount(discountInfo.globalDiscount);
             setIsGlobalDiscountActive(discountInfo.isActive);
+            
+            const displayInfo = await getDisplayConfig();
+            setShowServiceAnimations(displayInfo.showServiceAnimations);
         } catch (e) {
             console.error(e);
         } finally {
@@ -71,24 +88,74 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
                 const payload: any = { 
                     price: s.price || 0,
                     hidden: s.hidden,
-                    discountPercentage: s.discountPercentage || 0
+                    discountPercentage: s.discountPercentage || 0,
+                    title: s.title,
+                    description: s.description,
+                    image: s.image,
+                    features: s.features || []
                 };
                 if (s.isCustom) {
                     payload.isCustom = true;
-                    payload.title = s.title;
-                    payload.description = s.description;
-                    payload.image = s.image;
-                    payload.features = s.features || [];
                 }
                 await updateServiceConfig(key, payload);
             }
             await updateDiscountsConfig({ globalDiscount, isActive: isGlobalDiscountActive });
+            await updateDisplayConfig({ showServiceAnimations });
             alert("Services updated successfully.");
         } catch (e) {
             console.error(e);
             alert("Error updating services");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleServiceImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setUploadingServiceImage(true);
+        setServiceImageProgress(0);
+
+        try {
+            const url = await uploadFileWithProgress(file, `services/${Date.now()}_${file.name}`, (progress) => {
+                setServiceImageProgress(progress);
+            });
+            const input = document.getElementById('modal_service_image') as HTMLInputElement;
+            if (input) input.value = url;
+            
+            // If editing, immediately update state so it reflects visually 
+            // (though we really read straight from the DOM anyway)
+            if (editingService) {
+                setEditingService({ ...editingService, image: url });
+            }
+        } catch (error) {
+            console.error("Upload error:", error);
+            alert("Failed to upload image. Please try again.");
+        } finally {
+            setUploadingServiceImage(false);
+            setServiceImageProgress(0);
+        }
+    };
+
+    const handleDeleteService = (key: string) => {
+        setServiceToDelete(key);
+    };
+
+    const confirmDeleteService = async () => {
+        if (!serviceToDelete) return;
+        setLoading(true);
+        try {
+            await deleteServiceConfig(serviceToDelete);
+            const newConfigs = { ...serviceConfigs };
+            delete newConfigs[serviceToDelete];
+            setServiceConfigs(newConfigs);
+        } catch (e) {
+            console.error(e);
+            alert("Error deleting service");
+        } finally {
+            setLoading(false);
+            setServiceToDelete(null);
         }
     };
 
@@ -329,6 +396,24 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
                     )}
                 </div>
 
+                {/* Display Settings */}
+                <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl p-6 mb-8">
+                    <h4 className="text-sm font-bold text-gray-900 dark:text-slate-100 uppercase tracking-widest mb-4">Display Configurations</h4>
+                    <div className="flex items-center gap-3 mb-2">
+                        <label className="relative inline-flex items-center cursor-pointer">
+                            <input 
+                                type="checkbox" 
+                                className="sr-only peer"
+                                checked={showServiceAnimations}
+                                onChange={(e) => setShowServiceAnimations(e.target.checked)}
+                            />
+                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-purple-600"></div>
+                        </label>
+                        <span className="text-sm font-bold text-gray-900 dark:text-slate-100">Show Abstract Animations Instead of Images</span>
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-slate-400">If enabled, the product images in the 'Select Mode' section on the homepage will be replaced by decorative abstract CSS animations.</p>
+                </div>
+
                 <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 mb-6 flex justify-between items-center">
                     Services Configuration
                     <div className="flex gap-3">
@@ -341,49 +426,75 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
                         </button>
                     </div>
                 </h3>
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                     {Object.values(serviceConfigs).map(s => (
-                        <div key={s.id} className={`border border-gray-200 dark:border-slate-700 rounded-lg p-4 flex items-center justify-between ${s.hidden ? 'bg-gray-100 dark:bg-slate-800 opacity-70' : 'bg-gray-50 dark:bg-slate-800'}`}>
-                            <span className="font-medium text-gray-700 dark:text-slate-300 text-sm truncate pr-2 max-w-[200px] md:max-w-xs" title={s.title}>{s.title}</span>
-                            <div className="flex items-center gap-4 shrink-0">
-                                <div className="flex items-center gap-2">
-                                    <span className="text-gray-400 text-sm font-bold hidden sm:block">LKR</span>
-                                    <input 
-                                        type="number"
-                                        min="0"
-                                        value={s.price ?? ''}
-                                        onChange={(e) => setServiceConfigs({...serviceConfigs, [s.id]: { ...s, price: Number(e.target.value) }})}
-                                        className="w-24 border border-gray-300 dark:border-slate-600 rounded px-2 py-1 outline-none focus:border-blue-500 font-mono text-sm text-right"
-                                        placeholder="Base Price"
-                                        title="Base Price"
-                                    />
+                        <div key={s.id} className={`border border-gray-200 dark:border-slate-700 rounded-2xl overflow-hidden flex flex-col ${s.hidden ? 'bg-gray-100 dark:bg-slate-800 opacity-70' : 'bg-white dark:bg-slate-800 shadow-sm'}`}>
+                            {s.image && (
+                                <div className="h-40 w-full overflow-hidden relative">
+                                    <MediaRenderer src={s.image} alt={s.title} className="w-full h-full object-cover" />
                                 </div>
-                                <div className="flex items-center gap-1 border-l border-gray-200 dark:border-slate-700 pl-4 ml-2">
-                                    <Tag size={12} className="text-rose-400" />
-                                    <input 
-                                        type="number"
-                                        min="0"
-                                        max="100"
-                                        value={s.discountPercentage ?? ''}
-                                        onChange={(e) => setServiceConfigs({...serviceConfigs, [s.id]: { ...s, discountPercentage: Number(e.target.value) }})}
-                                        className="w-16 border border-gray-300 dark:border-slate-600 rounded px-2 py-1 outline-none focus:border-rose-500 font-mono text-sm text-center text-rose-600 bg-rose-50/20 placeholder:text-gray-300"
-                                        title="Specific % Discount for this service"
-                                        placeholder="0%"
-                                    />
-                                    <span className="text-gray-400 text-xs font-bold">%</span>
+                            )}
+                            <div className="p-5 flex flex-col flex-1">
+                                <div className="flex justify-between items-start mb-2">
+                                    <h4 className="font-bold text-gray-900 dark:text-slate-100 text-lg line-clamp-1">{s.title}</h4>
+                                    {s.hidden && <span className="bg-gray-200 text-gray-600 text-[10px] px-2 py-0.5 rounded font-bold uppercase">Hidden</span>}
                                 </div>
-                                {s.isCustom && (
-                                   <button onClick={() => { setEditingService(s); setShowServiceModal(true); }} className="p-2 text-purple-600 hover:text-purple-800 transition-colors bg-purple-50 rounded-lg">
-                                      <Edit3 size={16} />
-                                   </button>
+                                <p className="text-xs text-gray-500 dark:text-slate-400 line-clamp-2 mb-4">{s.description}</p>
+                                
+                                {s.features && s.features.length > 0 && (
+                                    <ul className="mb-4 space-y-1">
+                                        {s.features.slice(0, 3).map((f, i) => (
+                                            <li key={i} className="text-xs text-gray-600 dark:text-slate-400 flex items-start gap-1.5"><span className="text-purple-500 mt-0.5">•</span> <span>{f}</span></li>
+                                        ))}
+                                        {s.features.length > 3 && <li className="text-xs text-gray-400 italic">+{s.features.length - 3} more</li>}
+                                    </ul>
                                 )}
-                                <button 
-                                    onClick={() => setServiceConfigs({...serviceConfigs, [s.id]: { ...s, hidden: !s.hidden }})} 
-                                    className={`p-2 rounded-lg transition-colors ${s.hidden ? 'text-gray-400 hover:text-blue-600' : 'text-blue-600 hover:text-gray-400'}`}
-                                    title={s.hidden ? "Show Service" : "Hide Service"}
-                                >
-                                    {s.hidden ? <EyeOff size={18} /> : <Eye size={18} />}
-                                </button>
+
+                                <div className="mt-auto pt-4 border-t border-gray-100 dark:border-slate-700 flex flex-col gap-3">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-gray-400 text-xs font-bold uppercase tracking-widest">Base (LKR)</span>
+                                            <input 
+                                                type="number"
+                                                min="0"
+                                                value={s.price ?? ''}
+                                                onChange={(e) => setServiceConfigs({...serviceConfigs, [s.id]: { ...s, price: Number(e.target.value) }})}
+                                                className="w-20 border border-gray-300 dark:border-slate-600 rounded px-2 py-1 outline-none focus:border-blue-500 font-mono text-sm text-right bg-white dark:bg-slate-900"
+                                            />
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                            <Tag size={12} className="text-rose-400" />
+                                            <input 
+                                                type="number"
+                                                min="0"
+                                                max="100"
+                                                value={s.discountPercentage ?? ''}
+                                                onChange={(e) => setServiceConfigs({...serviceConfigs, [s.id]: { ...s, discountPercentage: Number(e.target.value) }})}
+                                                className="w-16 border border-gray-300 dark:border-slate-600 rounded px-2 py-1 outline-none focus:border-rose-500 font-mono text-sm text-center text-rose-600 bg-rose-50/20 placeholder:text-gray-300"
+                                                placeholder="0%"
+                                            />
+                                            <span className="text-gray-400 text-xs font-bold">%</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="flex justify-end gap-2 mt-2">
+                                        <button onClick={() => { setEditingService(s); setShowServiceModal(true); }} className="p-2 text-purple-600 hover:text-purple-800 transition-colors bg-purple-50 dark:bg-purple-900/30 rounded-lg">
+                                           <Edit3 size={16} />
+                                        </button>
+                                        {s.isCustom && (
+                                           <button onClick={() => handleDeleteService(s.id)} className="p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded-lg transition-colors" title="Delete custom service">
+                                               <Trash2 size={16} />
+                                           </button>
+                                        )}
+                                        <button 
+                                            onClick={() => setServiceConfigs({...serviceConfigs, [s.id]: { ...s, hidden: !s.hidden }})} 
+                                            className={`p-2 rounded-lg transition-colors ${s.hidden ? 'text-gray-400 hover:bg-gray-100 hover:text-blue-600' : 'text-blue-600 hover:bg-blue-50 hover:text-blue-800'} dark:hover:bg-slate-700`}
+                                            title={s.hidden ? "Show Service" : "Hide Service"}
+                                        >
+                                            {s.hidden ? <EyeOff size={16} /> : <Eye size={16} />}
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     ))}
@@ -408,12 +519,31 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
                            <textarea defaultValue={editingService?.description} id="modal_service_desc" className="w-full border border-gray-300 dark:border-slate-600 rounded-xl p-3 outline-none focus:border-purple-500 min-h-[80px]" />
                        </div>
                        <div>
-                           <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-gray-500 dark:text-slate-400">Image URL</label>
-                           <input type="text" defaultValue={editingService?.image || 'https://picsum.photos/600/800'} id="modal_service_image" className="w-full border border-gray-300 dark:border-slate-600 rounded-xl p-3 outline-none focus:border-purple-500" />
+                           <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-gray-500 dark:text-slate-400">Image</label>
+                           <div className="flex flex-col gap-2">
+                               <div className="flex gap-2">
+                                   <input type="text" defaultValue={editingService?.image || 'https://picsum.photos/600/800'} id="modal_service_image" className="flex-1 border border-gray-300 dark:border-slate-600 rounded-xl p-3 outline-none focus:border-purple-500 bg-white dark:bg-slate-900" placeholder="https://..." />
+                                   <div className="relative">
+                                       <input type="file" accept="image/*,video/*" onChange={handleServiceImageUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" disabled={uploadingServiceImage} />
+                                       <button type="button" className="h-full px-4 border border-gray-300 dark:border-slate-600 rounded-xl flex items-center justify-center text-gray-500 hover:text-purple-600 hover:border-purple-600 transition-colors bg-gray-50 dark:bg-slate-800 disabled:opacity-50">
+                                           {uploadingServiceImage ? <Loader2 size={20} className="animate-spin" /> : <Upload size={20} />}
+                                       </button>
+                                   </div>
+                               </div>
+                               {uploadingServiceImage && (
+                                   <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-1.5 mt-1 overflow-hidden">
+                                       <div className="bg-purple-600 h-1.5 rounded-full transition-all duration-300" style={{ width: `${serviceImageProgress}%` }}></div>
+                                   </div>
+                               )}
+                           </div>
                        </div>
                        <div>
                            <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-gray-500 dark:text-slate-400">Initial Price (LKR)</label>
                            <input type="number" defaultValue={editingService?.price || 0} id="modal_service_price" className="w-full border border-gray-300 dark:border-slate-600 rounded-xl p-3 outline-none focus:border-purple-500" />
+                       </div>
+                       <div>
+                           <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-gray-500 dark:text-slate-400">Features (One per line)</label>
+                           <textarea defaultValue={editingService?.features?.join('\n') || ''} id="modal_service_features" placeholder="Feature 1&#10;Feature 2" className="w-full border border-gray-300 dark:border-slate-600 rounded-xl p-3 outline-none focus:border-purple-500 min-h-[100px] whitespace-pre" />
                        </div>
                    </div>
                    <div className="flex gap-4 mt-8">
@@ -424,21 +554,23 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
                               const d = (document.getElementById('modal_service_desc') as HTMLTextAreaElement).value;
                               const i = (document.getElementById('modal_service_image') as HTMLInputElement).value;
                               const p = Number((document.getElementById('modal_service_price') as HTMLInputElement).value);
+                              const f = (document.getElementById('modal_service_features') as HTMLTextAreaElement).value;
                               if (!t) return alert("Title required");
                               
                               const id = editingService ? editingService.id : `s_custom_${Date.now()}`;
                               setServiceConfigs(prev => ({
                                   ...prev,
                                   [id]: {
+                                      ...prev[id],
                                       id,
                                       title: t,
                                       description: d,
                                       image: i,
                                       price: p,
-                                      isCustom: true,
+                                      isCustom: editingService ? editingService.isCustom : true,
                                       hidden: editingService?.hidden || false,
                                       discountPercentage: editingService?.discountPercentage || 0,
-                                      features: editingService?.features || []
+                                      features: f.split('\n').map(x => x.trim()).filter(Boolean)
                                   }
                               }));
                               setShowServiceModal(false);
@@ -449,6 +581,21 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
                        </button>
                    </div>
                </div>
+            </div>
+        )}
+
+        {serviceToDelete && (
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 max-w-sm w-full mx-auto shadow-2xl scale-100 transition-transform">
+                    <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-slate-100">Delete Service?</h3>
+                    <p className="text-gray-500 dark:text-slate-400 mb-8">Are you sure you want to delete this custom service? This action cannot be undone.</p>
+                    <div className="flex gap-4">
+                        <button onClick={() => setServiceToDelete(null)} disabled={loading} className="flex-1 py-3 text-gray-500 dark:text-slate-400 font-bold uppercase tracking-widest text-xs hover:bg-gray-50 dark:hover:bg-slate-800 rounded-xl transition-colors">Cancel</button>
+                        <button onClick={confirmDeleteService} disabled={loading} className="flex-1 py-3 bg-rose-600 text-white font-bold uppercase tracking-widest text-xs hover:bg-rose-700 rounded-xl transition-colors disabled:opacity-50 flex justify-center items-center">
+                            {loading ? <Loader2 size={16} className="animate-spin" /> : 'Delete'}
+                        </button>
+                    </div>
+                </div>
             </div>
         )}
 

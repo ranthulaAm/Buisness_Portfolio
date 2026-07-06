@@ -1,12 +1,12 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { ArrowRight, Maximize2, X, Package, User as UserIcon, ChevronDown } from 'lucide-react';
+import { ArrowRight, Maximize2, X, Package, User as UserIcon, ChevronDown, Share2 } from 'lucide-react';
 import { SERVICES as DEFAULT_SERVICES, PORTFOLIO_ITEMS as DEFAULT_PORTFOLIO } from '../constants';
 import { User } from '../types';
 import { 
   getPortfolioItems, 
-  getServicesConfig, 
+  getServicesConfig, getDisplayConfig, 
   getDiscountsConfig,
   getSkills, 
   getEducation, 
@@ -23,157 +23,223 @@ import { InteractiveButton } from '../components/InteractiveButton';
 import { OfferBanner } from '../components/OfferBanner';
 import { listenToOrders } from '../services/storageService';
 import { Order, OrderStatus } from '../types';
+import { MediaRenderer } from '../components/MediaRenderer';
+
+export function useViewportDimensions(ref: React.RefObject<HTMLElement | SVGElement>) {
+  useEffect(() => {
+    if (!ref.current) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect;
+        ref.current?.style.setProperty('--viewport-width', `${width}`);
+        ref.current?.style.setProperty('--viewport-height', `${height}`);
+      }
+    });
+    observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [ref]);
+}
+
+const ServiceVisual: React.FC<{ id: string; title?: string }> = ({ id, title }) => {
+  const containerRef = useRef<SVGSVGElement>(null);
+  useViewportDimensions(containerRef);
+  
+  const fillColor = "fill-gray-900/10 dark:fill-white/10";
+  const strokeColor = "stroke-gray-900/20 dark:stroke-white/20";
+  
+  const normalizedTitle = title?.toLowerCase() || '';
+  let match = id;
+  if (normalizedTitle.includes('3d') || normalizedTitle.includes('model')) match = 's_3d';
+  if (normalizedTitle.includes('video') || normalizedTitle.includes('edit')) match = 's_video';
+
+  const renderContent = () => {
+    switch (match) {
+      case 's_social':
+        return (
+          <>
+            <defs>
+               <clipPath id="screen-mask">
+                 <rect x="60" y="40" width="80" height="120" />
+               </clipPath>
+            </defs>
+            <rect x="55" y="30" width="90" height="140" rx="10" className="fill-gray-900/5 dark:fill-white/5 stroke-gray-900/20 dark:stroke-white/20 stroke-2" />
+            <path d="M95 35 h10" className="stroke-gray-900/20 dark:stroke-white/20 stroke-2" />
+            <circle cx="100" cy="160" r="3" className="fill-gray-900/20 dark:fill-white/20" />
+            <g clipPath="url(#screen-mask)">
+               <g className="animate-[scroll-feed_4s_linear_infinite]" style={{ animationName: 'scroll-feed', animationDuration: '4s', animationTimingFunction: 'linear', animationIterationCount: 'infinite' }}>
+                  {[0, 1, 2, 3, 4].map(i => (
+                    <g key={i} transform={`translate(65, ${45 + i * 55})`}>
+                       <rect width="70" height="35" rx="2" className="fill-gray-900/10 dark:fill-white/10" />
+                       <line x1="0" y1="40" x2="60" y2="40" className="stroke-gray-900/10 dark:stroke-white/10 stroke-2" />
+                       <line x1="0" y1="46" x2="40" y2="46" className="stroke-gray-900/10 dark:stroke-white/10 stroke-2" />
+                    </g>
+                  ))}
+               </g>
+            </g>
+            <circle cx="100" cy="130" r="12" className="fill-gray-900/30 dark:fill-white/30 blur-sm animate-[scroll-touch_4s_ease-in-out_infinite]" />
+          </>
+        );
+      case 's_invite':
+        return (
+           <g transform="translate(0, 20)">
+             <rect x="40" y="60" width="120" height="80" rx="4" className={fillColor + " stroke-gray-900/20 dark:stroke-white/20 stroke-2"} />
+             <line x1="60" y1="90" x2="140" y2="90" className="stroke-gray-900/20 dark:stroke-white/20 stroke-2" />
+             <line x1="60" y1="110" x2="110" y2="110" className="stroke-gray-900/20 dark:stroke-white/20 stroke-2" />
+             <path d="M40 60 L100 100 L160 60" className="fill-none stroke-gray-900/50 dark:stroke-white/50 stroke-2" />
+             <path d="M40 60 L100 20 L160 60" className="fill-gray-900/5 dark:fill-white/5 stroke-gray-900/50 dark:stroke-white/50 stroke-2 animate-[float-slow_3s_ease-in-out_infinite]" style={{ animationName: 'float-slow', animationDuration: '3s', animationTimingFunction: 'ease-in-out', animationIterationCount: 'infinite' }} />
+           </g>
+        );
+      case 's_banner':
+        return (
+           <>
+             <path d="M80 180 L80 160 L120 160 L120 180" className="fill-gray-900/5 dark:fill-white/5 stroke-gray-900/10 dark:stroke-white/10" />
+             <g transform="translate(0, -10)">
+                <rect x="95" y="100" width="10" height="60" className="fill-gray-900/10 dark:fill-white/10" />
+                <line x1="50" y1="100" x2="95" y2="140" className="stroke-gray-900/20 dark:stroke-white/20 stroke-1" />
+                <line x1="150" y1="100" x2="105" y2="140" className="stroke-gray-900/20 dark:stroke-white/20 stroke-1" />
+                <rect x="30" y="40" width="140" height="70" className="fill-gray-900/5 dark:fill-white/5 stroke-gray-900/30 dark:stroke-white/30 stroke-2" />
+                <rect x="35" y="45" width="130" height="60" className="fill-gray-900/10 dark:fill-white/10" />
+                <circle cx="60" cy="75" r="18" className="fill-gray-900/10 dark:fill-white/10" />
+                <rect x="90" y="65" width="60" height="8" className="fill-gray-900/20 dark:fill-white/20" />
+                <rect x="90" y="78" width="40" height="5" className="fill-gray-900/10 dark:fill-white/10" />
+                <g className="fill-gray-900/40 dark:fill-white/40">
+                  <circle cx="45" cy="35" r="2" /><path d="M45 35 L45 40" className="stroke-gray-900/30 dark:stroke-white/30" />
+                  <circle cx="80" cy="35" r="2" /><path d="M80 35 L80 40" className="stroke-gray-900/30 dark:stroke-white/30" />
+                  <circle cx="120" cy="35" r="2" /><path d="M120 35 L120 40" className="stroke-gray-900/30 dark:stroke-white/30" />
+                  <circle cx="155" cy="35" r="2" /><path d="M155 35 L155 40" className="stroke-gray-900/30 dark:stroke-white/30" />
+                </g>
+             </g>
+           </>
+        );
+      case 's_flyer':
+        return (
+           <g transform="translate(100, 100)">
+             <g style={{ transformOrigin: '50% 100%', animation: 'fan-out-left 6s ease-in-out infinite' }}>
+                <rect x="-20" y="-30" width="40" height="60" rx="2" className="fill-gray-900/5 dark:fill-white/5 stroke-gray-900/20 dark:stroke-white/20 stroke-2" />
+                <rect x="-15" y="-25" width="30" height="20" className="fill-gray-900/10 dark:fill-white/10" />
+                <line x1="-15" y1="5" x2="15" y2="5" className="stroke-gray-900/20 dark:stroke-white/20" />
+             </g>
+             <g style={{ transformOrigin: '50% 100%', animation: 'fan-out-right 6s ease-in-out infinite' }}>
+                <rect x="-20" y="-30" width="40" height="60" rx="2" className="fill-gray-900/5 dark:fill-white/5 stroke-gray-900/20 dark:stroke-white/20 stroke-2" />
+                <rect x="-15" y="-25" width="30" height="20" className="fill-gray-900/10 dark:fill-white/10" />
+                <line x1="-15" y1="5" x2="15" y2="5" className="stroke-gray-900/20 dark:stroke-white/20" />
+             </g>
+             <g>
+                <rect x="-20" y="-30" width="40" height="60" rx="2" className="fill-gray-900/10 dark:fill-white/10 stroke-gray-900/60 dark:stroke-white/60 stroke-2" />
+                <circle cx="0" cy="-15" r="8" className="fill-gray-900/20 dark:fill-white/20" />
+                <line x1="-15" y1="5" x2="15" y2="5" className="stroke-gray-900/40 dark:stroke-white/40" />
+             </g>
+           </g>
+        );
+      case 's_tute':
+        return (
+           <g transform="translate(75, 75)">
+              <rect x="0" y="0" width="50" height="70" rx="2" className="fill-gray-900/5 dark:fill-white/5 stroke-gray-900/10 dark:stroke-white/10" style={{ '--tx': '15px', '--ty': '-15px', animation: 'stack-float 6s ease-in-out infinite' } as React.CSSProperties} />
+              <rect x="0" y="0" width="50" height="70" rx="2" className="fill-gray-900/10 dark:fill-white/10 stroke-gray-900/20 dark:stroke-white/20" style={{ '--tx': '8px', '--ty': '-8px', animation: 'stack-float 6s ease-in-out infinite 0.2s' } as React.CSSProperties} />
+              <rect x="0" y="0" width="50" height="70" rx="2" className="fill-gray-900/20 dark:fill-white/20 stroke-gray-900/50 dark:stroke-white/50 stroke-2" />
+              <line x1="10" y1="15" x2="40" y2="15" className="stroke-gray-900/50 dark:stroke-white/50 stroke-2" />
+           </g>
+        );
+      case 's_letterhead':
+        return (
+           <>
+             <rect x="50" y="40" width="100" height="120" className="fill-gray-900/5 dark:fill-white/5 stroke-gray-900/20 dark:stroke-white/20 stroke-2" />
+             {[0, 1, 2, 3, 4].map(i => (
+                <line key={i} x1="65" y1={70 + i * 15} x2="135" y2={70 + i * 15} className="stroke-gray-900/60 dark:stroke-white/60 stroke-2" style={{ strokeDasharray: 100, animation: `draw-line 4s ease-in-out infinite ${i * 0.5}s` }} />
+             ))}
+           </>
+        );
+      case 's_book':
+        return (
+           <g transform="translate(100, 100)">
+              <defs><filter id="glow"><feGaussianBlur stdDeviation="2" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+              <circle cx="0" cy="-40" r="20" className="fill-gray-900/80 dark:fill-white/80 animate-[float-slow_5s_ease-in-out_infinite]" filter="url(#glow)" />
+              <path d="M-50 60 Q0 80 50 60" className="fill-none stroke-gray-900/30 dark:stroke-white/30 stroke-2" />
+              <g transform="translate(0, 10)">
+                <rect x="-40" y="-10" width="38" height="50" className="fill-gray-900/10 dark:fill-white/10 stroke-gray-900/20 dark:stroke-white/20" rx="2" />
+                <rect x="2" y="-10" width="38" height="50" className="fill-gray-900/10 dark:fill-white/10 stroke-gray-900/20 dark:stroke-white/20" rx="2" />
+                <g className="origin-left" style={{ transformBox: 'fill-box' }}>
+                   <rect x="2" y="-10" width="36" height="48" className="fill-gray-900/40 dark:fill-white/40 opacity-80" rx="1" style={{ animation: 'page-flip 6s ease-in-out infinite', transformOrigin: '0 0' }} />
+                </g>
+              </g>
+           </g>
+        );
+      case 's_businesscard':
+        return (
+           <g transform="translate(100, 130)">
+              <g style={{ animation: 'float-slow 5s ease-in-out infinite' }}>
+                <path d="M-30 -20 Q-20 -40 -10 -20" className="fill-gray-900/5 dark:fill-white/5 stroke-gray-900/20 dark:stroke-white/20" />
+                <path d="M-10 -25 Q0 -45 10 -25" className="fill-gray-900/5 dark:fill-white/5 stroke-gray-900/20 dark:stroke-white/20" />
+                <path d="M10 -20 Q20 -40 30 -20" className="fill-gray-900/5 dark:fill-white/5 stroke-gray-900/20 dark:stroke-white/20" />
+                <g transform="rotate(-5)">
+                  <rect x="-50" y="-80" width="100" height="60" rx="4" className="fill-gray-900/10 dark:fill-white/10 stroke-gray-900/40 dark:stroke-white/40 stroke-2" />
+                  <circle cx="-25" cy="-50" r="10" className="fill-gray-900/20 dark:fill-white/20" />
+                  <line x1="0" y1="-60" x2="35" y2="-60" className="stroke-gray-900/30 dark:stroke-white/30 stroke-2" />
+                  <line x1="-35" y1="-35" x2="35" y2="-35" className="stroke-gray-900/30 dark:stroke-white/30 stroke-1" />
+                </g>
+                <path d="M-20 0 C-20 -20 20 -20 20 0 L20 40 L-20 40 Z" className="fill-gray-900/20 dark:fill-white/20 stroke-gray-900/30 dark:stroke-white/30" />
+              </g>
+           </g>
+        );
+      case 's_3d':
+        return (
+           <g transform="translate(100, 100)">
+              <g className="animate-[spin_10s_linear_infinite]" style={{ transformOrigin: 'center' }}>
+                <path d="M0 -40 L35 -20 L35 20 L0 40 L-35 20 L-35 -20 Z" className="fill-none stroke-gray-900/30 dark:stroke-white/30 stroke-2" />
+                <line x1="0" y1="-40" x2="0" y2="0" className="stroke-gray-900/30 dark:stroke-white/30 stroke-2" />
+                <line x1="-35" y1="20" x2="0" y2="0" className="stroke-gray-900/30 dark:stroke-white/30 stroke-2" />
+                <line x1="35" y1="20" x2="0" y2="0" className="stroke-gray-900/30 dark:stroke-white/30 stroke-2" />
+                <path d="M0 0 L35 -20 L35 20 Z" className="fill-gray-900/10 dark:fill-white/10" />
+                <path d="M0 0 L-35 -20 L-35 20 Z" className="fill-gray-900/5 dark:fill-white/5" />
+                <circle cx="0" cy="0" r="4" className="fill-gray-900/60 dark:fill-white/60 animate-pulse" />
+              </g>
+              <ellipse cx="0" cy="65" rx="30" ry="8" className="fill-gray-900/10 dark:fill-white/10 blur-md" />
+           </g>
+        );
+      case 's_video':
+        return (
+           <g transform="translate(50, 80)">
+             <rect x="0" y="0" width="100" height="40" rx="4" className="fill-gray-900/5 dark:fill-white/5 stroke-gray-900/20 dark:stroke-white/20 stroke-2" />
+             {[0, 1, 2, 3, 4, 5, 6, 7].map(i => (
+                <rect key={`top-${i}`} x={5 + i * 12} y="5" width="6" height="4" className="fill-gray-900/20 dark:fill-white/20" />
+             ))}
+             {[0, 1, 2, 3, 4, 5, 6, 7].map(i => (
+                <rect key={`bot-${i}`} x={5 + i * 12} y="31" width="6" height="4" className="fill-gray-900/20 dark:fill-white/20" />
+             ))}
+             <g style={{ animation: 'scroll-touch 4s ease-in-out infinite' }}>
+               <rect x="20" y="-10" width="2" height="60" className="fill-rose-500/50 dark:fill-rose-400/50" />
+               <polygon points="18,-10 24,-10 21,-2" className="fill-rose-500/80 dark:fill-rose-400/80" />
+             </g>
+           </g>
+        );
+      default:
+        return (
+           <g transform="translate(100, 100)">
+             <circle cx="0" cy="0" r="40" className="fill-gray-900/5 dark:fill-white/5 stroke-gray-900/20 dark:stroke-white/20 stroke-2 animate-[ping_3s_cubic-bezier(0,0,0.2,1)_infinite]" />
+             <circle cx="0" cy="0" r="20" className="fill-gray-900/10 dark:fill-white/10 stroke-gray-900/30 dark:stroke-white/30 stroke-2 animate-pulse" />
+           </g>
+        );
+    }
+  };
+
+  return (
+    <svg ref={containerRef} className="w-full h-full overflow-hidden">
+      <g style={{ 
+        transform: 'translate(calc(var(--viewport-width, 266) * 0.5px), calc(var(--viewport-height, 200) * 0.5px)) scale(calc(min(var(--viewport-width, 266), var(--viewport-height, 200)) / 200))' 
+      }}>
+        <g transform="translate(-100, -100)">
+          {renderContent()}
+        </g>
+      </g>
+    </svg>
+  );
+};
 
 interface HomeProps {
   user: User | null;
   onLoginClick: () => void;
 }
 
-const ServiceVisual: React.FC<{ id: string }> = ({ id }) => {
-  const fillColor = "fill-white/10";
-
-  switch (id) {
-    case 's_social':
-      return (
-        <svg viewBox="0 0 200 200" className="w-full h-full">
-          <defs>
-             <clipPath id="screen-mask">
-               <rect x="60" y="40" width="80" height="120" />
-             </clipPath>
-          </defs>
-          <rect x="55" y="30" width="90" height="140" rx="10" className="fill-white/5 stroke-white/20 stroke-2" />
-          <path d="M95 35 h10" className="stroke-white/20 stroke-2" />
-          <circle cx="100" cy="160" r="3" className="fill-white/20" />
-          <g clipPath="url(#screen-mask)">
-             <g style={{ animation: 'scroll-feed 4s linear infinite' }}>
-                {[0, 1, 2, 3, 4].map(i => (
-                  <g key={i} transform={`translate(65, ${45 + i * 55})`}>
-                     <rect width="70" height="35" rx="2" className="fill-white/10" />
-                     <line x1="0" y1="40" x2="60" y2="40" className="stroke-white/10 stroke-2" />
-                     <line x1="0" y1="46" x2="40" y2="46" className="stroke-white/10 stroke-2" />
-                  </g>
-                ))}
-             </g>
-          </g>
-          <circle cx="100" cy="130" r="12" className="fill-white/30 blur-sm animate-[scroll-touch_4s_ease-in-out_infinite]" />
-        </svg>
-      );
-    case 's_invite':
-      return (
-        <svg viewBox="0 0 200 200" className="w-full h-full">
-           <g transform="translate(0, 20)">
-             <rect x="40" y="60" width="120" height="80" rx="4" className={fillColor + " stroke-white/20 stroke-2"} />
-             <line x1="60" y1="90" x2="140" y2="90" className="stroke-white/20 stroke-2" />
-             <line x1="60" y1="110" x2="110" y2="110" className="stroke-white/20 stroke-2" />
-             <path d="M40 60 L100 100 L160 60" className="fill-none stroke-white/50 stroke-2" />
-             <path d="M40 60 L100 20 L160 60" className="fill-white/5 stroke-white/50 stroke-2 animate-[float-slow_3s_ease-in-out_infinite]" />
-           </g>
-        </svg>
-      );
-    case 's_banner':
-      return (
-        <svg viewBox="0 0 200 200" className="w-full h-full">
-           <path d="M80 180 L80 160 L120 160 L120 180" className="fill-white/5 stroke-white/10" />
-           <g transform="translate(0, -10)">
-              <rect x="95" y="100" width="10" height="60" className="fill-white/10" />
-              <line x1="50" y1="100" x2="95" y2="140" className="stroke-white/20 stroke-1" />
-              <line x1="150" y1="100" x2="105" y2="140" className="stroke-white/20 stroke-1" />
-              <rect x="30" y="40" width="140" height="70" className="fill-white/5 stroke-white/30 stroke-2" />
-              <rect x="35" y="45" width="130" height="60" className="fill-white/10" />
-              <circle cx="60" cy="75" r="18" className="fill-white/10" />
-              <rect x="90" y="65" width="60" height="8" className="fill-white/20" />
-              <rect x="90" y="78" width="40" height="5" className="fill-white/10" />
-              <g className="fill-white/40">
-                <circle cx="45" cy="35" r="2" /><path d="M45 35 L45 40" className="stroke-white/30" />
-                <circle cx="80" cy="35" r="2" /><path d="M80 35 L80 40" className="stroke-white/30" />
-                <circle cx="120" cy="35" r="2" /><path d="M120 35 L120 40" className="stroke-white/30" />
-                <circle cx="155" cy="35" r="2" /><path d="M155 35 L155 40" className="stroke-white/30" />
-              </g>
-           </g>
-        </svg>
-      );
-    case 's_flyer':
-      return (
-        <svg viewBox="0 0 200 200" className="w-full h-full">
-           <g transform="translate(100, 100)">
-             <g style={{ transformOrigin: '50% 100%', animation: 'fan-out-left 6s ease-in-out infinite' }}>
-                <rect x="-20" y="-30" width="40" height="60" rx="2" className="fill-white/5 stroke-white/20 stroke-2" />
-                <rect x="-15" y="-25" width="30" height="20" className="fill-white/10" />
-                <line x1="-15" y1="5" x2="15" y2="5" className="stroke-white/20" />
-             </g>
-             <g style={{ transformOrigin: '50% 100%', animation: 'fan-out-right 6s ease-in-out infinite' }}>
-                <rect x="-20" y="-30" width="40" height="60" rx="2" className="fill-white/5 stroke-white/20 stroke-2" />
-                <rect x="-15" y="-25" width="30" height="20" className="fill-white/10" />
-                <line x1="-15" y1="5" x2="15" y2="5" className="stroke-white/20" />
-             </g>
-             <g>
-                <rect x="-20" y="-30" width="40" height="60" rx="2" className="fill-white/10 stroke-white/60 stroke-2" />
-                <circle cx="0" cy="-15" r="8" className="fill-white/20" />
-                <line x1="-15" y1="5" x2="15" y2="5" className="stroke-white/40" />
-             </g>
-           </g>
-        </svg>
-      );
-    case 's_tute':
-      return (
-        <svg viewBox="0 0 200 200" className="w-full h-full">
-           <g transform="translate(75, 75)">
-              <rect x="0" y="0" width="50" height="70" rx="2" className="fill-white/5 stroke-white/10" style={{ '--tx': '15px', '--ty': '-15px', animation: 'stack-float 6s ease-in-out infinite' } as React.CSSProperties} />
-              <rect x="0" y="0" width="50" height="70" rx="2" className="fill-white/10 stroke-white/20" style={{ '--tx': '8px', '--ty': '-8px', animation: 'stack-float 6s ease-in-out infinite 0.2s' } as React.CSSProperties} />
-              <rect x="0" y="0" width="50" height="70" rx="2" className="fill-white/20 stroke-white/50 stroke-2" />
-              <line x1="10" y1="15" x2="40" y2="15" className="stroke-white/50 stroke-2" />
-           </g>
-        </svg>
-      );
-    case 's_letterhead':
-      return (
-        <svg viewBox="0 0 200 200" className="w-full h-full">
-           <rect x="50" y="40" width="100" height="120" className="fill-white/5 stroke-white/20 stroke-2" />
-           {[0, 1, 2, 3, 4].map(i => (
-              <line key={i} x1="65" y1={70 + i * 15} x2="135" y2={70 + i * 15} className="stroke-white/60 stroke-2" style={{ strokeDasharray: 100, animation: `draw-line 4s ease-in-out infinite ${i * 0.5}s` }} />
-           ))}
-        </svg>
-      );
-    case 's_book':
-      return (
-        <svg viewBox="0 0 200 200" className="w-full h-full">
-           <defs><filter id="glow"><feGaussianBlur stdDeviation="2" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
-           <g transform="translate(100, 100)">
-              <circle cx="0" cy="-40" r="20" className="fill-white/80 animate-[float-slow_5s_ease-in-out_infinite]" filter="url(#glow)" />
-              <path d="M-50 60 Q0 80 50 60" className="fill-none stroke-white/30 stroke-2" />
-              <g transform="translate(0, 10)">
-                <rect x="-40" y="-10" width="38" height="50" className="fill-white/10 stroke-white/20" rx="2" />
-                <rect x="2" y="-10" width="38" height="50" className="fill-white/10 stroke-white/20" rx="2" />
-                <g className="origin-left" style={{ transformBox: 'fill-box' }}>
-                   <rect x="2" y="-10" width="36" height="48" className="fill-white/40 opacity-80" rx="1" style={{ animation: 'page-flip 6s ease-in-out infinite', transformOrigin: '0 0' }} />
-                </g>
-              </g>
-           </g>
-        </svg>
-      );
-    case 's_businesscard':
-      return (
-        <svg viewBox="0 0 200 200" className="w-full h-full">
-           <g transform="translate(100, 130)">
-              <g style={{ animation: 'float-slow 5s ease-in-out infinite' }}>
-                <path d="M-30 -20 Q-20 -40 -10 -20" className="fill-white/5 stroke-white/20" />
-                <path d="M-10 -25 Q0 -45 10 -25" className="fill-white/5 stroke-white/20" />
-                <path d="M10 -20 Q20 -40 30 -20" className="fill-white/5 stroke-white/20" />
-                <g transform="rotate(-5)">
-                  <rect x="-50" y="-80" width="100" height="60" rx="4" className="fill-white/10 stroke-white/40 stroke-2" />
-                  <circle cx="-25" cy="-50" r="10" className="fill-white/20" />
-                  <line x1="0" y1="-60" x2="35" y2="-60" className="stroke-white/30 stroke-2" />
-                  <line x1="-35" y1="-35" x2="35" y2="-35" className="stroke-white/30 stroke-1" />
-                </g>
-                <path d="M-20 0 C-20 -20 20 -20 20 0 L20 40 L-20 40 Z" className="fill-white/20 stroke-white/30" />
-              </g>
-           </g>
-        </svg>
-      );
-    default:
-      return null;
-  }
-};
 
 export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -183,6 +249,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
   const [services, setServices] = useState(DEFAULT_SERVICES);
   const [portfolio, setPortfolio] = useState(DEFAULT_PORTFOLIO);
   const [loadingPortfolio, setLoadingPortfolio] = useState(true);
+  const [showServiceAnimations, setShowServiceAnimations] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const FAQS = [
@@ -231,7 +298,8 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
        setLoadingPortfolio(false);
     });
 
-    Promise.all([getServicesConfig(), getDiscountsConfig()]).then(([configs, discountInfo]) => {
+    Promise.all([getServicesConfig(), getDiscountsConfig(), getDisplayConfig()]).then(([configs, discountInfo, displayInfo]) => {
+      setShowServiceAnimations(displayInfo.showServiceAnimations);
       let baseServices = [...DEFAULT_SERVICES];
       
       // Add custom ones from configs that aren't in DEFAULT_SERVICES
@@ -328,7 +396,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
     setSearchParams(nextParams);
   };
 
-  const openWork = (id: number) => {
+  const openWork = (id: number | string) => {
     const nextParams = new URLSearchParams(searchParams);
     nextParams.set('work', id.toString());
     setSearchParams(nextParams);
@@ -346,7 +414,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
   return (
     <div className="flex flex-col min-h-screen text-gray-900 dark:text-slate-100">
       <Helmet>
-        <title>Ranthul's Portfolio | Digital Creator</title>
+        <title>Ranthula | Buisness portfolio</title>
         <meta name="description" content="Immersive brand experiences crafted with precision. Visual soundscapes for your digital identity." />
       </Helmet>
 
@@ -355,7 +423,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
       {/* 1. HERO SECTION */}
       <section className="min-h-[90vh] flex flex-col justify-center items-center text-center px-4 md:px-12 max-w-7xl mx-auto pt-20 relative z-10">
         <div className="max-w-5xl">
-            <h1 className="text-4xl sm:text-5xl md:text-8xl font-display font-bold mb-6 md:mb-8 tracking-tight md:tracking-tighter leading-tight md:leading-none animate-fade-in select-none">
+            <h1 className="text-5xl sm:text-6xl md:text-8xl font-display font-bold mb-6 md:mb-8 tracking-tight md:tracking-tighter leading-tight md:leading-none animate-fade-in select-none">
               <span className="block text-gray-900 dark:text-slate-100 mb-1 md:mb-0">Bring your ideas</span>
               <span className="block text-gray-900 dark:text-slate-100 mb-1 md:mb-0">to life with</span>
               <span className="block bg-clip-text text-transparent bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 animate-gradient pb-2">vivid visuals!</span>
@@ -471,24 +539,48 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
              <p className="text-gray-500 dark:text-slate-400 max-w-xs text-sm">Curated projects that define visual landscapes.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 grid-flow-row-dense">
             {loadingPortfolio ? (
               [1, 2, 3, 4, 5, 6].map((i, idx) => (
                 <div 
                   key={`skeleton-${i}`}
-                  className={`animate-pulse bg-gray-200 rounded-xl ${idx === 0 || idx === 5 ? 'md:col-span-2 aspect-[16/10] md:aspect-[21/9]' : 'aspect-[4/5]'}`}
+                  className={`animate-pulse bg-gray-200 dark:bg-slate-800 rounded-2xl ${idx === 0 ? 'md:col-span-2 md:row-span-2 aspect-square md:aspect-auto' : 'aspect-[4/5]'}`}
                 ></div>
               ))
-            ) : portfolio.map((item, idx) => (
+            ) : portfolio.filter(item => !item.hidden).map((item, idx) => {
+              // Creating a dynamic bento-style grid layout
+              const isLarge = idx === 0 || idx === 6;
+              const isWide = idx === 3;
+              
+              return (
               <div 
                 key={item.id}
                 onClick={() => openWork(item.id)}
-                className={`group relative rounded-xl overflow-hidden transition-all duration-300 
-                  ${idx === 0 || idx === 5 ? 'md:col-span-2 aspect-[16/10] md:aspect-[21/9]' : 'aspect-[4/5]'} 
-                  cursor-pointer bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 hover:shadow-2xl`}
+                className={`group relative rounded-2xl overflow-hidden transition-all duration-500 
+                  ${isLarge ? 'md:col-span-2 md:row-span-2 aspect-square md:aspect-auto min-h-[400px]' : isWide ? 'md:col-span-2 aspect-[21/9] min-h-[300px]' : 'aspect-[4/5] min-h-[300px]'} 
+                  cursor-pointer bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 hover:shadow-2xl hover:-translate-y-1`}
               >
-                <div className="absolute top-4 right-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-2 group-hover:translate-y-0">
-                  <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-3 rounded-full border border-gray-200 dark:border-slate-700 text-gray-900 dark:text-slate-100 hover:bg-gray-900 hover:text-white transition-colors">
+                <div className="absolute top-4 right-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-2 group-hover:translate-y-0 flex gap-2">
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const url = `${window.location.origin}?work=${item.id}`;
+                      if (navigator.share) {
+                        navigator.share({
+                          title: item.title,
+                          text: item.description,
+                          url: url,
+                        }).catch(() => {});
+                      } else {
+                        navigator.clipboard.writeText(url);
+                      }
+                    }}
+                    className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-3 rounded-full border border-gray-200 dark:border-slate-700 text-gray-900 dark:text-slate-100 hover:bg-gray-900 hover:text-white transition-colors shadow-lg"
+                    title="Share project"
+                  >
+                    <Share2 size={20} />
+                  </button>
+                  <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-3 rounded-full border border-gray-200 dark:border-slate-700 text-gray-900 dark:text-slate-100 hover:bg-gray-900 hover:text-white transition-colors shadow-lg">
                     <Maximize2 size={20} />
                   </div>
                 </div>
@@ -500,42 +592,30 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
                     loop 
                     muted 
                     playsInline
-                    className="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-105 opacity-90 group-hover:opacity-100" 
+                    className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100" 
                   />
                 ) : (
-                  <img 
+                  <MediaRenderer 
                     src={item.img} 
                     alt={item.title} 
-                    className="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-105 opacity-90 group-hover:opacity-100" 
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                      e.currentTarget.parentElement?.classList.add('bg-gray-100 dark:bg-slate-800', 'flex', 'items-center', 'justify-center', 'border', 'border-gray-200 dark:border-slate-700');
-                      const div = document.createElement('div');
-                      div.className = 'text-center p-6 w-full';
-                      const fileName = item.img.split('/').pop();
-                      div.innerHTML = `
-                        <div class="text-gray-400 mb-2 font-mono text-xs uppercase tracking-widest">Image Missing</div>
-                        <div class="text-gray-900 dark:text-slate-100 font-display text-xl mb-3">${item.title}</div>
-                        <div class="bg-white dark:bg-slate-900 p-2 rounded text-xs text-orange-500 font-mono break-all border border-orange-200">${fileName}</div>
-                      `;
-                      e.currentTarget.parentElement?.appendChild(div);
-                    }}
+                    className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100" 
                   />
                 )}
                 
-                {/* Removed gradient overlay as mix-blend-difference handles contrast automatically */}
+                {/* Gradient overlay for better text readability */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-300"></div>
                 
-                <div className="absolute bottom-0 left-0 p-6 md:p-8 transform translate-y-4 md:translate-y-8 md:group-hover:translate-y-0 transition-transform duration-300 w-full">
-                  <div className="text-xs text-white font-bold uppercase tracking-widest mb-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity delay-100 mix-blend-difference">
+                <div className="absolute bottom-0 left-0 p-6 md:p-8 transform translate-y-4 md:translate-y-8 md:group-hover:translate-y-0 transition-transform duration-300 w-full z-10">
+                  <div className="text-xs text-white/90 font-bold uppercase tracking-widest mb-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity delay-100">
                     {item.category}
                   </div>
-                  <h3 className="text-2xl md:text-3xl font-display text-white mb-2 mix-blend-difference">{item.title}</h3>
-                  <p className="text-white/90 text-sm max-w-lg line-clamp-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity delay-200 hidden md:block mix-blend-difference">
+                  <h3 className="text-2xl md:text-3xl font-display text-white mb-2 drop-shadow-md">{item.title}</h3>
+                  <p className="text-white/80 text-sm max-w-lg line-clamp-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity delay-200 hidden md:block">
                     {item.description}
                   </p>
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         </div>
       </section>
@@ -547,44 +627,50 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
           <span className="text-xs text-gray-400 uppercase tracking-widest hidden md:block">Choose your workflow</span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-6 md:px-12 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 px-6 md:px-12 max-w-7xl mx-auto">
           {services.filter(s => !(s as any).hidden).map((service, idx) => (
             <Link 
               key={service.id} 
               to={`/order?service=${service.id}`} 
-              className="group relative h-[480px] bg-white dark:bg-slate-900 rounded-[2rem] p-8 flex flex-col justify-between border border-gray-200 dark:border-slate-700 transition-all duration-500 hover:-translate-y-2 overflow-hidden shadow-sm hover:shadow-xl"
+              className="group relative bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 md:p-10 flex flex-col border border-gray-200 dark:border-slate-700 transition-all duration-500 hover:-translate-y-2 overflow-hidden shadow-sm hover:shadow-xl"
             >
-              <div className="absolute top-0 left-0 w-full h-full opacity-10 group-hover:opacity-20 transition-opacity duration-700 pointer-events-none invert mix-blend-multiply">
-                <ServiceVisual id={service.id} />
+              <div className="flex justify-between items-start mb-6">
+                <span className="text-xs font-mono text-gray-400 border border-gray-200 dark:border-slate-700 px-3 py-1.5 rounded-full text-center">0{idx + 1}</span>
+                <ArrowRight className="text-transparent group-hover:text-purple-600 transition-all duration-300 -translate-x-4 group-hover:translate-x-0" />
               </div>
+              <h3 className="text-3xl md:text-4xl font-display mb-3 leading-tight text-gray-900 dark:text-slate-100">{service.title}</h3>
+              <p className="text-gray-500 dark:text-slate-400 text-sm md:text-base leading-relaxed mb-8 pr-4">{service.description}</p>
               
-              <div className="relative z-10">
-                 <div className="flex justify-between items-start mb-4">
-                   <span className="text-xs font-mono text-gray-400 border border-gray-200 dark:border-slate-700 px-2 py-1 rounded-full text-center">0{idx + 1}</span>
-                   <ArrowRight className="text-transparent group-hover:text-purple-600 transition-all duration-300 -translate-x-4 group-hover:translate-x-0" />
-                 </div>
-                 <h3 className="text-2xl md:text-3xl font-display mb-2 leading-tight text-gray-900 dark:text-slate-100">{service.title}</h3>
-                 <p className="text-gray-500 dark:text-slate-400 text-xs md:text-sm leading-relaxed">{service.description}</p>
+              <div className="w-full aspect-[4/3] rounded-3xl overflow-hidden mb-8 relative">
+                  {showServiceAnimations ? (
+                      <div className="w-full h-full relative overflow-hidden bg-gray-100 dark:bg-slate-800 flex items-center justify-center">
+                          <ServiceVisual id={service.id} title={service.title} />
+                      </div>
+                  ) : (
+                      <MediaRenderer src={service.image} alt={service.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  )}
+                  <div className="absolute inset-0 border border-black/5 dark:border-white/5 rounded-3xl pointer-events-none"></div>
               </div>
 
-              <div className="relative z-10 border-t border-gray-100 dark:border-slate-700 pt-6">
+              <div className="border-t border-gray-100 dark:border-slate-700 pt-8 mt-auto">
                 <div className="mb-4">
                     {service.discountPercentage && service.discountPercentage > 0 && service.originalPrice ? (
                          <div className="flex flex-col gap-1">
                            <div className="flex items-center gap-3">
-                             <div className="text-4xl font-light text-gray-900 dark:text-slate-100">LKR {service.price.toLocaleString()}</div>
+                             <div className="text-3xl lg:text-4xl font-light text-gray-900 dark:text-slate-100">LKR {service.price.toLocaleString()}</div>
                              <span className="bg-rose-100 text-rose-600 px-2 py-1 rounded font-black text-sm uppercase tracking-widest animate-pulse border border-rose-200 shadow-sm">{service.discountPercentage}% OFF</span>
                            </div>
                            <span className="text-base text-gray-400 line-through">LKR {service.originalPrice.toLocaleString()}</span>
                          </div>
                     ) : (
-                         <div className="text-4xl font-light text-gray-900 dark:text-slate-100">LKR {service.price.toLocaleString()}</div>
+                         <div className="text-3xl lg:text-4xl font-light text-gray-900 dark:text-slate-100">LKR {service.price.toLocaleString()}</div>
                     )}
                 </div>
                 <ul className="space-y-2">
-                  {service.features.slice(0, 3).map((f, i) => (
-                     <li key={i} className="text-xs text-gray-600 dark:text-slate-400 flex items-center gap-2">
-                       <div className="w-1.5 h-1.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div> {f}
+                  {service.features.map((f, i) => (
+                     <li key={i} className="text-xs text-gray-600 dark:text-slate-400 flex items-start gap-2">
+                       <div className="w-1.5 h-1.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full shrink-0 mt-1"></div>
+                       <span>{f}</span>
                      </li>
                   ))}
                 </ul>
@@ -620,19 +706,19 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
              <div className="flex gap-6 pb-8 animate-marquee pl-6 w-max">
                {/* Double the list to create a seamless loop effect */}
                {[...testimonials, ...testimonials].map((t, idx) => (
-                 <div key={`${t.id || 't'}-${idx}`} className="w-[300px] md:w-[400px] bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700 p-8 rounded-[2rem] flex-shrink-0 relative mt-8 flex flex-col hover:shadow-lg transition-shadow">
-                    <div className="absolute -top-6 left-8 bg-purple-600 text-white w-12 h-12 flex items-center justify-center rounded-full shadow-lg font-serif italic text-3xl leading-none pt-4">"</div>
-                    <p className="text-gray-600 dark:text-slate-400 font-medium leading-relaxed mb-8 pt-4 text-sm md:text-base flex-1">
+                 <div key={`${t.id || 't'}-${idx}`} className="w-[280px] md:w-[320px] bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700 p-6 rounded-3xl flex-shrink-0 relative mt-8 flex flex-col hover:shadow-lg transition-shadow">
+                    <div className="absolute -top-5 left-6 bg-purple-600 text-white w-10 h-10 flex items-center justify-center rounded-full shadow-lg font-serif italic text-2xl leading-none pt-3">"</div>
+                    <p className="text-gray-600 dark:text-slate-400 font-medium leading-relaxed mb-6 pt-3 text-sm flex-1">
                        {t.feedback}
                     </p>
                     {t.rating && (
-                      <div className="flex gap-1 text-lg mb-4">
+                      <div className="flex gap-1 text-base mb-3">
                          {[1, 2, 3, 4, 5].map(s => <span key={s} className={s <= t.rating! ? 'text-yellow-400' : 'text-gray-300'}>★</span>)}
                       </div>
                     )}
                     <div>
-                       <div className="font-bold text-gray-900 dark:text-slate-100 text-lg">{t.clientName}</div>
-                       <div className="text-xs uppercase tracking-widest text-purple-600 font-bold mt-1">{t.projectRole}</div>
+                       <div className="font-bold text-gray-900 dark:text-slate-100 text-base">{t.clientName}</div>
+                       <div className="text-[10px] uppercase tracking-widest text-purple-600 font-bold mt-1">{t.projectRole}</div>
                     </div>
                  </div>
                ))}
@@ -745,13 +831,13 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
       {/* SMART LIGHTBOX MODAL - FIXED CENTER POSITIONING */}
       {selectedWork && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 animate-[fadeIn_0.3s_ease-out_forwards] overflow-y-auto overflow-x-hidden">
-          <div className="fixed inset-0 bg-white/95 backdrop-blur-xl" onClick={closeLightbox}></div>
+          <div className="fixed inset-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl" onClick={closeLightbox}></div>
           
           <div className="relative w-full max-w-6xl my-auto pointer-events-none">
             {/* Close Button Mobile (Sticky-style) */}
             <button 
               onClick={closeLightbox} 
-              className="fixed top-6 right-6 text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:text-slate-100 pointer-events-auto transition-all z-[110] p-2 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-full border border-gray-200 dark:border-slate-700 md:hidden shadow-sm"
+              className="fixed top-6 right-6 text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100 pointer-events-auto transition-all z-[110] p-2 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-full border border-gray-200 dark:border-slate-700 md:hidden shadow-sm"
             >
               <X size={24} />
             </button>
@@ -759,7 +845,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
             {/* Close Button Desktop */}
             <button 
               onClick={closeLightbox} 
-              className="absolute -top-12 -right-12 text-gray-400 hover:text-gray-900 dark:text-slate-100 pointer-events-auto transition-colors z-50 p-2 group hidden md:flex items-center"
+              className="absolute -top-12 -right-12 text-gray-400 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100 pointer-events-auto transition-colors z-50 p-2 group hidden md:flex items-center"
             >
               <span className="mr-2 text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">Close</span>
               <X size={32} />
@@ -768,7 +854,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
             <div className="flex flex-col md:flex-row gap-6 md:gap-12 pointer-events-auto items-center">
               {/* Image Container */}
               <div className="flex-1 w-full flex items-center justify-center relative rounded-2xl overflow-hidden shadow-2xl bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700">
-                 <img 
+                 <MediaRenderer 
                    src={selectedWork.img} 
                    alt={selectedWork.title} 
                    className="max-w-full max-h-[70vh] md:max-h-[80vh] object-contain" 
@@ -776,7 +862,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
               </div>
 
               {/* Text Container */}
-              <div className="w-full md:w-[400px] flex flex-col justify-center bg-white/60 md:bg-transparent backdrop-blur-xl md:backdrop-blur-none p-6 md:p-0 rounded-2xl md:rounded-none border border-gray-300 dark:border-slate-600 md:border-none shadow-[0_8px_32px_rgba(0,0,0,0.12)] md:shadow-none">
+              <div className="w-full md:w-[400px] flex flex-col justify-center bg-white/60 dark:bg-slate-900/60 md:bg-transparent md:dark:bg-transparent backdrop-blur-xl md:backdrop-blur-none p-6 md:p-0 rounded-2xl md:rounded-none border border-gray-300 dark:border-slate-600 md:border-none shadow-[0_8px_32px_rgba(0,0,0,0.12)] md:shadow-none">
                   <div className="flex items-center gap-3 mb-4">
                      <span className="h-px w-8 bg-purple-500"></span>
                      <span className="text-purple-600 text-xs font-bold uppercase tracking-widest">{selectedWork.category}</span>

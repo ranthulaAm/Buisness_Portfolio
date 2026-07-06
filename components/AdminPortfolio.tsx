@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { getPortfolioItems, addPortfolioItem, updatePortfolioItem, deletePortfolioItem, PortfolioItem } from '../services/dataService';
 import { uploadFileWithProgress } from '../services/fileUploadService';
 import { PORTFOLIO_ITEMS as DEFAULT_PORTFOLIO } from '../constants';
-import { Save, Plus, Trash2, Loader2, Upload, ArrowUp, ArrowDown, ImageIcon } from 'lucide-react';
+import { Save, Plus, Trash2, Loader2, Upload, ArrowUp, ArrowDown, ImageIcon, Eye, EyeOff } from 'lucide-react';
 import { ConfirmModal } from './ConfirmModal';
+import { MediaRenderer } from './MediaRenderer';
 
 export const AdminPortfolio: React.FC = () => {
     const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
@@ -93,7 +94,7 @@ export const AdminPortfolio: React.FC = () => {
         setPortfolio([item, ...portfolio]);
     };
 
-    const handlePortfolioChange = (index: number, field: keyof PortfolioItem, value: string) => {
+    const handlePortfolioChange = (index: number, field: keyof PortfolioItem, value: any) => {
         const newPortfolio = [...portfolio];
         newPortfolio[index] = { ...newPortfolio[index], [field]: value };
         setPortfolio(newPortfolio);
@@ -188,8 +189,13 @@ export const AdminPortfolio: React.FC = () => {
                             
                             {/* Image Selection / Viewer */}
                             <div className="h-56 bg-gray-200 flex-shrink-0 relative overflow-hidden flex items-center justify-center">
+                                {item.hidden && (
+                                    <div className="absolute top-2 left-2 z-20 bg-gray-900/80 text-white text-[10px] uppercase tracking-widest px-2 py-1 rounded font-bold backdrop-blur-md">
+                                        Hidden
+                                    </div>
+                                )}
                                 {item.img ? (
-                                    <img src={item.img} alt={item.title} className="w-full h-full object-cover" />
+                                    <MediaRenderer src={item.img} alt={item.title} className="w-full h-full object-cover" />
                                 ) : (
                                     <div className="text-gray-400 flex flex-col items-center gap-2 h-full justify-center">
                                         <ImageIcon size={32} />
@@ -291,7 +297,14 @@ export const AdminPortfolio: React.FC = () => {
                                 </div>
                                 
                                 <div className="flex gap-3 justify-end mt-2 pt-4 border-t border-gray-100 dark:border-slate-700">
-                                     <button onClick={() => handleDeletePortfolioItem(i)} className="text-gray-400 hover:text-red-500 hover:bg-red-50 p-2.5 rounded-lg transition-colors" title="Delete">
+                                     <button 
+                                         onClick={() => handlePortfolioChange(i, 'hidden', !item.hidden)} 
+                                         className={`p-2.5 rounded-lg transition-colors ${item.hidden ? 'text-gray-400 hover:text-blue-500 hover:bg-blue-50' : 'text-blue-500 hover:text-gray-400 hover:bg-gray-50'}`}
+                                         title={item.hidden ? "Show in portfolio" : "Hide from portfolio"}
+                                     >
+                                         {item.hidden ? <EyeOff size={18} /> : <Eye size={18} />}
+                                     </button>
+                                     <button onClick={() => setItemToDelete(i)} className="text-gray-400 hover:text-red-500 hover:bg-red-50 p-2.5 rounded-lg transition-colors" title="Delete">
                                          <Trash2 size={18} />
                                      </button>
                                      <button onClick={() => handleSavePortfolioItem(i)} className="bg-blue-50 hover:bg-blue-100 text-blue-700 px-4 py-2 rounded-lg text-sm font-bold transition-colors flex items-center gap-2">

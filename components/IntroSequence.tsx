@@ -84,7 +84,7 @@ export const IntroSequence: React.FC<IntroSequenceProps> = ({ onComplete, skipAn
         <div className={`flex flex-col items-center gap-4 transition-all duration-1000 ${showButtons ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <button 
             onClick={handleEnter}
-            className="group relative bg-white dark:bg-white text-black px-10 py-4 rounded-full font-bold uppercase tracking-[0.2em] hover:bg-accent-magenta hover:text-white dark:hover:text-white transition-all duration-300 scale-100 hover:scale-105 shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:shadow-[0_0_50px_rgba(213,0,249,0.5)] flex items-center gap-3"
+            className="group relative bg-white text-gray-900 px-10 py-4 rounded-full font-bold uppercase tracking-[0.2em] hover:bg-purple-600 hover:text-white transition-all duration-300 scale-100 hover:scale-105 shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:shadow-[0_0_50px_rgba(213,0,249,0.5)] flex items-center gap-3"
           >
             <span>Get Started</span>
             <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />

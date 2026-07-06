@@ -662,7 +662,7 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
   return (
     <div className="flex flex-col min-h-screen">
       <Helmet>
-        <title>Order Project | Ranthul's Portfolio</title>
+        <title>Order Project | Ranthula | Buisness portfolio</title>
         <meta name="description" content="Start a new digital project. Share your ideas and let's craft something amazing." />
       </Helmet>
       <OfferBanner />

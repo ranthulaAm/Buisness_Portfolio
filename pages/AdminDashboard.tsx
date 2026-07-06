@@ -17,6 +17,7 @@ import { AdminContacts } from '../components/AdminContacts';
 import { AdminTestimonials } from '../components/AdminTestimonials';
 import { AdminInvoice } from '../components/AdminInvoice';
 import { AdminEmail } from '../components/AdminEmail';
+import { AdminShares } from '../components/AdminShares';
 import { ClientActivityChart } from '../components/ClientActivityChart';
 import { Search, MessageSquare, MessageCircle, Layout as LayoutIcon, LogOut, ChevronRight, Save, User as UserIcon, X, AlertCircle, Download, Music, Copy, Check, Upload, ImageIcon, FileBox, RefreshCw, DollarSign, ChevronUp, ChevronDown, Loader2, Trash2, Bell, BarChart2, List, Settings, Briefcase, GraduationCap, Award, Mail, Plus, Star, ArrowLeft, Receipt } from 'lucide-react';
 import {
@@ -42,7 +43,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const tabFromUrl = searchParams.get('tab');
   
-  const [activeTab, setActiveTab] = useState<'orders' | 'reviews' | 'charts' | 'settings' | 'portfolio' | 'skills' | 'experience' | 'education' | 'contacts' | 'testimonials' | 'invoice'>(
+  const [activeTab, setActiveTab] = useState<'orders' | 'reviews' | 'charts' | 'settings' | 'portfolio' | 'skills' | 'experience' | 'education' | 'contacts' | 'testimonials' | 'invoice' | 'email'>(
     (tabFromUrl as any) || 'orders'
   );
 
@@ -52,7 +53,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
     }
   }, [tabFromUrl]);
 
-  const handleTabChange = (tab: 'orders' | 'reviews' | 'charts' | 'settings' | 'portfolio' | 'skills' | 'experience' | 'education' | 'contacts' | 'testimonials' | 'invoice') => {
+  const handleTabChange = (tab: 'orders' | 'reviews' | 'charts' | 'settings' | 'portfolio' | 'skills' | 'experience' | 'education' | 'contacts' | 'testimonials' | 'invoice' | 'email') => {
     setActiveTab(tab);
     setSearchParams({ tab });
   };
@@ -307,7 +308,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
   const exportToCsv = () => {
     let csvStr = "ID,Client,Email,Service,Status,Price,Date\n";
     filteredOrders.forEach(o => {
-      csvStr += `${o.id},"${o.clientName}","${o.clientEmail || ''}","${o.serviceType}",${o.status},${o.price || 0},${o.createdAt}\n`;
+      csvStr += `${o.id},"${o.clientName}","${o.email || ''}","${o.serviceType}",${o.status},${o.price || 0},${o.createdAt}\n`;
     });
     const blob = new Blob([csvStr], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
@@ -393,7 +394,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-slate-100 pb-12">
       <Helmet>
-        <title>Admin Dashboard | Ranthul's Portfolio</title>
+        <title>Admin Dashboard | Ranthula | Buisness portfolio</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
       {/* Navigation */}
@@ -555,6 +556,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
             onClick={() => handleTabChange('email')}
           >
             <Mail size={16} /> Email Template
+          </button>
+          <button 
+            className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'shares' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:text-slate-300'}`}
+            onClick={() => handleTabChange('shares' as any)}
+          >
+            <FileBox size={16} /> Shared Files
           </button>
         </div>
 
@@ -782,6 +789,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
           <AdminInvoice />
         ) : activeTab === 'email' ? (
           <AdminEmail />
+        ) : activeTab === 'shares' as any ? (
+          <AdminShares />
         ) : null}
       </div>
 
@@ -1084,7 +1093,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                   </div>
                   
                   <div className="px-8 py-5 border-t border-gray-100 dark:border-slate-700 bg-white dark:bg-slate-900 flex justify-end items-center gap-4 z-10 shrink-0">
-                      <button onClick={closeOrder} className="px-6 py-2.5 rounded-lg text-gray-500 dark:text-slate-400 font-semibold hover:bg-gray-100 dark:hover:bg-slate-700 dark:bg-slate-800 transition-colors text-sm">Cancel</button>
+                      <button onClick={() => closeOrder()} className="px-6 py-2.5 rounded-lg text-gray-500 dark:text-slate-400 font-semibold hover:bg-gray-100 dark:hover:bg-slate-700 dark:bg-slate-800 transition-colors text-sm">Cancel</button>
                       <button onClick={saveChanges} disabled={Object.keys(uploadProgress).length > 0} className={`px-10 py-3.5 bg-blue-600 text-white font-bold rounded-xl flex items-center gap-3 text-xs uppercase tracking-widest shadow-xl shadow-blue-600/20 transition-all ${Object.keys(uploadProgress).length > 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'}`}>
                           {Object.keys(uploadProgress).length > 0 ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
                           {Object.keys(uploadProgress).length > 0 ? 'Uploading...' : 'Save Changes'}

@@ -70,7 +70,17 @@ export const SERVICES: Service[] = [
 // Updated to point to GitHub Raw
 const REPO_URL = 'https://raw.githubusercontent.com/ranthulaAm/App/main/img';
 
-export const PORTFOLIO_ITEMS = [
+export interface PortfolioItem {
+  id: number | string;
+  title: string;
+  category: string;
+  description: string;
+  img: string;
+  videoUrl?: string;
+  hidden?: boolean;
+}
+
+export const PORTFOLIO_ITEMS: PortfolioItem[] = [
   { 
     id: 1, 
     title: 'Lewis Hamilton x Ferrari', 

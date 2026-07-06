@@ -11,6 +11,7 @@ import { Order } from './pages/Order';
 import { Tracking } from './pages/Tracking';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { ClientDashboard } from './pages/ClientDashboard';
+import { SharedProjectView } from './pages/SharedProjectView';
 import { User } from './types';
 import { saveUserProfile } from './services/storageService';
 import { auth } from './services/firebase';
@@ -149,6 +150,10 @@ const AppContent: React.FC = () => {
               <Route 
                 path="/tracking" 
                 element={<Tracking user={user} />} 
+              />
+              <Route 
+                path="/share/:shareId" 
+                element={<SharedProjectView />} 
               />
               <Route 
                 path="/admin" 

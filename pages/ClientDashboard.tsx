@@ -81,7 +81,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user }) => {
   return (
     <div className="min-h-screen pt-32 pb-20 px-4 md:px-8 relative overflow-hidden">
       <Helmet>
-        <title>Client Dashboard | Ranthul's Portfolio</title>
+        <title>Client Dashboard | Ranthula | Buisness portfolio</title>
         <meta name="description" content="View and manage your project orders and revisions." />
       </Helmet>
       <div className="max-w-5xl mx-auto relative z-10">
@@ -339,7 +339,7 @@ const ProjectCard = ({ order, onRequestRevision }: { order: Order; onRequestRevi
 
       {order.draftImg && (
         <div className="w-full md:w-64 h-64 rounded-3xl overflow-hidden border border-gray-200 dark:border-slate-700 shrink-0 relative group-hover:border-gray-300 dark:border-slate-600 transition-all duration-500 shadow-sm">
-          <img src={order.draftImg} alt="Draft" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+          <img src={order.draftImg} alt="Draft" loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-gray-900/80 to-transparent p-4">
              <div className="text-[10px] font-bold text-gray-700 dark:text-slate-300 uppercase tracking-widest">Latest Draft</div>
           </div>

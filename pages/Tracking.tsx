@@ -225,7 +225,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
     return (
       <div className="min-h-screen pt-24 flex flex-col items-center justify-center gap-6 animate-fade-in">
         <Helmet>
-          <title>Project Tracking | Ranthul's Portfolio</title>
+          <title>Project Tracking | Ranthula | Buisness portfolio</title>
         </Helmet>
         <Loader2 className="animate-spin text-purple-600" size={48} />
         <p className="text-gray-500 dark:text-slate-400 font-bold uppercase tracking-[0.3em] text-xs">Syncing...</p>
@@ -444,10 +444,10 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
              <div className="fixed inset-0 bg-black/95 backdrop-blur-xl" onClick={() => !isRevisionMode && closeLightbox()}></div>
              
              <div className="relative w-full max-w-lg bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-[3rem] overflow-hidden shadow-2xl animate-fade-in my-8">
-                <div className="relative aspect-[3/4] bg-gray-100 dark:bg-slate-800 flex items-center justify-center border-b border-gray-150">
+                <div className="relative aspect-[3/4] bg-gray-100 dark:bg-slate-800 flex items-center justify-center border-b border-gray-200 dark:border-slate-700">
                    {order.draftImg ? (
                      <div className="relative w-full h-full">
-                       <img src={order.draftImg} className="w-full h-full object-contain pointer-events-none select-none" alt="Draft Preview" />
+                       <img src={order.draftImg} loading="lazy" className="w-full h-full object-contain pointer-events-none select-none" alt="Draft Preview" />
                        {/* Watermark/Warning UI */}
                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none select-none opacity-20 overflow-hidden">
                           <span className="text-4xl font-black uppercase tracking-[0.5em] text-gray-950 rotate-45 mb-40">PREVIEW ONLY</span>
@@ -461,12 +461,12 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                    ) : (
                      <div className="text-gray-400 italic text-sm">No preview available.</div>
                    )}
-                   <button onClick={closeLightbox} className="absolute top-6 right-6 bg-white/80 dark:bg-slate-900/80 hover:bg-gray-150 p-3 rounded-full text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:text-slate-100 transition-all border border-gray-250 z-50 shadow-sm">
+                   <button onClick={closeLightbox} className="absolute top-6 right-6 bg-white/80 dark:bg-slate-900/80 hover:bg-gray-100 dark:hover:bg-slate-800 p-3 rounded-full text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100 transition-all border border-gray-200 dark:border-slate-700 z-50 shadow-sm">
                      <X size={20} />
                    </button>
                 </div>
 
-                <div className="p-8 md:p-10 bg-white dark:bg-slate-900 border-t border-gray-150">
+                <div className="p-8 md:p-10 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-700">
                    <h4 className="text-2xl font-display text-gray-900 dark:text-slate-100 mb-2">{order.serviceType}</h4>
                    <p className="text-gray-400 font-mono text-xs uppercase tracking-widest mb-8">{order.id}</p>
 
@@ -529,7 +529,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
   return (
     <div className="min-h-screen pt-24 px-4 pb-12 max-w-7xl mx-auto">
       <Helmet>
-        <title>Project Tracking | Ranthul's Portfolio</title>
+        <title>Project Tracking | Ranthula | Buisness portfolio</title>
         <meta name="description" content="Track your projects with Ranthul." />
       </Helmet>
        <div className="mb-12">

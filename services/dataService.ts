@@ -49,6 +49,7 @@ export interface PortfolioItem {
   img: string;
   videoUrl?: string;
   order?: number;
+  hidden?: boolean;
 }
 
 export interface ServiceItem {
@@ -169,6 +170,11 @@ export const getServicesConfig = async (): Promise<Record<string, ServiceItem>> 
 export const updateServiceConfig = async (id: string, config: Omit<ServiceItem, 'id'>) => {
   const ref = doc(db, 'service_configs', id);
   return await setDoc(ref, config, { merge: true });
+};
+
+export const deleteServiceConfig = async (id: string) => {
+  const ref = doc(db, 'service_configs', id);
+  return await deleteDoc(ref);
 };
 
 export const getAdminPassword = async (): Promise<string> => {
@@ -407,3 +413,26 @@ export const deleteTestimonial = async (id: string) => {
   return await deleteDoc(ref);
 };
 
+
+export interface DisplayConfig {
+  showServiceAnimations: boolean;
+}
+
+export const getDisplayConfig = async (): Promise<DisplayConfig> => {
+  try {
+    const q = query(collection(db, 'settings'));
+    const snapshot = await getDocs(q);
+    const docItem = snapshot.docs.find(d => d.id === 'display_config');
+    if (docItem) {
+      return { showServiceAnimations: docItem.data().showServiceAnimations || false };
+    }
+  } catch (e) {
+    console.error("Error getting display config:", e);
+  }
+  return { showServiceAnimations: false };
+}
+
+export const updateDisplayConfig = async (config: DisplayConfig) => {
+  const ref = doc(db, 'settings', 'display_config');
+  return await setDoc(ref, config, { merge: true });
+}

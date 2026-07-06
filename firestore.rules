@@ -12,9 +12,13 @@ service cloud.firestore {
     match /settings/{document} { allow read: if true; }
     match /testimonials/{document} { allow read: if true; }
     match /contacts/{document} {
-      allow read: if request.auth != null; // only admin can read
-      allow create: if true; // anyone can submit contact form
+      allow read: if request.auth != null;
+      allow create: if true;
       allow update, delete: if request.auth != null;
+    }
+    match /shared_projects/{document} {
+      allow read: if true;
+      allow write: if request.auth != null;
     }
   }
 }
