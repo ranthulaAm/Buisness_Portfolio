@@ -80,9 +80,19 @@ export const SharedProjectView: React.FC = () => {
       
       const filePromises = project.files.map(async (file) => {
         try {
-          // Fetch the file through our server proxy to avoid Firebase Storage CORS issues
-          const response = await fetch(`/api/proxy-download?url=${encodeURIComponent(file.url)}`);
-          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          let response;
+          try {
+            response = await fetch(`/api/proxy-download?url=${encodeURIComponent(file.url)}`);
+            if (!response.ok) throw new Error("Local proxy failed");
+          } catch (e) {
+            try {
+              response = await fetch(file.url);
+              if (!response.ok) throw new Error("Direct fetch failed");
+            } catch (e2) {
+              response = await fetch(`https://corsproxy.io/?${encodeURIComponent(file.url)}`);
+              if (!response.ok) throw new Error("Public proxy failed");
+            }
+          }
           const blob = await response.blob();
           zip.file(file.name, blob);
           successfulFiles++;
@@ -111,14 +121,27 @@ export const SharedProjectView: React.FC = () => {
   };
 
   
-  const handleSingleDownload = (url: string, filename: string) => {
-    const downloadUrl = `/api/proxy-download?url=${encodeURIComponent(url)}&filename=${encodeURIComponent(filename)}`;
-    const a = document.createElement('a');
-    a.href = downloadUrl;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+  const handleSingleDownload = async (url: string, filename: string) => {
+    try {
+      let response;
+      try {
+        response = await fetch(`/api/proxy-download?url=${encodeURIComponent(url)}`);
+        if (!response.ok) throw new Error("Local proxy failed");
+      } catch (e) {
+        try {
+          response = await fetch(url);
+          if (!response.ok) throw new Error("Direct fetch failed");
+        } catch (e2) {
+          response = await fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`);
+          if (!response.ok) throw new Error("Public proxy failed");
+        }
+      }
+      const blob = await response.blob();
+      saveAs(blob, filename);
+    } catch (err) {
+      console.error("Download failed:", err);
+      alert("Download failed. Please try again or check your connection.");
+    }
   };
 
   if (loading) {
