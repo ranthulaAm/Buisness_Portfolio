@@ -98,7 +98,7 @@ export const uploadShareFile = (
         resolve({
           name: file.name,
           url,
-          type: file.type,
+          type: file.type || "",
           size: file.size,
           path: filePath
         });

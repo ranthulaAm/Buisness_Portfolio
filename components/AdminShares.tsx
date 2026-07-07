@@ -327,8 +327,8 @@ export const AdminShares: React.FC = () => {
                       {project.files.map(file => (
                         <div key={file.url} className="bg-white dark:bg-slate-900 p-3 rounded-lg border border-gray-200 dark:border-slate-700 flex items-center justify-between group">
                           <div className="flex items-center gap-3 overflow-hidden flex-1">
-                            {file.type.startsWith('image/') ? <ImageIcon size={18} className="text-blue-500 shrink-0" /> : 
-                             file.type.startsWith('video/') ? <Video size={18} className="text-purple-500 shrink-0" /> : 
+                            {(file.type || "").startsWith('image/') ? <ImageIcon size={18} className="text-blue-500 shrink-0" /> : 
+                             (file.type || "").startsWith('video/') ? <Video size={18} className="text-purple-500 shrink-0" /> : 
                              <FileText size={18} className="text-gray-400 shrink-0" />}
                             <a href={file.url} target="_blank" rel="noreferrer" className="text-sm text-gray-700 dark:text-slate-300 truncate hover:text-blue-600 dark:hover:text-blue-400 hover:underline">
                               {file.name}

@@ -111,17 +111,14 @@ export const SharedProjectView: React.FC = () => {
   };
 
   
-  const handleSingleDownload = async (url: string, filename: string) => {
-    try {
-      const response = await fetch(`/api/proxy-download?url=${encodeURIComponent(url)}`);
-      if (!response.ok) throw new Error("Network response was not ok");
-      const blob = await response.blob();
-      saveAs(blob, filename);
-    } catch (err) {
-      console.error("Download failed:", err);
-      // Fallback
-      window.open(url, "_blank");
-    }
+  const handleSingleDownload = (url: string, filename: string) => {
+    const downloadUrl = `/api/proxy-download?url=${encodeURIComponent(url)}&filename=${encodeURIComponent(filename)}`;
+    const a = document.createElement('a');
+    a.href = downloadUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
 
   if (loading) {
@@ -232,8 +229,8 @@ export const SharedProjectView: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {project.files.map((file, idx) => {
-              const isImage = file.type.startsWith('image/');
-              const isVideo = file.type.startsWith('video/');
+              const isImage = (file.type || "").startsWith('image/');
+              const isVideo = (file.type || "").startsWith('video/');
               
               return (
                 <div key={idx} className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl overflow-hidden shadow-sm group hover:shadow-xl transition-all">
@@ -277,7 +274,7 @@ export const SharedProjectView: React.FC = () => {
                   <div className="p-4 border-t border-gray-100 dark:border-slate-700">
                     <h3 className="font-semibold text-gray-900 dark:text-slate-100 truncate mb-1" title={file.name}>{file.name}</h3>
                     <div className="flex justify-between items-center text-xs text-gray-500 dark:text-slate-400 font-mono">
-                      <span className="uppercase">{file.type.split('/')[1] || 'FILE'}</span>
+                      <span className="uppercase">{(file.type || '').split('/')[1] || 'FILE'}</span>
                       <span>{(file.size / (1024 * 1024)).toFixed(2)} MB</span>
                     </div>
                   </div>

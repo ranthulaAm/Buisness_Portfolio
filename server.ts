@@ -33,6 +33,14 @@ async function startServer() {
         res.setHeader('Content-Length', contentLength);
       }
       
+      const filename = req.query.filename as string;
+      if (filename) {
+        // Use double quotes for the filename, and encode special characters.
+        res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(filename)}"`);
+      } else {
+        res.setHeader('Content-Disposition', 'attachment');
+      }
+      
       res.setHeader('Access-Control-Allow-Origin', '*');
       
       const arrayBuffer = await response.arrayBuffer();
