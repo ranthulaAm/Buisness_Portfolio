@@ -48,8 +48,10 @@ export const deleteSharedProject = async (project: SharedProject) => {
       try {
         const fileRef = ref(storage, file.path);
         await deleteObject(fileRef);
-      } catch (e) {
-        console.error("Error deleting file", e);
+      } catch (e: any) {
+        if (e.code !== 'storage/object-not-found') {
+          console.error("Error deleting file", e);
+        }
       }
     }
   }

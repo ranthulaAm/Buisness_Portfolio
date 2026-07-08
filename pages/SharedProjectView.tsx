@@ -78,7 +78,8 @@ export const SharedProjectView: React.FC = () => {
       const zip = new JSZip();
       let successfulFiles = 0;
       
-      const filePromises = project.files.map(async (file) => {
+      // Download sequentially to save memory and avoid network timeouts
+      for (const file of project.files) {
         try {
           let response;
           try {
@@ -101,9 +102,7 @@ export const SharedProjectView: React.FC = () => {
           console.error(`Failed to download ${file.name}:`, err);
           setDownloadProgress(prev => prev + 1);
         }
-      });
-      
-      await Promise.all(filePromises);
+      }
       
       if (successfulFiles === 0) {
         alert("Could not download any files. Please try downloading them individually.");

@@ -59,8 +59,9 @@ export const deleteFileFromUrl = async (url: string): Promise<void> => {
   try {
     const storageRef = ref(storage, url);
     await deleteObject(storageRef);
-  } catch (error) {
-    console.error("Error deleting file:", error);
-    // Suppress error if file not found or permission denied
+  } catch (error: any) {
+    if (error.code !== 'storage/object-not-found') {
+      console.error("Error deleting file:", error);
+    }
   }
 };

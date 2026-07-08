@@ -5,7 +5,7 @@ import { Upload, Check, ChevronRight, Palette, Plus, X, ArrowLeft, AlertCircle, 
 import { SERVICES as DEFAULT_SERVICES } from '../constants';
 import { User } from '../types';
 import { saveOrder, updateOrder, getOrderById, generateOrderId } from '../services/storageService';
-import { uploadFile } from '../services/fileUploadService';
+import { uploadFile, uploadFileWithProgress } from '../services/fileUploadService';
 import { sendConfirmationEmail } from '../services/emailService';
 import { sendTelegramNotification } from '../services/telegramService';
 import { OrderStatus } from '../types';
@@ -302,6 +302,49 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [customColor, setCustomColor] = useState('#ff007f');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({});
+  const [uploadedUrls, setUploadedUrls] = useState<{ [key: string]: string }>({});
+  const [currentOrderId] = useState(() => searchParams.get('edit') || generateOrderId());
+
+  const startedUploadsRef = useRef(new Set<string>());
+
+  useEffect(() => {
+    if (!user) return;
+    
+    formData.files.forEach(f => {
+        if (!startedUploadsRef.current.has(f.name)) {
+            startedUploadsRef.current.add(f.name);
+            setUploadProgress(prev => ({ ...prev, [f.name]: 0 }));
+            const path = `${user.id}/uploads/${currentOrderId}/client_uploads/${f.name}`;
+            uploadFileWithProgress(f, path, (p) => {
+                if (startedUploadsRef.current.has(f.name)) {
+                    setUploadProgress(prev => ({ ...prev, [f.name]: p }));
+                }
+            }).then(url => {
+                if (startedUploadsRef.current.has(f.name)) {
+                    setUploadedUrls(prev => ({ ...prev, [f.name]: url }));
+                }
+            }).catch(console.error);
+        }
+    });
+
+    formData.voiceClips.forEach(v => {
+        if (!startedUploadsRef.current.has(v.name)) {
+            startedUploadsRef.current.add(v.name);
+            setUploadProgress(prev => ({ ...prev, [v.name]: 0 }));
+            const path = `${user.id}/uploads/${currentOrderId}/client_uploads/voice_notes/${v.name}.webm`;
+            uploadFileWithProgress(v.blob, path, (p) => {
+                if (startedUploadsRef.current.has(v.name)) {
+                    setUploadProgress(prev => ({ ...prev, [v.name]: p }));
+                }
+            }).then(url => {
+                if (startedUploadsRef.current.has(v.name)) {
+                    setUploadedUrls(prev => ({ ...prev, [v.name]: url }));
+                }
+            }).catch(console.error);
+        }
+    });
+  }, [formData.files, formData.voiceClips, user, currentOrderId]);
   const [canSubmit, setCanSubmit] = useState(true);
   const [isExiting, setIsExiting] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -473,15 +516,28 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
     setFormData(prev => {
       const clip = prev.voiceClips[index];
       if (clip && clip.url) URL.revokeObjectURL(clip.url);
+      if (clip) {
+        startedUploadsRef.current.delete(clip.name);
+        setUploadProgress(p => { const newP = { ...p }; delete newP[clip.name]; return newP; });
+        setUploadedUrls(u => { const newU = { ...u }; delete newU[clip.name]; return newU; });
+      }
       return { ...prev, voiceClips: prev.voiceClips.filter((_, i) => i !== index) };
     });
   };
 
   const removeFile = (index: number) => {
-    setFormData(prev => ({
-        ...prev,
-        files: prev.files.filter((_, i) => i !== index)
-    }));
+    setFormData(prev => {
+        const file = prev.files[index];
+        if (file) {
+            startedUploadsRef.current.delete(file.name);
+            setUploadProgress(p => { const newP = { ...p }; delete newP[file.name]; return newP; });
+            setUploadedUrls(u => { const newU = { ...u }; delete newU[file.name]; return newU; });
+        }
+        return {
+            ...prev,
+            files: prev.files.filter((_, i) => i !== index)
+        };
+    });
   };
 
   const startRecording = async () => {
@@ -510,33 +566,55 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
     setIsSubmitting(true);
     try {
       const service = services.find(s => s.id === formData.serviceType);
-      const orderId = editOrderId || generateOrderId();
+      const orderId = currentOrderId;
       
-      const processedFiles = await Promise.all(formData.files.map(async (f) => {
-        try {
-            const path = `${user.id}/uploads/${orderId}/client_uploads/${f.name}`;
-            const url = await uploadFile(f, path);
-            return { name: f.name, type: f.type, data: url };
-        } catch (err) {
-            console.error(`Failed to upload file ${f.name}:`, err);
-            return null;
-        }
-      }));
-
-      const validFiles = processedFiles.filter(f => f !== null) as { name: string; type: string; data: string }[];
-
-      const processedVoiceClips = await Promise.all(formData.voiceClips.map(async (v) => {
-        try {
-            const path = `${user.id}/uploads/${orderId}/client_uploads/voice_notes/${v.name}.webm`;
-            const url = await uploadFile(v.blob, path);
-            return { name: v.name, type: 'audio/webm', data: url };
-        } catch (err) {
-            console.error("Voice note upload failed:", err);
-            return null;
-        }
-      }));
+      // Client-side validation and sequential upload to prevent freezing
+      const MAX_SIZE_MB = 1000;
+      const BLOCKED_TYPES = ["application/x-msdownload", "application/x-sh", "application/x-bat", "application/x-executable"];
       
-      const validVoiceClips = processedVoiceClips.filter(v => v !== null) as { name: string; type: string; data: string }[];
+      const validFiles = [];
+      for (const f of formData.files) {
+          if (f.size > MAX_SIZE_MB * 1024 * 1024) {
+              alert(`File ${f.name} exceeds ${MAX_SIZE_MB}MB limit.`);
+              continue;
+          }
+          if (BLOCKED_TYPES.includes(f.type) || f.name.match(/\.(exe|bat|sh|cmd)$/i)) {
+              alert(`File ${f.name} has an unsupported file type.`);
+              continue;
+          }
+          if (uploadedUrls[f.name]) {
+              validFiles.push({ name: f.name, type: f.type, data: uploadedUrls[f.name] });
+          } else {
+              setUploadProgress(prev => ({ ...prev, [f.name]: 0 }));
+              try {
+                  const path = `${user.id}/uploads/${orderId}/client_uploads/${f.name}`;
+                  const url = await uploadFileWithProgress(f, path, (p) => {
+                      setUploadProgress(prev => ({ ...prev, [f.name]: p }));
+                  });
+                  validFiles.push({ name: f.name, type: f.type, data: url });
+              } catch (err) {
+                  console.error(`Failed to upload file ${f.name}:`, err);
+              }
+          }
+      }
+
+      const validVoiceClips = [];
+      for (const v of formData.voiceClips) {
+          if (uploadedUrls[v.name]) {
+              validVoiceClips.push({ name: v.name, type: "audio/webm", data: uploadedUrls[v.name] });
+          } else {
+              setUploadProgress(prev => ({ ...prev, [v.name]: 0 }));
+              try {
+                  const path = `${user.id}/uploads/${orderId}/client_uploads/voice_notes/${v.name}.webm`;
+                  const url = await uploadFileWithProgress(v.blob, path, (p) => {
+                      setUploadProgress(prev => ({ ...prev, [v.name]: p }));
+                  });
+                  validVoiceClips.push({ name: v.name, type: "audio/webm", data: url });
+              } catch (err) {
+                  console.error("Voice note upload failed:", err);
+              }
+          }
+      }
 
       const customFields: Record<string, any> = {};
       const addIf = (key: string, val: any) => {
@@ -740,7 +818,15 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
                 </div>
 
                 <div className="pt-8 border-t border-gray-100 dark:border-slate-700"><label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4 block">Can't describe it in text? Use voice:</label><div className="flex items-center gap-4"><button type="button" onClick={isRecording ? stopRecording : startRecording} className={`flex items-center gap-3 px-6 py-3 rounded-full font-bold text-xs uppercase tracking-widest transition-all ${isRecording ? 'bg-pink-500 text-white animate-pulse' : 'bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-gray-250 border border-gray-200 dark:border-slate-700 hover:bg-gray-200'}`}>{isRecording ? <><Square size={14} fill="white" /> Stop Recording</> : <><Mic size={14} /> Record Voice</>}</button>{isRecording && <span className="text-pink-500 text-xs font-bold animate-pulse">Recording...</span>}</div></div>
-                {formData.voiceClips.length > 0 && <div className="space-y-3"><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Voice Notes</label>{formData.voiceClips.map((clip, i) => (<div key={i} className="flex items-center justify-between bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 p-3 rounded-2xl"><div className="flex items-center gap-3"><Play size={14} className="text-purple-600" /><span className="text-xs font-bold text-gray-700 dark:text-slate-300">{clip.name}</span></div><div className="flex items-center gap-4"><audio src={clip.url} controls className="h-8 max-w-[150px] opacity-60" /><button type="button" onClick={() => removeVoiceClip(i)} className="text-gray-400 hover:text-red-500"><Trash2 size={16} /></button></div></div>))}</div>}
+                {formData.voiceClips.length > 0 && <div className="space-y-3"><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Voice Notes</label>{formData.voiceClips.map((clip, i) => (<div key={i} className="flex items-center justify-between bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 p-3 rounded-2xl relative overflow-hidden">
+                    {uploadProgress[clip.name] !== undefined && (
+                        <div className="absolute left-0 top-0 bottom-0 bg-purple-100 dark:bg-purple-900/20 transition-all duration-300 -z-0" style={{ width: `${uploadProgress[clip.name]}%` }} />
+                    )}
+                    <div className="flex items-center gap-3 z-10"><Play size={14} className="text-purple-600" /><span className="text-sm font-medium text-gray-700 dark:text-slate-300">{clip.name}</span>
+                    {uploadProgress[clip.name] !== undefined && (
+                        <span className="text-purple-600 font-bold text-sm">{Math.round(uploadProgress[clip.name])}%</span>
+                    )}
+                    </div><div className="flex items-center gap-4 z-10"><audio src={clip.url} controls className="h-8 max-w-[150px] opacity-60" /><button type="button" disabled={isSubmitting} onClick={() => removeVoiceClip(i)} className="p-2 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors disabled:opacity-50"><Trash2 size={16} /></button></div></div>))}</div>}
               </div>
             </div>
 
@@ -804,12 +890,17 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
               <h3 className="text-3xl font-display text-gray-900 dark:text-slate-100 mb-8 uppercase tracking-tight border-b border-gray-100 dark:border-slate-700 pb-4">Upload Assets</h3>
               <div className="space-y-8">
                 <div className="border-2 border-dashed border-gray-200 dark:border-slate-700 rounded-[2.5rem] p-12 text-center bg-gray-50/50 hover:bg-gray-100 dark:hover:bg-slate-700/30 hover:border-gray-300 dark:border-slate-600 transition-all relative group cursor-pointer"><input type="file" multiple className="absolute inset-0 opacity-0 cursor-pointer z-20" onChange={(e) => e.target.files?.length && setFormData(p => ({ ...p, files: [...p.files, ...Array.from(e.target.files!)] }))} /><Upload className="mx-auto mb-4 text-purple-600 animate-pulse" size={40} /><p className="text-lg font-bold uppercase tracking-widest text-gray-600 dark:text-slate-400 group-hover:text-gray-900 dark:text-slate-100">Choose Photos or Logos</p></div>
-                {formData.files.length > 0 && <div className="flex gap-2 flex-wrap">{formData.files.map((f, i) => (
-                    <div key={i} className="text-[9px] font-bold bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 pl-4 pr-2 py-2 rounded-full text-gray-500 dark:text-slate-400 flex items-center gap-2 group hover:bg-red-500/10 hover:text-red-600 hover:border-red-200 transition-colors">
-                        <Check size={10} className="text-green-500 group-hover:hidden" />
-                        <Trash2 size={10} className="hidden group-hover:block" />
-                        {f.name}
-                        <button type="button" onClick={() => removeFile(i)} className="p-1 hover:text-red-700 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 dark:bg-slate-800 transition-colors"><X size={12} /></button>
+                {formData.files.length > 0 && <div className="flex flex-col gap-3">{formData.files.map((f, i) => (
+                    <div key={i} className="text-sm font-medium bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 px-5 py-3 rounded-2xl text-gray-700 dark:text-slate-300 flex items-center gap-4 group hover:border-red-200 transition-colors shadow-sm relative overflow-hidden">
+                        {uploadProgress[f.name] !== undefined && (
+                            <div className="absolute left-0 top-0 bottom-0 bg-purple-100 dark:bg-purple-900/20 transition-all duration-300 -z-0" style={{ width: `${uploadProgress[f.name]}%` }} />
+                        )}
+                        <Check size={16} className="text-green-500 z-10" />
+                        <span className="truncate flex-1 z-10 text-sm font-medium">{f.name}</span>
+                        {uploadProgress[f.name] !== undefined && (
+                            <span className="text-purple-600 font-bold text-sm z-10">{Math.round(uploadProgress[f.name])}%</span>
+                        )}
+                        <button type="button" disabled={isSubmitting} onClick={() => removeFile(i)} className="p-2 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors z-10 disabled:opacity-50"><Trash2 size={16} /></button>
                     </div>
                 ))}</div>}
                 <div className="bg-gray-50 dark:bg-slate-800 p-8 rounded-[2rem] border border-gray-200 dark:border-slate-700"><div className="text-purple-600 font-black text-[10px] uppercase mb-4 tracking-widest flex items-center gap-2"><ShieldCheck size={14} /> Ready to start</div><div className="grid grid-cols-2 gap-8 text-xs"><div><p className="text-gray-400 uppercase text-[9px] mb-2 font-black">Project Type</p><p className="text-gray-800 dark:text-slate-200 font-bold">{selectedServiceTitle}</p></div><div><p className="text-gray-400 uppercase text-[9px] mb-2 font-black">Color Mode</p><p className="text-gray-800 dark:text-slate-200 font-bold">{isPrintMode ? 'Print Ready (CMYK)' : 'Web (RGB)'}</p></div></div></div>
@@ -818,11 +909,21 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
 
             <div className="mt-auto flex justify-between items-center pt-10 border-t border-gray-100 dark:border-slate-700 sticky bottom-0 bg-transparent pb-4">
                {step > 1 ? <button type="button" onClick={() => changeStep(step - 1)} className="text-gray-400 hover:text-gray-900 dark:text-slate-100 uppercase text-[10px] font-black tracking-widest flex items-center gap-3"><ArrowLeft size={16} /> Go Back</button> : <div />}
-               {step < 4 ? <button type="button" onClick={handleNextStep} className="bg-purple-600 text-white px-12 py-5 rounded-full font-black text-[10px] uppercase tracking-widest hover:bg-purple-700 transition-all shadow-md">Continue</button> : 
-               <button type="submit" disabled={isSubmitting} className="bg-purple-600 text-white px-14 py-5 rounded-full font-black text-[10px] uppercase tracking-widest shadow-lg hover:scale-105 transition-all disabled:opacity-50 flex items-center gap-2 hover:bg-purple-700">
-                 {isSubmitting && <Loader size={14} className="animate-spin" />}
-                 {isSubmitting ? 'Processing...' : editOrderId ? 'Update Order' : 'Submit Order'}
-               </button>}
+               {step < 4 ? <button type="button" onClick={handleNextStep} className="bg-purple-600 text-white px-12 py-5 rounded-full font-black text-[10px] uppercase tracking-widest hover:bg-purple-700 transition-all shadow-md">Continue</button> :
+                <div className="flex items-center gap-4">
+                  {isSubmitting && (formData.files.length > 0 || formData.voiceClips.length > 0) && (
+                     <div className="text-[10px] font-black uppercase tracking-widest text-purple-600 flex flex-col items-end gap-1">
+                        <span>Uploading Files</span>
+                        <div className="w-32 h-1.5 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                           <div className="h-full bg-purple-600 transition-all duration-300" style={{ width: `${Object.keys(uploadProgress).length > 0 ? Math.round(Object.values(uploadProgress).reduce((a,b)=>a+b,0) / (formData.files.length + formData.voiceClips.length)) : 0}%` }} />
+                        </div>
+                     </div>
+                  )}
+                  <button type="submit" disabled={isSubmitting || formData.files.some(f => !uploadedUrls[f.name]) || formData.voiceClips.some(v => !uploadedUrls[v.name])} className="bg-purple-600 text-white px-14 py-5 rounded-full font-black text-[10px] uppercase tracking-widest shadow-lg hover:scale-105 transition-all disabled:opacity-50 flex items-center gap-2 hover:bg-purple-700">
+                   {(isSubmitting || formData.files.some(f => !uploadedUrls[f.name]) || formData.voiceClips.some(v => !uploadedUrls[v.name])) && <Loader size={14} className="animate-spin" />}
+                   {isSubmitting ? 'Processing...' : (formData.files.some(f => !uploadedUrls[f.name]) || formData.voiceClips.some(v => !uploadedUrls[v.name])) ? 'Please wait... Uploading' : editOrderId ? 'Update Order' : 'Submit Order'}
+                 </button>
+                </div>}
             </div>
           </form>
         </div>

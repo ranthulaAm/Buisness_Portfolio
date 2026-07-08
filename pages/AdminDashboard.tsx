@@ -161,6 +161,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
   const handleDraftUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && selectedOrder) {
+      const MAX_SIZE_MB = 1000;
+      const BLOCKED_TYPES = ["application/x-msdownload", "application/x-sh", "application/x-bat", "application/x-executable"];
+      
+      if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+        alert(`File ${file.name} exceeds ${MAX_SIZE_MB}MB limit.`);
+        return;
+      }
+      if (BLOCKED_TYPES.includes(file.type) || file.name.match(/\.(exe|bat|sh|cmd)$/i)) {
+        alert(`File ${file.name} has an unsupported file type.`);
+        return;
+      }
+
       const path = `${selectedOrder.clientId}/uploads/${selectedOrder.id}/drafts/${Date.now()}_${file.name}`;
       try {
           const url = await uploadFileWithProgress(file, path, (p) => {
@@ -171,14 +183,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
           if (editStatus !== OrderStatus.DRAFT_SENT) {
              setEditStatus(OrderStatus.DRAFT_SENT);
           }
-          setUploadProgress(prev => {
-            const n = { ...prev };
-            delete n.draft;
-            return n;
-          });
       } catch (err) {
           console.error("Draft upload failed", err);
           alert("Failed to upload draft.");
+      } finally {
           setUploadProgress(prev => {
             const n = { ...prev };
             delete n.draft;
@@ -197,26 +205,59 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
 
   const handleFinalFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files && files.length > 0 && selectedOrder) {
-      const fileList = Array.from(files) as File[];
-      try {
-        const newFiles = await Promise.all(fileList.map(async (f) => {
+    if (!files || files.length === 0 || !selectedOrder) return;
+    
+    const fileList = Array.from(files) as File[];
+    
+    // Client-side validation
+    const validFiles: File[] = [];
+    const MAX_SIZE_MB = 1000; // 1GB limit per file
+    const BLOCKED_TYPES = ["application/x-msdownload", "application/x-sh", "application/x-bat", "application/x-executable"];
+    
+    for (const f of fileList) {
+      if (f.size > MAX_SIZE_MB * 1024 * 1024) {
+        alert(`File ${f.name} exceeds ${MAX_SIZE_MB}MB limit.`);
+        continue;
+      }
+      if (BLOCKED_TYPES.includes(f.type) || f.name.match(/\.(exe|bat|sh|cmd)$/i)) {
+        alert(`File ${f.name} has an unsupported file type.`);
+        continue;
+      }
+      validFiles.push(f);
+    }
+    
+    if (validFiles.length === 0) return;
+    
+    // Process queue sequentially to prevent WebSocket/UI freeze
+    try {
+      const newFiles = [];
+      for (const f of validFiles) {
+        setUploadProgress(prev => ({ ...prev, [f.name]: 0 }));
+        try {
           const path = `${selectedOrder.clientId}/uploads/${selectedOrder.id}/final_assets/${Date.now()}_${f.name}`;
           const url = await uploadFileWithProgress(f, path, (p) => {
             setUploadProgress(prev => ({ ...prev, [f.name]: p }));
           });
+          newFiles.push({ name: f.name, type: f.type || "application/octet-stream", data: url });
+          // Update partial state so UI shows progress before full batch is done
+          setFinalFiles(prev => [...prev, { name: f.name, type: f.type || "application/octet-stream", data: url }]);
+        } catch (fileErr) {
+          console.error(`Failed to upload ${f.name}`, fileErr);
+          alert(`Failed to upload ${f.name}`);
+        } finally {
           setUploadProgress(prev => {
             const n = { ...prev };
             delete n[f.name];
             return n;
           });
-          return { name: f.name, type: f.type, data: url };
-        }));
-        setFinalFiles(prev => [...prev, ...newFiles]);
-      } catch (err) {
-        alert("Error uploading files.");
+        }
       }
+    } catch (err) {
+      alert("Error processing uploads.");
     }
+    
+    // Clear input
+    e.target.value = "";
   };
 
   const removeFinalFile = async (index: number) => {

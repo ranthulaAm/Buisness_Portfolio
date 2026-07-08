@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { SharedProject, listenToSharedProjects, createSharedProject, updateSharedProject, deleteSharedProject, uploadShareFile, SharedFile } from '../services/shareService';
 import { Plus, Trash2, Link as LinkIcon, FileText, Image as ImageIcon, Video, Loader2, Copy, Lock, Mail, Globe, Save, Eye, EyeOff } from 'lucide-react';
 import { ConfirmModal } from './ConfirmModal';
+import { deleteFileFromUrl } from '../services/fileUploadService';
 
 export const AdminShares: React.FC = () => {
   const [projects, setProjects] = useState<SharedProject[]>([]);
@@ -24,13 +25,14 @@ export const AdminShares: React.FC = () => {
       setProjects(data);
       setLoading(false);
       // Update editing project if it exists
-      if (editingProject) {
-        const updated = data.find(p => p.id === editingProject.id);
-        if (updated) setEditingProject(updated);
-      }
+      setEditingProject(prev => {
+        if (!prev) return null;
+        const updated = data.find(p => p.id === prev.id);
+        return updated || null;
+      });
     });
     return unsub;
-  }, [editingProject]);
+  }, []);
 
   const handleCreate = async () => {
     if (!newProjectName) return;
@@ -71,26 +73,48 @@ export const AdminShares: React.FC = () => {
     if (!project) return;
     
     const filesToUpload = Array.from(e.target.files);
-    let currentFiles = [...project.files];
     
-    for (const file of filesToUpload) {
-      try {
-        setUploadProgress(prev => ({ ...prev, [file.name]: 0 }));
-        const uploadedFile = await uploadShareFile(projectId, file, (prog) => {
-          setUploadProgress(prev => ({ ...prev, [file.name]: prog }));
-        });
-        
-        currentFiles = [...currentFiles, uploadedFile];
-        await updateSharedProject(projectId, { files: currentFiles });
-      } catch (err) {
-        console.error("Upload failed", err);
-      } finally {
-        setUploadProgress(prev => {
-          const newProg = { ...prev };
-          delete newProg[file.name];
-          return newProg;
-        });
+    const validFiles: File[] = [];
+    const MAX_SIZE_MB = 1000;
+    const BLOCKED_TYPES = ["application/x-msdownload", "application/x-sh", "application/x-bat", "application/x-executable"];
+    
+    for (const f of filesToUpload) {
+      if (f.size > MAX_SIZE_MB * 1024 * 1024) {
+        alert(`File ${f.name} exceeds ${MAX_SIZE_MB}MB limit.`);
+        continue;
       }
+      if (BLOCKED_TYPES.includes(f.type) || f.name.match(/\.(exe|bat|sh|cmd)$/i)) {
+        alert(`File ${f.name} has an unsupported file type.`);
+        continue;
+      }
+      validFiles.push(f);
+    }
+    
+    if (validFiles.length === 0) return;
+    
+    try {
+      let currentFiles = [...project.files];
+      for (const file of validFiles) {
+        setUploadProgress(prev => ({ ...prev, [file.name]: 0 }));
+        try {
+          const uploadedFile = await uploadShareFile(projectId, file, (prog) => {
+            setUploadProgress(prev => ({ ...prev, [file.name]: prog }));
+          });
+          currentFiles = [...currentFiles, uploadedFile];
+          await updateSharedProject(projectId, { files: currentFiles });
+        } catch (err) {
+          console.error("Upload failed for file " + file.name, err);
+          alert(`Failed to upload ${file.name}`);
+        } finally {
+          setUploadProgress(prev => {
+            const newProg = { ...prev };
+            delete newProg[file.name];
+            return newProg;
+          });
+        }
+      }
+    } catch (err) {
+      console.error("Upload process error", err);
     }
     
     e.target.value = "";
@@ -99,6 +123,11 @@ export const AdminShares: React.FC = () => {
   const deleteFile = async (projectId: string, fileUrl: string) => {
     const project = projects.find(p => p.id === projectId);
     if (!project) return;
+    
+    // Delete from Firebase Storage
+    await deleteFileFromUrl(fileUrl);
+    
+    // Remove from Firestore doc
     const newFiles = project.files.filter(f => f.url !== fileUrl);
     await updateSharedProject(projectId, { files: newFiles });
   };

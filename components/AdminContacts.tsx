@@ -90,6 +90,21 @@ export const AdminContacts: React.FC = () => {
 
     const submitOrder = async () => {
         if (!selectedContact) return;
+        
+        const MAX_SIZE_MB = 1000;
+        const BLOCKED_TYPES = ["application/x-msdownload", "application/x-sh", "application/x-bat", "application/x-executable"];
+        
+        for (const file of files) {
+            if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+                alert(`File ${file.name} exceeds ${MAX_SIZE_MB}MB limit.`);
+                return;
+            }
+            if (BLOCKED_TYPES.includes(file.type) || file.name.match(/\.(exe|bat|sh|cmd)$/i)) {
+                alert(`File ${file.name} has an unsupported file type.`);
+                return;
+            }
+        }
+
         setSubmittingOrder(true);
         const orderId = generateOrderId();
         
@@ -98,7 +113,7 @@ export const AdminContacts: React.FC = () => {
             for (const file of files) {
                 const path = `manual_orders/${orderId}/${file.name}`;
                 const url = await uploadFile(file, path);
-                uploadedFiles.push({ name: file.name, type: file.type || 'application/octet-stream', data: url });
+                uploadedFiles.push({ name: file.name, type: file.type || "application/octet-stream", data: url });
             }
 
             const chosenService = SERVICES.find(s => s.id === serviceId) || SERVICES[0];
