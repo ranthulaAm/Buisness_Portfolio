@@ -16,6 +16,7 @@ import { User } from './types';
 import { saveUserProfile } from './services/storageService';
 import { auth } from './services/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
+import { trackPresence } from './services/dataService';
 
 // ScrollToTop component to reset scroll position on every route change
 const ScrollToTop = () => {
@@ -35,6 +36,14 @@ const AppContent: React.FC = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  
+  // Track Presence
+  useEffect(() => {
+    trackPresence();
+    const interval = setInterval(trackPresence, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   
   // Sync auth modal with URL
   useEffect(() => {

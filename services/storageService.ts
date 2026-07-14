@@ -116,3 +116,22 @@ export const generateOrderId = (): string => {
   }
   return `ORD-${code}`;
 };
+export const updateClientMobileByEmail = async (email: string, newMobile: string | string[]): Promise<void> => {
+  try {
+    const q = query(collection(db, ORDERS_COLLECTION));
+    const querySnapshot = await getDocs(q);
+    const updatePromises: Promise<void>[] = [];
+    
+    querySnapshot.docs.forEach(docSnap => {
+      const data = docSnap.data();
+      if (data.email === email || data.clientEmail === email) {
+        updatePromises.push(updateDoc(docSnap.ref, { mobile: typeof newMobile === 'string' ? newMobile.split(',').map(n => n.trim()).filter(Boolean) : newMobile }));
+      }
+    });
+
+    await Promise.all(updatePromises);
+  } catch (e) {
+    console.error("Error updating client mobile:", e);
+    throw e;
+  }
+};

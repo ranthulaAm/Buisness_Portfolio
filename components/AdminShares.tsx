@@ -3,6 +3,7 @@ import { SharedProject, listenToSharedProjects, createSharedProject, updateShare
 import { Plus, Trash2, Link as LinkIcon, FileText, Image as ImageIcon, Video, Loader2, Copy, Lock, Mail, Globe, Save, Eye, EyeOff } from 'lucide-react';
 import { ConfirmModal } from './ConfirmModal';
 import { deleteFileFromUrl } from '../services/fileUploadService';
+import imageCompression from 'browser-image-compression';
 
 export const AdminShares: React.FC = () => {
   const [projects, setProjects] = useState<SharedProject[]>([]);
@@ -93,18 +94,26 @@ export const AdminShares: React.FC = () => {
     if (validFiles.length === 0) return;
     
     try {
-      let currentFiles = [...project.files];
-      for (const file of validFiles) {
+      const uploadPromises = validFiles.map(async (file) => {
         setUploadProgress(prev => ({ ...prev, [file.name]: 0 }));
         try {
-          const uploadedFile = await uploadShareFile(projectId, file, (prog) => {
+          let fileToUpload = file;
+          if (file.type.startsWith('image/') && !file.type.includes('gif')) {
+              try {
+                  const options = { maxSizeMB: 2, maxWidthOrHeight: 1920, useWebWorker: true };
+                  fileToUpload = await imageCompression(file, options) as File;
+              } catch (e) {
+                  console.warn('Image compression failed', e);
+              }
+          }
+          const uploadedFile = await uploadShareFile(projectId, fileToUpload, (prog) => {
             setUploadProgress(prev => ({ ...prev, [file.name]: prog }));
           });
-          currentFiles = [...currentFiles, uploadedFile];
-          await updateSharedProject(projectId, { files: currentFiles });
+          return uploadedFile;
         } catch (err) {
           console.error("Upload failed for file " + file.name, err);
           alert(`Failed to upload ${file.name}`);
+          return null;
         } finally {
           setUploadProgress(prev => {
             const newProg = { ...prev };
@@ -112,12 +121,27 @@ export const AdminShares: React.FC = () => {
             return newProg;
           });
         }
+      });
+      
+      const newUploadedFiles = await Promise.all(uploadPromises);
+      const successfulFiles = newUploadedFiles.filter(Boolean) as any[];
+      
+      if (successfulFiles.length > 0) {
+        const currentFiles = [...project.files, ...successfulFiles];
+        await updateSharedProject(projectId, { files: currentFiles });
       }
     } catch (err) {
       console.error("Upload process error", err);
     }
     
     e.target.value = "";
+  };
+
+  const moveFileToFolder = async (projectId: string, fileUrl: string, folderName: string) => {
+    const project = projects.find(p => p.id === projectId);
+    if (!project) return;
+    const updatedFiles = project.files.map(f => f.url === fileUrl ? { ...f, folder: folderName } : f);
+    await updateSharedProject(projectId, { files: updatedFiles });
   };
 
   const deleteFile = async (projectId: string, fileUrl: string) => {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getPortfolioItems, addPortfolioItem, updatePortfolioItem, deletePortfolioItem, PortfolioItem } from '../services/dataService';
 import { uploadFileWithProgress } from '../services/fileUploadService';
+import imageCompression from 'browser-image-compression';
 import { PORTFOLIO_ITEMS as DEFAULT_PORTFOLIO } from '../constants';
 import { Save, Plus, Trash2, Loader2, Upload, ArrowUp, ArrowDown, ImageIcon, Eye, EyeOff } from 'lucide-react';
 import { ConfirmModal } from './ConfirmModal';
@@ -104,8 +105,17 @@ export const AdminPortfolio: React.FC = () => {
         setUploadingIdx(index);
         setProgress(0);
         try {
-            const path = `portfolio/${Date.now()}_${file.name}`;
-            const url = await uploadFileWithProgress(file, path, (p) => {
+            let fileToUpload = file;
+            if (file.type.startsWith('image/') && !file.type.includes('gif')) {
+                try {
+                    const options = { maxSizeMB: 2, maxWidthOrHeight: 1920, useWebWorker: true };
+                    fileToUpload = await imageCompression(file, options) as File;
+                } catch (e) {
+                    console.warn('Image compression failed', e);
+                }
+            }
+            const path = `portfolio/${Date.now()}_${fileToUpload.name || 'image'}`;
+            const url = await uploadFileWithProgress(fileToUpload, path, (p) => {
                 setProgress(p);
             });
             handlePortfolioChange(index, field, url);

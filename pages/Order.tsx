@@ -11,6 +11,8 @@ import { sendTelegramNotification } from '../services/telegramService';
 import { OrderStatus } from '../types';
 import { getServicesConfig, getDiscountsConfig } from '../services/dataService';
 import { OfferBanner } from '../components/OfferBanner';
+import imageCompression from 'browser-image-compression';
+import { convertToMp3 } from '../utils/audioConverter';
 
 interface OrderProps {
   user: User | null;
@@ -257,7 +259,7 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
   const [formData, setFormData] = useState({
     name: user?.name || '',
     email: user?.email || '',
-    mobile: '',
+    mobile: [] as string[],
     serviceType: preSelectedServiceId || DEFAULT_SERVICES[0].id,
     industry: '',
     requirements: '',
@@ -311,12 +313,23 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
   useEffect(() => {
     if (!user) return;
     
-    formData.files.forEach(f => {
+    formData.files.forEach(async (f) => {
         if (!startedUploadsRef.current.has(f.name)) {
             startedUploadsRef.current.add(f.name);
             setUploadProgress(prev => ({ ...prev, [f.name]: 0 }));
+            
+            let fileToUpload: File | Blob = f;
+            if (f.type && f.type.startsWith('image/') && !f.type.includes('gif')) {
+                try {
+                    const options = { maxSizeMB: 2, maxWidthOrHeight: 1920, useWebWorker: true };
+                    fileToUpload = await imageCompression(f as File, options);
+                } catch (e) {
+                    console.warn('Image compression failed', e);
+                }
+            }
+            
             const path = `${user.id}/uploads/${currentOrderId}/client_uploads/${f.name}`;
-            uploadFileWithProgress(f, path, (p) => {
+            uploadFileWithProgress(fileToUpload, path, (p) => {
                 if (startedUploadsRef.current.has(f.name)) {
                     setUploadProgress(prev => ({ ...prev, [f.name]: p }));
                 }
@@ -348,12 +361,15 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
   const [canSubmit, setCanSubmit] = useState(true);
   const [isExiting, setIsExiting] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const [isConverting, setIsConverting] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
 
   // Sync mobile when parts change
   useEffect(() => {
-    setFormData(prev => ({ ...prev, mobile: `${countryCode}${phoneInput}` }));
+    const phones = phoneInput.split(',').map(p => p.trim()).filter(Boolean);
+    const mobileArray = phones.map(p => p.startsWith('+') ? p : `${countryCode}${p}`);
+    setFormData(prev => ({ ...prev, mobile: mobileArray.length > 0 ? mobileArray : [] }));
   }, [countryCode, phoneInput]);
 
   // Load existing order if in Edit mode
@@ -377,14 +393,26 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
           }));
           
           // Attempt to parse mobile number
-          const mob = orderToEdit.mobile;
-          if (mob.startsWith('+94')) { setCountryCode('+94'); setPhoneInput(mob.replace('+94', '')); }
-          else if (mob.startsWith('+1')) { setCountryCode('+1'); setPhoneInput(mob.replace('+1', '')); }
-          else if (mob.startsWith('+44')) { setCountryCode('+44'); setPhoneInput(mob.replace('+44', '')); }
-          else if (mob.startsWith('+61')) { setCountryCode('+61'); setPhoneInput(mob.replace('+61', '')); }
-          else if (mob.startsWith('+91')) { setCountryCode('+91'); setPhoneInput(mob.replace('+91', '')); }
-          else if (mob.startsWith('+971')) { setCountryCode('+971'); setPhoneInput(mob.replace('+971', '')); }
-          else { setCountryCode(''); setPhoneInput(mob); }
+          const mobArray = Array.isArray(orderToEdit.mobile) ? orderToEdit.mobile : (orderToEdit.mobile ? (orderToEdit.mobile as string).split(',') : []);
+          const firstMob = mobArray[0] ? mobArray[0].trim() : '';
+          if (firstMob.startsWith('+94')) { setCountryCode('+94'); }
+          else if (firstMob.startsWith('+1')) { setCountryCode('+1'); }
+          else if (firstMob.startsWith('+44')) { setCountryCode('+44'); }
+          else if (firstMob.startsWith('+61')) { setCountryCode('+61'); }
+          else if (firstMob.startsWith('+91')) { setCountryCode('+91'); }
+          else if (firstMob.startsWith('+971')) { setCountryCode('+971'); }
+          else { setCountryCode(''); }
+          
+          setPhoneInput(mobArray.map(m => {
+            let num = m.trim();
+            if (num.startsWith('+94')) num = num.replace('+94', '');
+            else if (num.startsWith('+1')) num = num.replace('+1', '');
+            else if (num.startsWith('+44')) num = num.replace('+44', '');
+            else if (num.startsWith('+61')) num = num.replace('+61', '');
+            else if (num.startsWith('+91')) num = num.replace('+91', '');
+            else if (num.startsWith('+971')) num = num.replace('+971', '');
+            return num.trim();
+          }).join(', '));
         }
       }
     };
@@ -415,7 +443,7 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!formData.email.trim()) newErrors.email = 'Email Address is required';
       else if (!emailRegex.test(formData.email)) newErrors.email = 'Enter a valid email address';
-      if (!formData.mobile.trim() || formData.mobile.length < 5) newErrors.mobile = 'Phone number is required';
+      if (!formData.mobile || formData.mobile.length === 0) newErrors.mobile = 'Phone number is required';
     }
 
     setErrors(newErrors);
@@ -547,10 +575,20 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
       mediaRecorderRef.current = mediaRecorder;
       chunksRef.current = [];
       mediaRecorder.ondataavailable = (e) => chunksRef.current.push(e.data);
-      mediaRecorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
-        const url = URL.createObjectURL(blob);
-        setFormData(prev => ({ ...prev, voiceClips: [...prev.voiceClips, { blob, url, name: `Voice Note ${prev.voiceClips.length + 1}` }] }));
+      mediaRecorder.onstop = async () => {
+        const rawBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        try {
+           setIsConverting(true);
+           const mp3Blob = await convertToMp3(rawBlob);
+           const url = URL.createObjectURL(mp3Blob);
+           setFormData(prev => ({ ...prev, voiceClips: [...prev.voiceClips, { blob: mp3Blob, url, name: `Voice Note ${prev.voiceClips.length + 1}.mp3` }] }));
+        } catch (e) {
+           console.error("Audio conversion failed", e);
+           const url = URL.createObjectURL(rawBlob);
+           setFormData(prev => ({ ...prev, voiceClips: [...prev.voiceClips, { blob: rawBlob, url, name: `Voice Note ${prev.voiceClips.length + 1}.webm` }] }));
+        } finally {
+           setIsConverting(false);
+        }
       };
       mediaRecorder.start();
       setIsRecording(true);
@@ -572,36 +610,49 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
       const MAX_SIZE_MB = 1000;
       const BLOCKED_TYPES = ["application/x-msdownload", "application/x-sh", "application/x-bat", "application/x-executable"];
       
-      const validFiles = [];
-      for (const f of formData.files) {
+      const uploadFilePromises = formData.files.map(async (f) => {
           if (f.size > MAX_SIZE_MB * 1024 * 1024) {
               alert(`File ${f.name} exceeds ${MAX_SIZE_MB}MB limit.`);
-              continue;
+              return null;
           }
           if (BLOCKED_TYPES.includes(f.type) || f.name.match(/\.(exe|bat|sh|cmd)$/i)) {
               alert(`File ${f.name} has an unsupported file type.`);
-              continue;
+              return null;
           }
           if (uploadedUrls[f.name]) {
-              validFiles.push({ name: f.name, type: f.type, data: uploadedUrls[f.name] });
+              return { name: f.name, type: f.type, data: uploadedUrls[f.name] };
           } else {
               setUploadProgress(prev => ({ ...prev, [f.name]: 0 }));
               try {
+                  let fileToUpload = f;
+                  if (f.type.startsWith('image/') && !f.type.includes('gif')) {
+                      try {
+                          const options = {
+                              maxSizeMB: 2,
+                              maxWidthOrHeight: 1920,
+                              useWebWorker: true
+                          };
+                          fileToUpload = await imageCompression(f as File, options);
+                      } catch (e) {
+                          console.warn('Image compression failed, using original file', e);
+                      }
+                  }
+                  
                   const path = `${user.id}/uploads/${orderId}/client_uploads/${f.name}`;
-                  const url = await uploadFileWithProgress(f, path, (p) => {
+                  const url = await uploadFileWithProgress(fileToUpload, path, (p) => {
                       setUploadProgress(prev => ({ ...prev, [f.name]: p }));
                   });
-                  validFiles.push({ name: f.name, type: f.type, data: url });
+                  return { name: f.name, type: f.type, data: url };
               } catch (err) {
                   console.error(`Failed to upload file ${f.name}:`, err);
+                  return null;
               }
           }
-      }
-
-      const validVoiceClips = [];
-      for (const v of formData.voiceClips) {
+      });
+      
+      const uploadVoicePromises = formData.voiceClips.map(async (v) => {
           if (uploadedUrls[v.name]) {
-              validVoiceClips.push({ name: v.name, type: "audio/webm", data: uploadedUrls[v.name] });
+              return { name: v.name, type: "audio/webm", data: uploadedUrls[v.name] };
           } else {
               setUploadProgress(prev => ({ ...prev, [v.name]: 0 }));
               try {
@@ -609,12 +660,19 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
                   const url = await uploadFileWithProgress(v.blob, path, (p) => {
                       setUploadProgress(prev => ({ ...prev, [v.name]: p }));
                   });
-                  validVoiceClips.push({ name: v.name, type: "audio/webm", data: url });
+                  return { name: v.name, type: "audio/webm", data: url };
               } catch (err) {
                   console.error("Voice note upload failed:", err);
+                  return null;
               }
           }
-      }
+      });
+
+      const resolvedFiles = await Promise.all(uploadFilePromises);
+      const resolvedVoiceClips = await Promise.all(uploadVoicePromises);
+
+      const validFiles = resolvedFiles.filter(Boolean);
+      const validVoiceClips = resolvedVoiceClips.filter(Boolean);
 
       const customFields: Record<string, any> = {};
       const addIf = (key: string, val: any) => {
@@ -788,8 +846,8 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
                         <input 
                             type="tel" 
                             value={phoneInput} 
-                            onChange={e => setPhoneInput(e.target.value.replace(/[^0-9]/g, ''))} 
-                            placeholder="77 123 4567" 
+                            onChange={e => setPhoneInput(e.target.value.replace(/[^0-9+, -]/g, ''))} 
+                            placeholder="77 123 4567, 77 987 6543" 
                             className={`flex-1 bg-slate-50 border rounded-2xl px-6 py-4 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 ${errors.mobile ? 'border-red-500 bg-red-50/20' : 'border-zinc-300'} outline-none focus:border-purple-600 focus:bg-white dark:bg-slate-900 transition-all shadow-sm font-semibold`} 
                         />
                     </div>
@@ -817,7 +875,7 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
                   ></textarea>
                 </div>
 
-                <div className="pt-8 border-t border-gray-100 dark:border-slate-700"><label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4 block">Can't describe it in text? Use voice:</label><div className="flex items-center gap-4"><button type="button" onClick={isRecording ? stopRecording : startRecording} className={`flex items-center gap-3 px-6 py-3 rounded-full font-bold text-xs uppercase tracking-widest transition-all ${isRecording ? 'bg-pink-500 text-white animate-pulse' : 'bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-gray-250 border border-gray-200 dark:border-slate-700 hover:bg-gray-200'}`}>{isRecording ? <><Square size={14} fill="white" /> Stop Recording</> : <><Mic size={14} /> Record Voice</>}</button>{isRecording && <span className="text-pink-500 text-xs font-bold animate-pulse">Recording...</span>}</div></div>
+                <div className="pt-8 border-t border-gray-100 dark:border-slate-700"><label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4 block">Can't describe it in text? Use voice:</label><div className="flex items-center gap-4"><button type="button" onClick={isRecording ? stopRecording : startRecording} className={`flex items-center gap-3 px-6 py-3 rounded-full font-bold text-xs uppercase tracking-widest transition-all ${isRecording ? 'bg-pink-500 text-white animate-pulse' : 'bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-gray-250 border border-gray-200 dark:border-slate-700 hover:bg-gray-200'}`}>{isRecording ? <><Square size={14} fill="white" /> Stop Recording</> : <><Mic size={14} /> Record Voice</>}</button>{isRecording && <span className="text-pink-500 text-xs font-bold animate-pulse">Recording...</span>}{isConverting && <span className="text-purple-500 text-xs font-bold animate-pulse">Converting to MP3...</span>}</div></div>
                 {formData.voiceClips.length > 0 && <div className="space-y-3"><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Voice Notes</label>{formData.voiceClips.map((clip, i) => (<div key={i} className="flex items-center justify-between bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 p-3 rounded-2xl relative overflow-hidden">
                     {uploadProgress[clip.name] !== undefined && (
                         <div className="absolute left-0 top-0 bottom-0 bg-purple-100 dark:bg-purple-900/20 transition-all duration-300 -z-0" style={{ width: `${uploadProgress[clip.name]}%` }} />

@@ -1,4 +1,4 @@
-import { collection, doc, getDocs, updateDoc, setDoc, deleteDoc, addDoc, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, doc, getDocs, updateDoc, setDoc, deleteDoc, addDoc, query, orderBy, onSnapshot, where } from 'firebase/firestore';
 import { db } from './firebase';
 import type { Unsubscribe } from 'firebase/firestore';
 
@@ -436,3 +436,45 @@ export const updateDisplayConfig = async (config: DisplayConfig) => {
   const ref = doc(db, 'settings', 'display_config');
   return await setDoc(ref, config, { merge: true });
 }
+
+
+export const trackPresence = async () => {
+  let visitorId = localStorage.getItem('visitor_id');
+  if (!visitorId) {
+    visitorId = 'visitor_' + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem('visitor_id', visitorId);
+  }
+  
+  try {
+    await setDoc(doc(db, 'presence', visitorId), {
+      lastActive: Date.now(),
+      path: window.location.pathname
+    }, { merge: true });
+  } catch (e) {
+    console.error("Presence error", e);
+  }
+};
+
+export const listenToActiveUsers = (callback: (count: number) => void): Unsubscribe => {
+  // Listen to users active in the last 2 hours to keep the working set small
+  const q = query(collection(db, 'presence'), where('lastActive', '>', Date.now() - 7200000));
+  let latestDocs: any[] = [];
+  
+  const unsubscribe = onSnapshot(q, (snapshot) => {
+    latestDocs = snapshot.docs.map(d => d.data());
+    updateCount();
+  });
+  
+  const updateCount = () => {
+    const threshold = Date.now() - 45000; // 45 seconds
+    const activeCount = latestDocs.filter(d => d.lastActive > threshold).length;
+    callback(activeCount);
+  };
+  
+  const interval = setInterval(updateCount, 5000);
+  
+  return () => {
+    unsubscribe();
+    clearInterval(interval);
+  };
+};

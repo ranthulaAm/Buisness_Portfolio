@@ -14,7 +14,7 @@ export interface Order {
   clientId: string;
   clientName: string;
   email: string;
-  mobile: string;
+  mobile: string | string[];
   serviceType: string;
   serviceId?: string; 
   
@@ -84,4 +84,5 @@ export interface User {
   avatar: string;
   provider: 'google' | 'apple' | 'facebook' | 'guest' | 'email';
   emailNotifications?: boolean;
+  mobiles?: string[];
 }

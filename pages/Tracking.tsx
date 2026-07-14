@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
-import { Package, CheckCircle2, AlertCircle, Clock, DollarSign, Download, Home, MessageCircle, Edit2, Trash2, Eye, Copy, Loader2, Info, X, Send, ShieldAlert, Check, ImageIcon, Search, Printer } from 'lucide-react';
+import { Package, CheckCircle2, AlertCircle, Clock, DollarSign, Download, Home, MessageCircle, Edit2, Trash2, Eye, Copy, Loader2, Info, X, Send, ShieldAlert, Check, ImageIcon, Search, ArrowDown, Printer } from 'lucide-react';
 import { listenToOrderById, updateOrder, cancelOrder, listenToOrdersByClientId } from '../services/storageService';
 import { getInvoiceConfig, deleteTestimonial } from '../services/dataService';
 import { downloadInvoice } from '../utils/invoiceGenerator';
 import { Order, OrderStatus, User } from '../types';
+import { handleSingleDownload, handleBulkDownload } from '../utils/downloadHelpers';
 import { PrintableInvoice } from '../components/PrintableInvoice';
 import { ConfirmModal } from '../components/ConfirmModal';
 
@@ -18,6 +19,8 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
   const navigate = useNavigate();
   const [trackingId, setTrackingId] = useState(searchParams.get('id') || '');
   const [order, setOrder] = useState<Order | null>(null);
+  const [isDownloadingAll, setIsDownloadingAll] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState(0);
   const [userOrders, setUserOrders] = useState<Order[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [error, setError] = useState('');
@@ -306,26 +309,49 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                               <CheckCircle2 size={18} /> Final Assets Ready
                             </div>
                             <div className="space-y-3">
+                              {order.finalFiles.length > 1 && (
+                                <button
+                                  onClick={async () => {
+                                    if (isDownloadingAll) return;
+                                    setIsDownloadingAll(true);
+                                    setDownloadProgress(0);
+                                    await handleBulkDownload(
+                                      order.finalFiles.map(f => ({ url: f.data, name: f.name })),
+                                      `Order_${order.id}_Files`,
+                                      (prog) => setDownloadProgress(prog)
+                                    );
+                                    setIsDownloadingAll(false);
+                                  }}
+                                  disabled={isDownloadingAll}
+                                  className="w-full flex items-center justify-center gap-2 p-4 bg-gray-900 hover:bg-black text-white rounded-2xl transition-all shadow-md mb-4"
+                                >
+                                  {isDownloadingAll ? (
+                                    <><Loader2 size={18} className="animate-spin" /> Preparing {downloadProgress}/{order.finalFiles.length}...</>
+                                  ) : (
+                                    <><ArrowDown size={18} /> Download All Files ({order.finalFiles.length})</>
+                                  )}
+                                </button>
+                              )}
                               {order.finalFiles.map((f, i) => (
-                                 <a 
+                                 <button 
                                    key={i} 
-                                   href={f.data} 
-                                   download={f.name}
-                                   target="_blank" 
-                                   rel="noopener noreferrer"
-                                   className="flex items-center justify-between p-4 bg-blue-600 hover:bg-blue-700 text-white border border-blue-700 rounded-2xl group transition-all shadow-md group-hover:shadow-lg"
+                                   onClick={(e) => {
+                                     e.preventDefault();
+                                     handleSingleDownload(f.data, f.name);
+                                   }}
+                                   className="w-full flex items-center justify-between p-4 bg-blue-600 hover:bg-blue-700 text-white border border-blue-700 rounded-2xl group transition-all shadow-md group-hover:shadow-lg"
                                  >
                                     <div className="flex items-center gap-4">
                                        <div className="p-2 bg-white/20 rounded-lg text-white group-hover:scale-110 transition-transform">
                                           <ImageIcon size={16} />
                                        </div>
-                                       <span className="text-xs font-bold text-white truncate max-w-[180px]">{f.name}</span>
+                                       <span className="text-xs font-bold text-white truncate max-w-[180px] text-left">{f.name}</span>
                                     </div>
                                     <div className="flex items-center gap-2 bg-white/20 px-3 py-1.5 rounded-lg text-white font-bold uppercase tracking-wider text-[10px]">
                                        <Download size={14} className="group-hover:-translate-y-0.5 transition-transform animate-bounce" />
-                                       Download Final Assets
+                                       Download File
                                     </div>
-                                 </a>
+                                 </button>
                               ))}
                             </div>
                             

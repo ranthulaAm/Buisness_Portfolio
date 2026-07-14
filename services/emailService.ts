@@ -101,3 +101,35 @@ Ranthula Am
     }, 1000);
   });
 };
+export const sendPromotionalEmail = async (email: string, clientName: string, type: 'offer' | 'feedback'): Promise<boolean> => {
+  return new Promise((resolve) => {
+    let subject = '';
+    let message = '';
+
+    if (type === 'offer') {
+      subject = `Special Offer Just For You, ${clientName}!`;
+      message = `Hello ${clientName},\n\nAs a valued client, we want to offer you an exclusive discount on your next project with us. Reply to this email to claim your 20% off coupon!`;
+    } else {
+      subject = `We'd love your feedback, ${clientName}!`;
+      message = `Hello ${clientName},\n\nWe hope you're doing well. We are always looking to improve our services and would love to hear your thoughts on your recent experience working with us. Reply to this email and let us know!`;
+    }
+
+    const emailBody = `
+----------------------------------------------------
+[MOCK PROMOTIONAL EMAIL]
+To: ${email}
+Subject: ${subject}
+----------------------------------------------------
+${message}
+
+Best regards,
+Ranthula Am
+----------------------------------------------------
+    `;
+
+    setTimeout(() => {
+      console.log("PROMOTIONAL EMAIL SENT:", emailBody);
+      resolve(true);
+    }, 1000);
+  });
+};

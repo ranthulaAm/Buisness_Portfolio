@@ -8,6 +8,7 @@ export interface SharedFile {
   type: string;
   size: number;
   path: string;
+  folder?: string;
 }
 
 export type ShareAccessType = 'public' | 'email' | 'password';

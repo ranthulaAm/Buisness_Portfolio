@@ -1,12 +1,16 @@
+import { handleSingleDownload, handleBulkDownload } from '../utils/downloadHelpers';
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { listenToOrders, updateOrder } from '../services/storageService';
 import { deleteFileFromUrl } from '../services/fileUploadService';
-import { sendStatusUpdateEmail } from '../services/emailService';
-import { listenToContacts, ContactMessage, addTestimonial } from '../services/dataService';
+import { sendStatusUpdateEmail, sendPromotionalEmail } from '../services/emailService';
+import { listenToContacts, ContactMessage, addTestimonial, listenToActiveUsers } from '../services/dataService';
 import { Order, OrderStatus, User } from '../types';
 import { uploadFileWithProgress } from '../services/fileUploadService';
+import imageCompression from 'browser-image-compression';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { downloadInvoice } from '../utils/invoiceGenerator';
 import { AdminSettings } from '../components/AdminSettings';
 import { AdminPortfolio } from '../components/AdminPortfolio';
@@ -18,8 +22,9 @@ import { AdminTestimonials } from '../components/AdminTestimonials';
 import { AdminInvoice } from '../components/AdminInvoice';
 import { AdminEmail } from '../components/AdminEmail';
 import { AdminShares } from '../components/AdminShares';
+import { AdminClients } from '../components/AdminClients';
 import { ClientActivityChart } from '../components/ClientActivityChart';
-import { Search, MessageSquare, MessageCircle, Layout as LayoutIcon, LogOut, ChevronRight, Save, User as UserIcon, X, AlertCircle, Download, Music, Copy, Check, Upload, ImageIcon, FileBox, RefreshCw, DollarSign, ChevronUp, ChevronDown, Loader2, Trash2, Bell, BarChart2, List, Settings, Briefcase, GraduationCap, Award, Mail, Plus, Star, ArrowLeft, Receipt } from 'lucide-react';
+import { Package, Search, MessageSquare, MessageCircle, Layout as LayoutIcon, LogOut, ChevronRight, Save, User as UserIcon, X, AlertCircle, Download, Music, Copy, Check, Upload, ImageIcon, FileBox, RefreshCw, DollarSign, ChevronUp, ChevronDown, Loader2, Trash2, Bell, BarChart2, List, Settings, Briefcase, GraduationCap, Award, Mail, Plus, Star, ArrowLeft, Receipt } from 'lucide-react';
 import {
   BarChart,
   Bar,
@@ -31,7 +36,9 @@ import {
   ResponsiveContainer,
   PieChart,
   Pie,
-  Cell
+  Cell,
+  LineChart,
+  Line,
 } from 'recharts';
 
 interface AdminDashboardProps {
@@ -43,31 +50,39 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const tabFromUrl = searchParams.get('tab');
   
-  const [activeTab, setActiveTab] = useState<'orders' | 'reviews' | 'charts' | 'settings' | 'portfolio' | 'skills' | 'experience' | 'education' | 'contacts' | 'testimonials' | 'invoice' | 'email'>(
+  const [activeTab, setActiveTab] = useState<'orders' | 'clients' | 'reviews' | 'charts' | 'settings' | 'portfolio' | 'skills' | 'experience' | 'education' | 'contacts' | 'testimonials' | 'invoice' | 'email'>(
     (tabFromUrl as any) || 'orders'
   );
 
   useEffect(() => {
     if (tabFromUrl) {
       setActiveTab(tabFromUrl as any);
+    } else {
+      setActiveTab('orders');
     }
   }, [tabFromUrl]);
 
-  const handleTabChange = (tab: 'orders' | 'reviews' | 'charts' | 'settings' | 'portfolio' | 'skills' | 'experience' | 'education' | 'contacts' | 'testimonials' | 'invoice' | 'email') => {
+  const handleTabChange = (tab: 'orders' | 'clients' | 'reviews' | 'charts' | 'settings' | 'portfolio' | 'skills' | 'experience' | 'education' | 'contacts' | 'testimonials' | 'invoice' | 'email') => {
     setActiveTab(tab);
     setSearchParams({ tab });
   };
 
   const [orders, setOrders] = useState<Order[]>([]);
+  const [activeUsers, setActiveUsers] = useState(0);
   const [contacts, setContacts] = useState<ContactMessage[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
 
   const [filterStatus, setFilterStatus] = useState<string>('All');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDownloadingAll, setIsDownloadingAll] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState(0);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [chartTimeframe, setChartTimeframe] = useState<'day' | 'week' | 'month' | 'year'>('month');
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
+  const [analyticsModal, setAnalyticsModal] = useState<'clients' | 'active_orders' | 'total_orders' | 'total_earned' | null>(null);
+  const [sendingPromo, setSendingPromo] = useState<string | null>(null);
   
   // Progress State
   const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({});
@@ -100,6 +115,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
       setIsLoading(false);
     });
     
+    
+    const unsubscribeActiveUsers = listenToActiveUsers((count) => {
+      setActiveUsers(count);
+    });
+
     const unsubscribeContacts = listenToContacts((data) => {
       setContacts(data);
     });
@@ -107,6 +127,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
     return () => {
       unsubscribeOrders();
       unsubscribeContacts();
+      unsubscribeActiveUsers();
     };
   }, []);
 
@@ -173,9 +194,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
         return;
       }
 
-      const path = `${selectedOrder.clientId}/uploads/${selectedOrder.id}/drafts/${Date.now()}_${file.name}`;
       try {
-          const url = await uploadFileWithProgress(file, path, (p) => {
+          let fileToUpload = file;
+          if (fileToUpload.type.startsWith('image/') && !fileToUpload.type.includes('gif')) {
+              try {
+                  const options = { maxSizeMB: 2, maxWidthOrHeight: 1920, useWebWorker: true };
+                  fileToUpload = await imageCompression(fileToUpload, options) as File;
+                  fileToUpload = await addWatermark(fileToUpload, "DRAFT");
+              } catch(e) {
+                  console.warn("Compression/Watermark failed", e);
+              }
+          }
+          const path = `${selectedOrder.clientId}/uploads/${selectedOrder.id}/drafts/${Date.now()}_${fileToUpload.name || 'image'}`;
+          const url = await uploadFileWithProgress(fileToUpload, path, (p) => {
             setUploadProgress(prev => ({ ...prev, draft: p }));
           });
           setDraftImage(url);
@@ -234,8 +265,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
       for (const f of validFiles) {
         setUploadProgress(prev => ({ ...prev, [f.name]: 0 }));
         try {
-          const path = `${selectedOrder.clientId}/uploads/${selectedOrder.id}/final_assets/${Date.now()}_${f.name}`;
-          const url = await uploadFileWithProgress(f, path, (p) => {
+          let fileToUpload = f;
+          if (fileToUpload.type.startsWith('image/') && !fileToUpload.type.includes('gif')) {
+              try {
+                  const options = { maxSizeMB: 5, maxWidthOrHeight: 3840, useWebWorker: true };
+                  fileToUpload = await imageCompression(fileToUpload, options) as File;
+              } catch(e) {
+                  console.warn("Compression failed", e);
+              }
+          }
+          const path = `${selectedOrder.clientId}/uploads/${selectedOrder.id}/final_assets/${Date.now()}_${fileToUpload.name || 'image'}`;
+          const url = await uploadFileWithProgress(fileToUpload, path, (p) => {
             setUploadProgress(prev => ({ ...prev, [f.name]: p }));
           });
           newFiles.push({ name: f.name, type: f.type || "application/octet-stream", data: url });
@@ -318,7 +358,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
       const appUrl = window.location.origin;
       const trackingLink = `${appUrl}/#/tracking?id=${order.id}`;
       const messageText = `Hi ${order.clientName},\n\nYour order (${order.id}) status has been updated to: *${status}*.\n\nYou can view the details and download assets here:\n${trackingLink}`;
-      const url = `https://api.whatsapp.com/send?phone=${order.mobile.replace(/[^0-9]/g, '')}&text=${encodeURIComponent(messageText)}`;
+      const firstMobile = Array.isArray(order.mobile) ? (order.mobile[0] || '') : (order.mobile || '');
+      const url = `https://api.whatsapp.com/send?phone=${firstMobile.replace(/[^0-9]/g, '')}&text=${encodeURIComponent(messageText)}`;
       window.open(url, '_blank');
   };
 
@@ -349,7 +390,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
   const exportToCsv = () => {
     let csvStr = "ID,Client,Email,Service,Status,Price,Date\n";
     filteredOrders.forEach(o => {
-      csvStr += `${o.id},"${o.clientName}","${o.email || ''}","${o.serviceType}",${o.status},${o.price || 0},${o.createdAt}\n`;
+      csvStr += `${o.id},"${o.clientName || o.clientEmail || ''}","${o.email || o.clientEmail || ''}","${o.serviceType}",${o.status},${o.price || 0},${new Date(o.createdAt).toLocaleDateString()}\n`;
     });
     const blob = new Blob([csvStr], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
@@ -358,6 +399,31 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
     a.download = `orders_${new Date().getTime()}.csv`;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const exportToPdf = () => {
+    const doc = new jsPDF();
+    doc.text("Project Data Report", 14, 15);
+    
+    const tableData = filteredOrders.map(o => [
+      o.id.substring(0, 8) + '...',
+      o.clientName || o.clientEmail || 'Client',
+      o.serviceType || 'Custom',
+      o.status,
+      `LKR ${(o.price || 0).toLocaleString()}`,
+      new Date(o.createdAt).toLocaleDateString()
+    ]);
+
+    autoTable(doc, {
+      head: [['ID', 'Client', 'Service', 'Status', 'Price', 'Date']],
+      body: tableData,
+      startY: 20,
+      theme: 'grid',
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [59, 130, 246] }
+    });
+
+    doc.save(`orders_report_${new Date().getTime()}.pdf`);
   };
 
   const filteredOrders = orders.filter(o => {
@@ -399,7 +465,46 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
 
   const alertsCount = orders.filter(o => o.status === OrderStatus.PENDING || o.status === OrderStatus.REVISION).length;
 
-  const getMonthlyData = () => {
+  
+  const getTimeframeData = () => {
+    const mapWithSortKey: Record<string, { count: number, display: string }> = {};
+    filteredOrders.forEach(o => {
+      if (o.createdAt) {
+        const date = new Date(o.createdAt);
+        let sortKey = '';
+        let display = '';
+        
+        if (chartTimeframe === 'day') {
+          sortKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+          display = date.toLocaleString('default', { day: 'numeric', month: 'short' });
+        } else if (chartTimeframe === 'week') {
+          const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+          const pastDaysOfYear = (date.getTime() - firstDayOfYear.getTime()) / 86400000;
+          const weekNum = Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+          sortKey = `${date.getFullYear()}-W${String(weekNum).padStart(2, '0')}`;
+          display = `Week ${weekNum}, ${date.getFullYear()}`;
+        } else if (chartTimeframe === 'year') {
+          sortKey = `${date.getFullYear()}`;
+          display = `${date.getFullYear()}`;
+        } else {
+          // month
+          sortKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+          display = date.toLocaleString('default', { month: 'short', year: 'numeric' });
+        }
+        
+        if (!mapWithSortKey[sortKey]) {
+          mapWithSortKey[sortKey] = { count: 0, display };
+        }
+        mapWithSortKey[sortKey].count += 1;
+      }
+    });
+    return Object.keys(mapWithSortKey).sort().map(key => ({
+      name: mapWithSortKey[key].display,
+      orders: mapWithSortKey[key].count
+    }));
+  };
+
+  const getMonthlyData_Old = () => {
     const mapWithSortKey: Record<string, { count: number, display: string }> = {};
     filteredOrders.forEach(o => {
       if (o.createdAt) {
@@ -443,6 +548,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
          <div className="flex items-center gap-3">
              <span className="font-bold text-lg tracking-tight pl-2">Admin Dashboard</span>
              <span className="bg-green-100 text-green-800 text-[10px] font-bold px-2 py-0.5 rounded border border-green-200">CLOUD MODE</span>
+             <span className="flex items-center gap-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-[10px] font-bold px-2 py-0.5 rounded border border-blue-200 dark:border-blue-800 shadow-sm">
+               <span className="relative flex h-2 w-2">
+                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                 <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+               </span>
+               {activeUsers} ACTIVE
+             </span>
              {alertsCount > 0 && (
                 <div className="flex items-center gap-1.5 bg-red-100 text-red-700 px-3 py-1 rounded-full border border-red-200 text-xs font-bold animate-pulse shadow-sm cursor-pointer hover:bg-red-200 transition-colors" title="New orders or revisions need your attention" onClick={() => setFilterStatus(OrderStatus.PENDING)}>
                   <Bell size={12} className="animate-bounce" /> {alertsCount}
@@ -529,6 +641,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
             )}
           </button>
           <button 
+            className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'clients' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:text-slate-300'}`}
+            onClick={() => handleTabChange('clients')}
+          >
+            <UserIcon size={16} /> Clients
+          </button>
+          <button 
             className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'charts' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:text-slate-300'}`}
             onClick={() => handleTabChange('charts')}
           >
@@ -606,7 +724,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
           </button>
         </div>
 
-        {activeTab === 'orders' ? (
+        {activeTab === 'clients' ? (
+           <AdminClients orders={orders} />
+        ) : activeTab === 'orders' ? (
           <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
@@ -692,40 +812,90 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
           </div>
         ) : activeTab === 'charts' ? (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-               <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-6 flex flex-col justify-center items-center text-center">
-                  <DollarSign size={32} className="text-green-500 mb-2" />
-                  <h3 className="text-sm font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-1">Total Earned</h3>
-                  <div className="text-3xl font-bold text-gray-900 dark:text-slate-100 mb-4">LKR {filteredOrders.filter(o => o.status === OrderStatus.COMPLETED).reduce((acc, curr) => acc + (curr.price || 0), 0).toLocaleString()}</div>
-                  <p className="text-xs text-gray-400">from {filteredOrders.filter(o => o.status === OrderStatus.COMPLETED).length} completed projects.</p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+               <div onClick={() => setAnalyticsModal('total_earned')} className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-5 flex flex-col justify-center items-center text-center cursor-pointer hover:border-green-500 transition-colors">
+                  <DollarSign size={24} className="text-green-500 mb-2" />
+                  <h3 className="text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-1">Total Earned</h3>
+                  <div className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-1">LKR {filteredOrders.filter(o => o.status === OrderStatus.COMPLETED).reduce((acc, curr) => acc + (curr.price || 0), 0).toLocaleString()}</div>
                </div>
-               <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-6 flex flex-col justify-center items-center text-center md:col-span-2">
-                  <h3 className="text-sm font-bold text-gray-800 dark:text-slate-200 mb-2">Export Project Data</h3>
-                  <p className="text-xs text-gray-500 dark:text-slate-400 mb-6 max-w-sm">Download current filtered records (.CSV format) to import into Google Sheets or Excel.</p>
-                  <button onClick={exportToCsv} className="bg-blue-600 text-white font-bold px-6 py-2 rounded-lg text-sm hover:bg-blue-700 transition flex items-center gap-2">
-                     <Download size={16} /> Download CSV
-                  </button>
+               <div onClick={() => setAnalyticsModal('total_orders')} className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-5 flex flex-col justify-center items-center text-center cursor-pointer hover:border-blue-500 transition-colors">
+                  <Package size={24} className="text-blue-500 mb-2" />
+                  <h3 className="text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-1">Total Orders</h3>
+                  <div className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-1">{filteredOrders.length}</div>
+               </div>
+               <div onClick={() => setAnalyticsModal('clients')} className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-5 flex flex-col justify-center items-center text-center cursor-pointer hover:border-purple-500 transition-colors">
+                  <UserIcon size={24} className="text-purple-500 mb-2" />
+                  <h3 className="text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-1">Unique Clients</h3>
+                  <div className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-1">{new Set(filteredOrders.map(o => o.email || o.clientEmail).filter(Boolean)).size}</div>
+               </div>
+               <div onClick={() => setAnalyticsModal('active_orders')} className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-5 flex flex-col justify-center items-center text-center relative overflow-hidden cursor-pointer hover:border-red-500 transition-colors">
+                  <div className="absolute -right-4 -top-4 w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center animate-pulse">
+                     <span className="w-4 h-4 bg-red-500 rounded-full shadow-[0_0_10px_rgba(239,68,68,0.6)]"></span>
+                  </div>
+                  <h3 className="text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-1 relative z-10 mt-4">Active Orders</h3>
+                  <div className="text-3xl font-bold text-red-500 mb-1 relative z-10">{filteredOrders.filter(o => o.status !== OrderStatus.COMPLETED && o.status !== OrderStatus.CANCELLED).length}</div>
                </div>
             </div>
 
-            <ClientActivityChart orders={filteredOrders} />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-6">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 mb-6">Orders by Month</h3>
-                <div className="h-[300px] w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={getMonthlyData()}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#6B7280', fontSize: 12}} dy={10} />
-                      <YAxis axisLine={false} tickLine={false} tick={{fill: '#6B7280', fontSize: 12}} />
-                      <RechartsTooltip cursor={{fill: '#F3F4F6'}} contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}} />
-                      <Bar dataKey="orders" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-6 md:col-span-2">
+                 <div className="flex justify-between items-center mb-6">
+                   <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 flex items-center gap-2"><BarChart2 size={18} className="text-blue-500"/> Orders Over Time</h3>
+                   <select 
+                      value={chartTimeframe} 
+                      onChange={(e) => setChartTimeframe(e.target.value as any)}
+                      className="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-700 dark:text-slate-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2"
+                   >
+                      <option value="day">Day by Day</option>
+                      <option value="week">Week by Week</option>
+                      <option value="month">Month by Month</option>
+                      <option value="year">Year by Year</option>
+                   </select>
+                 </div>
+                 <div className="h-[300px] w-full">
+                   <ResponsiveContainer width="100%" height="100%">
+                     <LineChart data={getTimeframeData()}>
+                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                       <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#6B7280', fontSize: 12}} dy={10} />
+                       <YAxis axisLine={false} tickLine={false} tick={{fill: '#6B7280', fontSize: 12}} />
+                       <RechartsTooltip cursor={{fill: '#F3F4F6'}} contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}} />
+                       <Line type="monotone" dataKey="orders" stroke="#3b82f6" strokeWidth={3} dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }} activeDot={{ r: 6 }} />
+                     </LineChart>
+                   </ResponsiveContainer>
+                 </div>
               </div>
 
+              <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-6 flex flex-col">
+                 <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 mb-6 flex items-center gap-2"><Star size={18} className="text-yellow-500"/> Top Services</h3>
+                 <div className="flex-1 overflow-y-auto pr-2 space-y-4">
+                    {(() => {
+                       const serviceCounts = filteredOrders.reduce((acc, o) => {
+                          const t = o.serviceType || 'Other';
+                          acc[t] = (acc[t] || 0) + 1;
+                          return acc;
+                       }, {} as Record<string, number>);
+                       const topServices = Object.entries(serviceCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+                       if (topServices.length === 0) return <div className="text-gray-400 text-sm text-center mt-10">No data</div>;
+                       const maxCount = topServices[0][1];
+                       return topServices.map(([title, count], i) => (
+                          <div key={i} className="mb-4">
+                             <div className="flex justify-between text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                                <span className="truncate pr-2">{title}</span>
+                                <span>{count} orders</span>
+                             </div>
+                             <div className="w-full bg-gray-100 dark:bg-slate-800 rounded-full h-2">
+                                <div className="bg-blue-500 h-2 rounded-full" style={{ width: `${(count / maxCount) * 100}%` }}></div>
+                             </div>
+                          </div>
+                       ));
+                    })()}
+                 </div>
+              </div>
+            </div>
+
+            <ClientActivityChart orders={filteredOrders} />
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-6">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 mb-6">Orders by Status</h3>
                 <div className="h-[300px] w-full">
@@ -750,6 +920,32 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                   </ResponsiveContainer>
                 </div>
               </div>
+              <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-6 flex flex-col justify-center items-center text-center">
+                  <h3 className="text-sm font-bold text-gray-800 dark:text-slate-200 mb-2">Export Project Data</h3>
+                  <p className="text-xs text-gray-500 dark:text-slate-400 mb-6 max-w-sm">Download current filtered records (.CSV or .PDF format) for external reporting.</p>
+                  <div className="flex gap-3">
+                     <button onClick={exportToCsv} className="bg-blue-600 text-white font-bold px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition flex items-center gap-2">
+                        <Download size={16} /> CSV
+                     </button>
+                     <button onClick={exportToPdf} className="bg-red-600 text-white font-bold px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition flex items-center gap-2">
+                        <Download size={16} /> PDF
+                     </button>
+                  </div>
+                  
+                  <div className="mt-8 pt-8 border-t border-gray-100 dark:border-slate-800 w-full">
+                     <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Peak Activity</h3>
+                     {(() => {
+                        const monthlyData = getTimeframeData();
+                        const peakMonth = [...monthlyData].sort((a, b) => b.orders - a.orders)[0];
+                        return peakMonth && peakMonth.orders > 0 ? (
+                           <div>
+                              <div className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-1">{peakMonth.name}</div>
+                              <div className="text-sm text-gray-500">{peakMonth.orders} orders placed</div>
+                           </div>
+                        ) : <div className="text-sm text-gray-400">Not enough data</div>;
+                     })()}
+                  </div>
+               </div>
             </div>
           </div>
         ) : activeTab === 'reviews' ? (
@@ -834,6 +1030,279 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
           <AdminShares />
         ) : null}
       </div>
+
+      
+      
+      {analyticsModal === 'total_orders' && (
+         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex justify-center items-center p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden border border-gray-100 dark:border-slate-800">
+               <div className="px-6 py-4 border-b border-gray-100 dark:border-slate-800 flex justify-between items-center bg-gray-50 dark:bg-slate-800/50">
+                  <div className="flex items-center gap-3">
+                     <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                        <Package size={20} />
+                     </div>
+                     <div>
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">Orders by Category</h2>
+                        <p className="text-xs text-gray-500 dark:text-slate-400">Total number of orders grouped by service category</p>
+                     </div>
+                  </div>
+                  <button onClick={() => setAnalyticsModal(null)} className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full transition-colors">
+                     <X size={20} />
+                  </button>
+               </div>
+               <div className="p-6 overflow-y-auto">
+                  <table className="w-full text-left border-collapse">
+                     <thead>
+                        <tr className="bg-gray-50/50 dark:bg-slate-800/50 border-b border-gray-200 dark:border-slate-700 text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                           <th className="p-3 whitespace-nowrap">Service Category</th>
+                           <th className="p-3 whitespace-nowrap text-right">Total Orders</th>
+                        </tr>
+                     </thead>
+                     <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
+                        {(() => {
+                           const categoryCounts = filteredOrders.reduce((acc, o) => {
+                              const t = o.serviceType || 'Other';
+                              acc[t] = (acc[t] || 0) + 1;
+                              return acc;
+                           }, {} as Record<string, number>);
+                           return Object.entries(categoryCounts).sort((a, b) => b[1] - a[1]).map(([cat, count], i) => (
+                              <tr key={i} className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
+                                 <td className="p-3 text-sm font-medium text-gray-900 dark:text-slate-100">{cat}</td>
+                                 <td className="p-3 text-sm font-bold text-right text-blue-600 dark:text-blue-400">{count}</td>
+                              </tr>
+                           ));
+                        })()}
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+      )}
+
+      {analyticsModal === 'total_earned' && (
+         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex justify-center items-center p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden border border-gray-100 dark:border-slate-800">
+               <div className="px-6 py-4 border-b border-gray-100 dark:border-slate-800 flex justify-between items-center bg-gray-50 dark:bg-slate-800/50">
+                  <div className="flex items-center gap-3">
+                     <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 dark:text-green-400">
+                        <DollarSign size={20} />
+                     </div>
+                     <div>
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">Earnings by Category</h2>
+                        <p className="text-xs text-gray-500 dark:text-slate-400">Total earned from completed orders grouped by service</p>
+                     </div>
+                  </div>
+                  <button onClick={() => setAnalyticsModal(null)} className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full transition-colors">
+                     <X size={20} />
+                  </button>
+               </div>
+               <div className="p-6 overflow-y-auto">
+                  <table className="w-full text-left border-collapse">
+                     <thead>
+                        <tr className="bg-gray-50/50 dark:bg-slate-800/50 border-b border-gray-200 dark:border-slate-700 text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                           <th className="p-3 whitespace-nowrap">Service Category</th>
+                           <th className="p-3 whitespace-nowrap text-right">Total Earned</th>
+                        </tr>
+                     </thead>
+                     <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
+                        {(() => {
+                           const earnedCounts = filteredOrders.filter(o => o.status === OrderStatus.COMPLETED).reduce((acc, o) => {
+                              const t = o.serviceType || 'Other';
+                              acc[t] = (acc[t] || 0) + (o.price || 0);
+                              return acc;
+                           }, {} as Record<string, number>);
+                           const sorted = Object.entries(earnedCounts).sort((a, b) => b[1] - a[1]);
+                           if (sorted.length === 0) {
+                              return (
+                                 <tr>
+                                    <td colSpan={2} className="p-4 text-center text-sm text-gray-500 dark:text-slate-400">No earnings data available yet</td>
+                                 </tr>
+                              );
+                           }
+                           return sorted.map(([cat, amount], i) => (
+                              <tr key={i} className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
+                                 <td className="p-3 text-sm font-medium text-gray-900 dark:text-slate-100">{cat}</td>
+                                 <td className="p-3 text-sm font-bold text-right text-green-600 dark:text-green-400">LKR {amount.toLocaleString()}</td>
+                              </tr>
+                           ));
+                        })()}
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+      )}
+
+      {analyticsModal === 'clients' && (
+         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex justify-center items-center p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden border border-gray-100 dark:border-slate-800">
+               <div className="px-6 py-4 border-b border-gray-100 dark:border-slate-800 flex justify-between items-center bg-gray-50 dark:bg-slate-800/50">
+                  <div className="flex items-center gap-3">
+                     <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400">
+                        <UserIcon size={20} />
+                     </div>
+                     <div>
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">Unique Clients</h2>
+                        <p className="text-xs text-gray-500 dark:text-slate-400">Detailed list of all clients</p>
+                     </div>
+                  </div>
+                  <button onClick={() => setAnalyticsModal(null)} className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full transition-colors">
+                     <X size={20} />
+                  </button>
+               </div>
+               <div className="p-6 overflow-y-auto">
+                  <table className="w-full text-left border-collapse">
+                     <thead>
+                        <tr className="bg-gray-50/50 dark:bg-slate-800/50 border-b border-gray-200 dark:border-slate-700 text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                           <th className="p-3 whitespace-nowrap">Client Name</th>
+                           <th className="p-3 whitespace-nowrap">Email</th>
+                           <th className="p-3 whitespace-nowrap">Mobile</th>
+                           <th className="p-3 whitespace-nowrap">Joined Date</th>
+                           <th className="p-3 whitespace-nowrap text-center">Orders</th>
+                           <th className="p-3 whitespace-nowrap">Most Used Category</th>
+                           <th className="p-3 whitespace-nowrap text-right">Actions</th>
+                        </tr>
+                     </thead>
+                     <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
+                        {(() => {
+                           const clientsMap = new Map<string, { name: string, email: string, mobiles: Set<string>, joined: string, count: number, categories: Record<string, number> }>();
+                           filteredOrders.forEach(o => {
+                              const email = o.email || o.clientEmail || '';
+                              if (!email) return;
+                              const existing = clientsMap.get(email) || { 
+                                 name: o.clientName || 'Unknown', 
+                                 email: email, 
+                                 mobiles: new Set<string>(),
+                                 joined: o.createdAt, 
+                                 count: 0, 
+                                 categories: {} 
+                              };
+                              if (o.mobile) {
+                                 if (Array.isArray(o.mobile)) {
+                                    o.mobile.forEach((m: string) => existing.mobiles.add(m));
+                                 } else {
+                                    existing.mobiles.add(o.mobile as string);
+                                 }
+                              }
+                              existing.count++;
+                              const cat = o.serviceType || 'Other';
+                              existing.categories[cat] = (existing.categories[cat] || 0) + 1;
+                              if (new Date(o.createdAt) < new Date(existing.joined)) {
+                                 existing.joined = o.createdAt;
+                              }
+                              clientsMap.set(email, existing);
+                           });
+                           const clients = Array.from(clientsMap.values()).sort((a, b) => b.count - a.count);
+                           return clients.map((c, i) => {
+                              const mostUsed = Object.entries(c.categories).sort((a, b) => b[1] - a[1])[0][0];
+                              return (
+                                 <tr key={i} className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
+                                    <td className="p-3 text-sm font-medium text-gray-900 dark:text-slate-100">{c.name}</td>
+                                    <td className="p-3 text-sm text-gray-500 dark:text-slate-400">{c.email}</td>
+                                    <td className="p-3 text-sm text-gray-500 dark:text-slate-400">{c.mobiles.size > 0 ? Array.from(c.mobiles).flatMap(m => (m as string).split(',')).map(m => m.trim()).filter(Boolean).join(', ') : '-'}</td>
+                                    <td className="p-3 text-sm text-gray-500 dark:text-slate-400">{new Date(c.joined).toLocaleDateString()}</td>
+                                    <td className="p-3 text-sm font-bold text-center text-blue-600 dark:text-blue-400">{c.count}</td>
+                                    <td className="p-3 text-sm text-gray-500 dark:text-slate-400"><span className="px-2 py-1 bg-gray-100 dark:bg-slate-800 rounded-md text-xs">{mostUsed}</span></td>
+                                    <td className="p-3 text-sm text-right">
+                                       <div className="flex gap-2 justify-end">
+                                          <button 
+                                             disabled={sendingPromo === c.email}
+                                             onClick={() => {
+                                                setSendingPromo(c.email);
+                                                sendPromotionalEmail(c.email, c.name, 'offer').then(() => {
+                                                   alert(`Special offer sent to ${c.name}`);
+                                                   setSendingPromo(null);
+                                                });
+                                             }}
+                                             className="px-2 py-1 bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50 rounded-md text-xs font-medium transition-colors disabled:opacity-50"
+                                          >
+                                             {sendingPromo === c.email ? <Loader2 size={12} className="animate-spin inline mr-1" /> : <Star size={12} className="inline mr-1" />} Offer
+                                          </button>
+                                          <button 
+                                             disabled={sendingPromo === c.email}
+                                             onClick={() => {
+                                                setSendingPromo(c.email);
+                                                sendPromotionalEmail(c.email, c.name, 'feedback').then(() => {
+                                                   alert(`Feedback request sent to ${c.name}`);
+                                                   setSendingPromo(null);
+                                                });
+                                             }}
+                                             className="px-2 py-1 bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400 hover:bg-purple-200 dark:hover:bg-purple-900/50 rounded-md text-xs font-medium transition-colors disabled:opacity-50"
+                                          >
+                                             {sendingPromo === c.email ? <Loader2 size={12} className="animate-spin inline mr-1" /> : <MessageSquare size={12} className="inline mr-1" />} Ask Feedback
+                                          </button>
+                                       </div>
+                                    </td>
+                                 </tr>
+                              );
+                           });
+                        })()}
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+      )}
+
+      {analyticsModal === 'active_orders' && (
+         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex justify-center items-center p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden border border-gray-100 dark:border-slate-800">
+               <div className="px-6 py-4 border-b border-gray-100 dark:border-slate-800 flex justify-between items-center bg-gray-50 dark:bg-slate-800/50">
+                  <div className="flex items-center gap-3">
+                     <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400 animate-pulse">
+                        <Loader2 size={20} className="animate-spin" />
+                     </div>
+                     <div>
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">Current Active Orders</h2>
+                        <p className="text-xs text-gray-500 dark:text-slate-400">All orders currently in progress or pending</p>
+                     </div>
+                  </div>
+                  <button onClick={() => setAnalyticsModal(null)} className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full transition-colors">
+                     <X size={20} />
+                  </button>
+               </div>
+               <div className="p-6 overflow-y-auto">
+                  <table className="w-full text-left border-collapse">
+                     <thead>
+                        <tr className="bg-gray-50/50 dark:bg-slate-800/50 border-b border-gray-200 dark:border-slate-700 text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                           <th className="p-3 whitespace-nowrap">Order ID</th>
+                           <th className="p-3 whitespace-nowrap">Client</th>
+                           <th className="p-3 whitespace-nowrap">Service</th>
+                           <th className="p-3 whitespace-nowrap">Status</th>
+                           <th className="p-3 whitespace-nowrap">Created</th>
+                           <th className="p-3 whitespace-nowrap text-right">Price</th>
+                        </tr>
+                     </thead>
+                     <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
+                        {filteredOrders.filter(o => o.status !== OrderStatus.COMPLETED && o.status !== OrderStatus.CANCELLED).map((o, i) => (
+                           <tr key={i} onClick={() => { setAnalyticsModal(null); openOrder(o); }} className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer">
+                              <td className="p-3 text-sm font-mono text-blue-600 dark:text-blue-400">#{o.id.split('-')[1] || o.id.substring(0, 8)}</td>
+                              <td className="p-3 text-sm">
+                                 <div className="font-medium text-gray-900 dark:text-slate-100">{o.clientName || 'Client'}</div>
+                                 <div className="text-xs text-gray-500">{o.clientEmail}</div>
+                              </td>
+                              <td className="p-3 text-sm text-gray-700 dark:text-slate-300">{o.serviceType || 'Custom'}</td>
+                              <td className="p-3">
+                                 <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium 
+                                     ${o.status === OrderStatus.PENDING ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-500' : 
+                                       o.status === OrderStatus.IN_PROGRESS ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' : 
+                                       o.status === OrderStatus.REVISION ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400' : 
+                                       o.status === OrderStatus.REVIEWING ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400' : 
+                                       o.status === OrderStatus.WAITING_PAYMENT ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-500' : 
+                                       'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300'}`}>
+                                     {o.status}
+                                 </span>
+                              </td>
+                              <td className="p-3 text-sm text-gray-500 dark:text-slate-400">{new Date(o.createdAt).toLocaleDateString()}</td>
+                              <td className="p-3 text-sm font-medium text-gray-900 dark:text-slate-100 text-right">LKR {(o.price || 0).toLocaleString()}</td>
+                           </tr>
+                        ))}
+                     </tbody>
+                  </table>
+               </div>
+            </div>
+         </div>
+      )}
 
       {selectedOrder && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -1038,14 +1507,45 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                                    <span className="text-gray-400 block text-xs uppercase tracking-wider mb-3">Uploaded Files</span>
                                    {selectedOrder?.files && selectedOrder.files.length > 0 ? (
                                      <div className="space-y-2">
+                                       {selectedOrder.files.length > 1 && (
+                                         <button
+                                            onClick={async () => {
+                                              if (isDownloadingAll) return;
+                                              setIsDownloadingAll(true);
+                                              setDownloadProgress(0);
+                                              const clientName = selectedOrder.clientName || selectedOrder.clientEmail?.split('@')[0] || 'Client';
+                                              const allFiles = [
+                                                ...selectedOrder.files.map(f => ({ url: f.data, name: f.name })),
+                                                ...(selectedOrder.voiceClips || []).map(v => ({ url: v.data, name: v.name }))
+                                              ];
+                                              await handleBulkDownload(
+                                                allFiles,
+                                                `${clientName}_Order_${selectedOrder.id}_Client_Assets`,
+                                                (prog) => setDownloadProgress(prog)
+                                              );
+                                              setIsDownloadingAll(false);
+                                            }}
+                                            disabled={isDownloadingAll}
+                                            className="w-full flex items-center justify-center gap-2 p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all shadow-sm mb-3"
+                                         >
+                                            {isDownloadingAll ? (
+                                              <><Loader2 size={16} className="animate-spin" /> Preparing {downloadProgress}/{selectedOrder.files.length}...</>
+                                            ) : (
+                                              <><Download size={16} /> Download All Files</>
+                                            )}
+                                         </button>
+                                       )}
                                        {selectedOrder.files.map((f, i) => (
-                                          <a key={i} href={f.data} download={f.name} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-800 hover:bg-blue-50 border border-gray-200 dark:border-slate-700 rounded-lg group transition-colors cursor-pointer">
+                                          <button key={i} onClick={(e) => {
+                                             e.preventDefault();
+                                             handleSingleDownload(f.data, f.name);
+                                          }} className="w-full flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-800 hover:bg-blue-50 border border-gray-200 dark:border-slate-700 rounded-lg group transition-colors cursor-pointer text-left">
                                               <div className="flex items-center gap-3 overflow-hidden">
                                                  <div className="bg-white dark:bg-slate-900 p-1.5 rounded border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400"><ImageIcon size={14} /></div>
                                                  <span className="text-sm text-gray-700 dark:text-slate-300 font-medium truncate">{f.name}</span>
                                               </div>
                                               <Download size={14} className="text-gray-400 group-hover:text-blue-500" />
-                                          </a>
+                                          </button>
                                        ))}
                                      </div>
                                    ) : (

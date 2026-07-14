@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { User, Order, OrderStatus } from '../types';
 import { listenToOrders, updateOrder } from '../services/storageService';
-import { Package, Clock, MessageSquare, ArrowRight, User as UserIcon, Download, Loader2, Edit2 } from 'lucide-react';
+import { handleSingleDownload, handleBulkDownload } from '../utils/downloadHelpers';
+import { Package, Clock, MessageSquare, ArrowRight, User as UserIcon, Download, Loader2, Edit2, ArrowDown } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ClientProfile } from '../components/ClientProfile';
 import { downloadInvoice } from '../utils/invoiceGenerator';
@@ -25,6 +26,8 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user }) => {
   useEffect(() => {
     if (tabFromUrl) {
       setActiveTab(tabFromUrl as any);
+    } else {
+      setActiveTab('orders');
     }
   }, [tabFromUrl]);
 
@@ -180,6 +183,8 @@ const ProjectCard = ({ order, onRequestRevision }: { order: Order; onRequestRevi
   const [notes, setNotes] = useState("");
   const [showRevisionForm, setShowRevisionForm] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+    const [isDownloadingAll, setIsDownloadingAll] = useState(false);
+    const [downloadProgress, setDownloadProgress] = useState(0);
   const navigate = useNavigate();
 
   const isCompleted = order.status === OrderStatus.COMPLETED;
@@ -271,17 +276,41 @@ const ProjectCard = ({ order, onRequestRevision }: { order: Order; onRequestRevi
              </button>
           )}
 
+          {isCompleted && order.finalFiles && order.finalFiles.length > 1 && (
+            <button
+              onClick={async () => {
+                if (isDownloadingAll) return;
+                setIsDownloadingAll(true);
+                setDownloadProgress(0);
+                await handleBulkDownload(
+                  order.finalFiles.map(f => ({ url: f.data, name: f.name })),
+                  `Order_${order.id}_Files`,
+                  (prog) => setDownloadProgress(prog)
+                );
+                setIsDownloadingAll(false);
+              }}
+              disabled={isDownloadingAll}
+              className="border-2 border-gray-900 text-white bg-gray-900 shadow-md px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-black transition-colors flex items-center gap-2"
+            >
+              {isDownloadingAll ? (
+                <><Loader2 size={14} className="animate-spin" /> Preparing {downloadProgress}/{order.finalFiles.length}...</>
+              ) : (
+                <><ArrowDown size={14} /> Download All Files</>
+              )}
+            </button>
+          )}
           {isCompleted && order.finalFiles && order.finalFiles.length > 0 && order.finalFiles.map((file, idx) => (
-             <a
+             <button
                key={`final-${idx}`}
-               href={file.data}
-               download={file.name}
-               target="_blank"
-               rel="noreferrer"
+               onClick={(e) => {
+                 e.preventDefault();
+                 handleSingleDownload(file.data, file.name);
+               }}
                className="border-2 border-blue-600 text-white bg-blue-600 shadow-md px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-blue-700 hover:border-blue-700 transition-colors flex items-center gap-2 group"
              >
-                <Download size={14} className="group-hover:-translate-y-0.5 transition-transform animate-bounce" /> Download Final Assets
-             </a>
+                <Download size={14} className="group-hover:-translate-y-0.5 transition-transform animate-bounce" /> 
+                {order.finalFiles.length > 1 ? `Download ${file.name}` : 'Download Final Asset'}
+             </button>
           ))}
         </div>
 
