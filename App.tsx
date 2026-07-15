@@ -38,10 +38,10 @@ const AppContent: React.FC = () => {
   
   // Track Presence
   useEffect(() => {
-    trackPresence();
-    const interval = setInterval(trackPresence, 30000);
+    trackPresence(user, location.pathname);
+    const interval = setInterval(() => trackPresence(user, location.pathname), 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [user, location.pathname]);
 
   
   // Sync auth modal with URL
@@ -83,6 +83,7 @@ const AppContent: React.FC = () => {
             email: firebaseUser.email || '',
             avatar: firebaseUser.photoURL || `https://api.dicebear.com/7.x/shapes/svg?seed=${firebaseUser.uid}`,
             provider: 'email',
+            createdAt: firebaseUser.metadata.creationTime || new Date().toISOString(),
           };
           setUser(appUser);
           saveUserProfile(appUser).catch(console.error);

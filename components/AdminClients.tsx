@@ -1,20 +1,58 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Order } from '../types';
-import { User as UserIcon, Mail, Phone, Calendar, Package, Search, Edit2, Check, X, Loader2 } from 'lucide-react';
+import { User as UserIcon, Mail, Phone, Calendar, Package, Search, Edit2, Check, X, Loader2, UserCheck } from 'lucide-react';
 import { updateClientMobileByEmail } from '../services/storageService';
+import { collection, query, onSnapshot } from 'firebase/firestore';
+import { db } from '../services/firebase';
 
 interface AdminClientsProps {
   orders: Order[];
 }
 
 export const AdminClients: React.FC<AdminClientsProps> = ({ orders }) => {
+  const [registeredUsers, setRegisteredUsers] = useState<any[]>([]);
+
+  useEffect(() => {
+    const q = query(collection(db, 'users'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const usersList = snapshot.docs.map(doc => doc.data());
+      setRegisteredUsers(usersList);
+    }, (error) => {
+      console.warn("Could not listen to registered users:", error);
+    });
+    return () => unsubscribe();
+  }, []);
+
   const clients = useMemo(() => {
     const clientsMap = new Map<string, any>();
+
+    // 1. Add all registered users first (handles registered users who haven't placed orders yet!)
+    registeredUsers.forEach(u => {
+      const email = u.email || '';
+      if (!email) return;
+      const emailKey = email.toLowerCase();
+      
+      clientsMap.set(emailKey, {
+        name: u.name || 'Anonymous User',
+        email: email,
+        mobiles: new Set<string>(u.mobiles || []),
+        joined: u.createdAt || new Date().toISOString(),
+        totalOrders: 0,
+        totalSpent: 0,
+        categories: {} as Record<string, number>,
+        allOrders: [] as Order[],
+        isRegisteredUser: true,
+        provider: u.provider || 'email'
+      });
+    });
+
+    // 2. Process all orders to aggregate stats and include any client emails not in registeredUsers
     orders.forEach(o => {
       const email = o.email || o.clientEmail || '';
       if (!email) return;
+      const emailKey = email.toLowerCase();
 
-      const existing = clientsMap.get(email) || {
+      const existing = clientsMap.get(emailKey) || {
         name: o.clientName || 'Unknown',
         email: email,
         mobiles: new Set<string>(),
@@ -22,7 +60,8 @@ export const AdminClients: React.FC<AdminClientsProps> = ({ orders }) => {
         totalOrders: 0,
         totalSpent: 0,
         categories: {} as Record<string, number>,
-        allOrders: [] as Order[]
+        allOrders: [] as Order[],
+        isRegisteredUser: false
       };
 
       if (o.mobile) {
@@ -45,11 +84,17 @@ export const AdminClients: React.FC<AdminClientsProps> = ({ orders }) => {
       }
       
       existing.allOrders.push(o);
-      clientsMap.set(email, existing);
+      clientsMap.set(emailKey, existing);
     });
     
-    return Array.from(clientsMap.values()).sort((a, b) => b.totalOrders - a.totalOrders);
-  }, [orders]);
+    return Array.from(clientsMap.values()).sort((a, b) => {
+      // Sort by registered users/active order count
+      if (b.totalOrders !== a.totalOrders) {
+        return b.totalOrders - a.totalOrders;
+      }
+      return new Date(b.joined).getTime() - new Date(a.joined).getTime();
+    });
+  }, [orders, registeredUsers]);
 
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -125,7 +170,14 @@ export const AdminClients: React.FC<AdminClientsProps> = ({ orders }) => {
             {filteredClients.length > 0 ? filteredClients.map((c, i) => (
               <tr key={i} className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
                 <td className="p-4">
-                  <div className="font-bold text-gray-900 dark:text-slate-100 text-base">{c.name}</div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-bold text-gray-900 dark:text-slate-100 text-base">{c.name}</span>
+                    {c.isRegisteredUser && (
+                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-green-100 text-green-800 dark:bg-green-950/30 dark:text-green-400 border border-green-200/50 dark:border-green-900/30">
+                        <UserCheck size={10} /> Registered User
+                      </span>
+                    )}
+                  </div>
                   <div className="text-xs text-gray-500 dark:text-slate-400 mt-1">
                      Top service: {Object.entries(c.categories).sort((a: any, b: any) => b[1] - a[1])[0]?.[0] || 'N/A'}
                   </div>

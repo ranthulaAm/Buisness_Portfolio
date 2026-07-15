@@ -24,7 +24,8 @@ import { AdminEmail } from '../components/AdminEmail';
 import { AdminShares } from '../components/AdminShares';
 import { AdminClients } from '../components/AdminClients';
 import { ClientActivityChart } from '../components/ClientActivityChart';
-import { Package, Search, MessageSquare, MessageCircle, Layout as LayoutIcon, LogOut, ChevronRight, Save, User as UserIcon, X, AlertCircle, Download, Music, Copy, Check, Upload, ImageIcon, FileBox, RefreshCw, DollarSign, ChevronUp, ChevronDown, Loader2, Trash2, Bell, BarChart2, List, Settings, Briefcase, GraduationCap, Award, Mail, Plus, Star, ArrowLeft, Receipt } from 'lucide-react';
+import { AdminSecurity } from '../components/AdminSecurity';
+import { Package, Search, MessageSquare, MessageCircle, Layout as LayoutIcon, LogOut, ChevronRight, Save, User as UserIcon, X, AlertCircle, Download, Music, Copy, Check, Upload, ImageIcon, FileBox, RefreshCw, DollarSign, ChevronUp, ChevronDown, Loader2, Trash2, Bell, BarChart2, List, Settings, Briefcase, GraduationCap, Award, Mail, Plus, Star, ArrowLeft, Receipt, Shield } from 'lucide-react';
 import {
   BarChart,
   Bar,
@@ -653,6 +654,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
             <BarChart2 size={16} /> Analytics
           </button>
           <button 
+            className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 relative ${activeTab === 'security' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:text-slate-300'}`}
+            onClick={() => handleTabChange('security' as any)}
+          >
+            <Shield size={16} className="text-purple-600 animate-pulse" /> Security Map & Audits
+          </button>
+          <button 
             className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'portfolio' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:text-slate-300'}`}
             onClick={() => handleTabChange('portfolio')}
           >
@@ -1028,6 +1035,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
           <AdminEmail />
         ) : activeTab === 'shares' as any ? (
           <AdminShares />
+        ) : activeTab === 'security' as any ? (
+          <AdminSecurity />
         ) : null}
       </div>
 

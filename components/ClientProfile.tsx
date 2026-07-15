@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User } from '../types';
 import { saveUserProfile } from '../services/storageService';
 import { uploadFileWithProgress } from '../services/fileUploadService';
 import { auth } from '../services/firebase';
 import { updateProfile } from 'firebase/auth';
-import { Camera, Save, Loader2, Bell, BellOff, User as UserIcon } from 'lucide-react';
+import { Camera, Save, Loader2, Bell, BellOff, User as UserIcon, Shield, ShieldCheck, ShieldAlert, CheckCircle, AlertTriangle, FileText, Download } from 'lucide-react';
+import { listenToSecurityLogs, FileAuditLog } from '../services/dataService';
 
 interface ClientProfileProps {
   user: User;
@@ -17,6 +18,14 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({ user }) => {
   const [saving, setSaving] = useState(false);
   const [emailNotifications, setEmailNotifications] = useState(user.emailNotifications !== false);
   const [mobiles, setMobiles] = useState<string>(user.mobiles ? user.mobiles.join(', ') : '');
+  const [securityLogs, setSecurityLogs] = useState<FileAuditLog[]>([]);
+
+  useEffect(() => {
+    const unsubscribe = listenToSecurityLogs((logs) => {
+      setSecurityLogs(logs.filter(log => log.userId === user.id));
+    });
+    return () => unsubscribe();
+  }, [user.id]);
 
   const handleAvatarUpload = async (file: File) => {
     setUploading(true);
@@ -133,6 +142,124 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({ user }) => {
               <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white dark:border-slate-800 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:bg-slate-900 after:border-gray-300 dark:border-slate-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
            </div>
         </label>
+      </div>
+
+      {/* File Upload History & Security Audits */}
+      <div className="border-t border-gray-200 dark:border-slate-700 pt-8 mt-8 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 flex items-center gap-2">
+              <Shield size={20} className="text-purple-600"/> File Security Audits & History
+            </h3>
+            <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
+              Automated system scans, signature validation, and extension verification for all uploaded materials.
+            </p>
+          </div>
+          <span className="text-xs font-mono font-bold bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-400 border border-green-100 dark:border-green-900/40 px-3 py-1 rounded-full w-fit">
+            System Live & Guarded
+          </span>
+        </div>
+
+        {securityLogs.length === 0 ? (
+          <div className="border border-dashed border-gray-200 dark:border-slate-700 rounded-2xl p-8 text-center bg-gray-50/50 dark:bg-slate-800/20">
+            <ShieldCheck size={32} className="mx-auto text-gray-400 mb-2" />
+            <p className="text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">No file uploads detected yet</p>
+            <p className="text-xs text-gray-400 dark:text-slate-500 mt-1">Upload an avatar or project file to view real-time security integrity scans.</p>
+          </div>
+        ) : (
+          <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
+            {securityLogs.map((log) => {
+              const formattedSize = log.fileSize > 1024 * 1024 
+                ? `${(log.fileSize / (1024 * 1024)).toFixed(2)} MB`
+                : `${(log.fileSize / 1024).toFixed(1)} KB`;
+              const dateStr = new Date(log.timestamp).toLocaleString();
+
+              return (
+                <div 
+                  key={log.id} 
+                  className={`border rounded-2xl p-4 flex flex-col md:flex-row gap-4 justify-between items-start md:items-center bg-white dark:bg-slate-900 transition-all ${
+                    log.status === 'passed' 
+                      ? 'border-gray-200 dark:border-slate-800 hover:border-gray-300 dark:hover:border-slate-700' 
+                      : log.status === 'warning' 
+                        ? 'border-amber-200 dark:border-amber-900/40 bg-amber-50/20 dark:bg-amber-950/10'
+                        : 'border-red-200 dark:border-red-900/40 bg-red-50/20 dark:bg-red-950/10'
+                  }`}
+                >
+                  <div className="flex gap-3 items-start max-w-full">
+                    <div className={`p-2.5 rounded-xl shrink-0 ${
+                      log.status === 'passed' 
+                        ? 'bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300' 
+                        : log.status === 'warning' 
+                          ? 'bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400'
+                          : 'bg-red-100 dark:bg-red-950/40 text-red-700 dark:text-red-400'
+                    }`}>
+                      <FileText size={18} />
+                    </div>
+                    <div className="space-y-1 min-w-0 max-w-full">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-bold text-gray-900 dark:text-slate-100 text-sm truncate max-w-[200px] sm:max-w-xs block" title={log.fileName}>
+                          {log.fileName}
+                        </span>
+                        <span className="text-[10px] font-mono text-gray-400 dark:text-slate-500 bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-800 px-1.5 py-0.5 rounded">
+                          {formattedSize}
+                        </span>
+                      </div>
+                      <div className="text-[11px] text-gray-500 dark:text-slate-400 flex flex-wrap gap-x-3 gap-y-1">
+                        <span>Type: <span className="font-mono text-gray-700 dark:text-slate-300">{log.fileType}</span></span>
+                        <span>•</span>
+                        <span>Uploaded: {dateStr}</span>
+                      </div>
+                      
+                      {/* Security Checklist Details */}
+                      <div className="flex flex-wrap gap-3 pt-1.5">
+                        <div className="flex items-center gap-1 text-[10px] font-medium text-gray-600 dark:text-slate-400">
+                          {log.checks.extensionMatch ? <CheckCircle size={12} className="text-green-500" /> : <AlertTriangle size={12} className="text-red-500" />}
+                          Extension Check
+                        </div>
+                        <div className="flex items-center gap-1 text-[10px] font-medium text-gray-600 dark:text-slate-400">
+                          {log.checks.mimeVerified ? <CheckCircle size={12} className="text-green-500" /> : <AlertTriangle size={12} className="text-amber-500" />}
+                          MIME Verification
+                        </div>
+                        <div className="flex items-center gap-1 text-[10px] font-medium text-gray-600 dark:text-slate-400">
+                          {log.checks.signaturePassed ? <CheckCircle size={12} className="text-green-500" /> : <AlertTriangle size={12} className="text-red-500" />}
+                          Signature Match
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-gray-100 dark:border-slate-800">
+                    <div className="text-right">
+                      {log.status === 'passed' ? (
+                        <span className="inline-flex items-center gap-1 text-xs font-bold text-green-600 bg-green-50 dark:bg-green-950/20 px-2 py-1 rounded-md border border-green-200 dark:border-green-900/30">
+                          <ShieldCheck size={12} /> SECURE
+                        </span>
+                      ) : log.status === 'warning' ? (
+                        <span className="inline-flex items-center gap-1 text-xs font-bold text-amber-600 bg-amber-50 dark:bg-amber-950/20 px-2 py-1 rounded-md border border-amber-200 dark:border-amber-900/30">
+                          <AlertTriangle size={12} /> WARNING
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-xs font-bold text-red-600 bg-red-50 dark:bg-red-950/20 px-2 py-1 rounded-md border border-red-200 dark:border-red-900/30">
+                          <ShieldAlert size={12} /> BLOCKED
+                        </span>
+                      )}
+                    </div>
+                    <a 
+                      href={log.url} 
+                      target="_blank" 
+                      referrerPolicy="no-referrer"
+                      rel="noopener noreferrer" 
+                      className="p-1.5 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full transition-colors text-gray-500 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-100"
+                      title="Download uploaded file"
+                    >
+                      <Download size={16} />
+                    </a>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       <div className="flex justify-end pt-6 border-t border-gray-200 dark:border-slate-700">

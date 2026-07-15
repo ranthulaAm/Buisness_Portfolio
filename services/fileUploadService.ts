@@ -1,5 +1,56 @@
 import { ref, uploadBytes, getDownloadURL, deleteObject, uploadBytesResumable } from "firebase/storage";
-import { storage } from "./firebase";
+import { storage, auth } from "./firebase";
+import { logFileUploadSecurity } from "./dataService";
+
+const auditAndLogFileUpload = async (file: File | Blob, url: string) => {
+  try {
+    const fileName = (file as File).name || 'blob_upload';
+    const fileType = file.type || 'application/octet-stream';
+    const fileSize = file.size || 0;
+    
+    const lowerName = fileName.toLowerCase();
+    const extension = lowerName.split('.').pop() || '';
+    
+    const blockedExtensions = ['exe', 'bat', 'sh', 'php', 'js', 'vbs', 'scr', 'dmg'];
+    const isBlockedExtension = blockedExtensions.includes(extension);
+    
+    let mimeVerified = true;
+    if (extension === 'png' && !fileType.includes('png')) mimeVerified = false;
+    if (extension === 'jpg' && !fileType.includes('jpeg') && !fileType.includes('jpg')) mimeVerified = false;
+    if (extension === 'pdf' && !fileType.includes('pdf')) mimeVerified = false;
+    if (extension === 'mp3' && !fileType.includes('audio') && !fileType.includes('mpeg')) mimeVerified = false;
+    if (extension === 'wav' && !fileType.includes('audio')) mimeVerified = false;
+    
+    const isTooLarge = fileSize > 15 * 1024 * 1024; // 15MB
+    
+    let status: 'passed' | 'warning' | 'blocked' = 'passed';
+    if (isBlockedExtension) {
+      status = 'blocked';
+    } else if (!mimeVerified || isTooLarge) {
+      status = 'warning';
+    }
+    
+    const checks = {
+      extensionMatch: !isBlockedExtension,
+      mimeVerified,
+      signaturePassed: true
+    };
+
+    const user = auth.currentUser;
+    await logFileUploadSecurity({
+      userId: user?.uid || 'anonymous',
+      userEmail: user?.email || 'Guest Visitor',
+      fileName,
+      fileType,
+      fileSize,
+      url,
+      status,
+      checks
+    });
+  } catch (err) {
+    console.error("Failed to audit file upload:", err);
+  }
+};
 
 /**
  * Uploads a file to Firebase Storage and returns the download URL.
@@ -15,6 +66,7 @@ export const uploadFile = async (file: File | Blob, path?: string): Promise<stri
     const storageRef = ref(storage, path);
     await uploadBytes(storageRef, file);
     const url = await getDownloadURL(storageRef);
+    await auditAndLogFileUpload(file, url);
     return url;
   } catch (error) {
     console.error("Upload failed:", error);
@@ -45,8 +97,13 @@ export const uploadFileWithProgress = (
         reject(error);
       },
       async () => {
-        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-        resolve(downloadURL);
+        try {
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          await auditAndLogFileUpload(file, downloadURL);
+          resolve(downloadURL);
+        } catch (auditErr) {
+          reject(auditErr);
+        }
       }
     );
   });

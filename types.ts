@@ -96,4 +96,5 @@ export interface User {
   provider: 'google' | 'apple' | 'facebook' | 'guest' | 'email';
   emailNotifications?: boolean;
   mobiles?: string[];
+  createdAt?: string;
 }

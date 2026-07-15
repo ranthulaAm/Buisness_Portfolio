@@ -474,25 +474,117 @@ export const updateDisplayConfig = async (config: DisplayConfig) => {
 }
 
 
-export const trackPresence = async () => {
-  let visitorId = localStorage.getItem('visitor_id');
-  if (!visitorId) {
-    visitorId = 'visitor_' + Math.random().toString(36).substr(2, 9);
-    localStorage.setItem('visitor_id', visitorId);
+export const trackPresence = async (user?: any, pathName?: string) => {
+  let visitorId = '';
+  try {
+    visitorId = localStorage.getItem('visitor_id') || '';
+    if (!visitorId) {
+      visitorId = 'visitor_' + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('visitor_id', visitorId);
+    }
+  } catch (e) {
+    // Safe fallback inside sandboxed iframe where localStorage is blocked
+    const fallbackKey = '__fallback_visitor_id';
+    visitorId = (window as any)[fallbackKey] || '';
+    if (!visitorId) {
+      visitorId = 'visitor_' + Math.random().toString(36).substr(2, 9);
+      (window as any)[fallbackKey] = visitorId;
+    }
   }
   
+  let locationData = { country: 'Sri Lanka', city: 'Colombo', lat: 6.9271, lon: 79.8612 };
+  try {
+    let cachedLocation = null;
+    try {
+      cachedLocation = localStorage.getItem('visitor_location');
+    } catch (e) {
+      cachedLocation = (window as any)['__fallback_visitor_location'];
+    }
+
+    if (cachedLocation) {
+      locationData = JSON.parse(cachedLocation);
+    } else {
+      try {
+        const response = await fetch('https://ipapi.co/json/');
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.latitude && data.longitude) {
+            locationData = {
+              country: data.country_name || 'Sri Lanka',
+              city: data.city || 'Colombo',
+              lat: data.latitude,
+              lon: data.longitude
+            };
+            try {
+              localStorage.setItem('visitor_location', JSON.stringify(locationData));
+            } catch (e) {
+              (window as any)['__fallback_visitor_location'] = JSON.stringify(locationData);
+            }
+          } else {
+            throw new Error('No lat/lon');
+          }
+        } else {
+          throw new Error('Geo API failed');
+        }
+      } catch (e) {
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const tzToGeo = (timeZone: string) => {
+          const mapping: Record<string, { country: string; city: string; lat: number; lon: number }> = {
+            'America/New_York': { country: 'United States', city: 'New York', lat: 40.7128, lon: -74.0060 },
+            'America/Los_Angeles': { country: 'United States', city: 'Los Angeles', lat: 34.0522, lon: -118.2437 },
+            'America/Chicago': { country: 'United States', city: 'Chicago', lat: 41.8781, lon: -87.6298 },
+            'America/Denver': { country: 'United States', city: 'Denver', lat: 39.7392, lon: -104.9903 },
+            'America/Phoenix': { country: 'United States', city: 'Phoenix', lat: 33.4484, lon: -112.0740 },
+            'America/Anchorage': { country: 'United States', city: 'Anchorage', lat: 61.2181, lon: -149.9003 },
+            'America/Honolulu': { country: 'United States', city: 'Honolulu', lat: 21.3069, lon: -157.8583 },
+            'Europe/London': { country: 'United Kingdom', city: 'London', lat: 51.5074, lon: -0.1278 },
+            'Europe/Paris': { country: 'France', city: 'Paris', lat: 48.8566, lon: 2.3522 },
+            'Europe/Berlin': { country: 'Germany', city: 'Berlin', lat: 52.5200, lon: 13.4050 },
+            'Europe/Rome': { country: 'Italy', city: 'Rome', lat: 41.9028, lon: 12.4964 },
+            'Europe/Madrid': { country: 'Spain', city: 'Madrid', lat: 40.4168, lon: -3.7038 },
+            'Asia/Tokyo': { country: 'Japan', city: 'Tokyo', lat: 35.6762, lon: 139.6503 },
+            'Asia/Singapore': { country: 'Singapore', city: 'Singapore', lat: 1.3521, lon: 103.8198 },
+            'Asia/Colombo': { country: 'Sri Lanka', city: 'Colombo', lat: 6.9271, lon: 79.8612 },
+            'Asia/Kolkata': { country: 'India', city: 'Mumbai', lat: 19.0760, lon: 72.8777 },
+            'Asia/Hong_Kong': { country: 'Hong Kong', city: 'Hong Kong', lat: 22.3193, lon: 114.1694 },
+            'Asia/Dubai': { country: 'United Arab Emirates', city: 'Dubai', lat: 25.2048, lon: 55.2708 },
+            'Asia/Seoul': { country: 'South Korea', city: 'Seoul', lat: 37.5665, lon: 126.9780 },
+            'Australia/Sydney': { country: 'Australia', city: 'Sydney', lat: -33.8688, lon: 151.2093 },
+            'Australia/Melbourne': { country: 'Australia', city: 'Melbourne', lat: -37.8136, lon: 144.9631 },
+            'Africa/Cairo': { country: 'Egypt', city: 'Cairo', lat: 30.0444, lon: 31.2357 },
+            'Africa/Johannesburg': { country: 'South Africa', city: 'Johannesburg', lat: -26.2041, lon: 28.0473 },
+            'America/Sao_Paulo': { country: 'Brazil', city: 'São Paulo', lat: -23.5505, lon: -46.6333 },
+          };
+          if (mapping[timeZone]) return mapping[timeZone];
+          if (timeZone.startsWith('Europe/')) return { country: 'Europe', city: timeZone.split('/')[1].replace('_', ' '), lat: 48.8566, lon: 2.3522 };
+          if (timeZone.startsWith('America/')) return { country: 'United States', city: timeZone.split('/')[1].replace('_', ' '), lat: 37.0902, lon: -95.7129 };
+          if (timeZone.startsWith('Asia/')) return { country: 'Asia', city: timeZone.split('/')[1].replace('_', ' '), lat: 10.3521, lon: 100.8198 };
+          if (timeZone.startsWith('Australia/')) return { country: 'Australia', city: timeZone.split('/')[1].replace('_', ' '), lat: -25.2744, lon: 133.7751 };
+          return { country: 'Sri Lanka', city: 'Colombo', lat: 6.9271, lon: 79.8612 };
+        };
+        locationData = tzToGeo(tz);
+      }
+    }
+  } catch (err) {}
+
   try {
     await setDoc(doc(db, 'presence', visitorId), {
+      visitorId,
       lastActive: Date.now(),
-      path: window.location.pathname
+      path: pathName || window.location.hash || window.location.pathname,
+      userEmail: user?.email || 'Anonymous Guest',
+      userName: user?.name || 'Guest',
+      userId: user?.id || 'anonymous',
+      userAgent: navigator.userAgent,
+      screenResolution: `${window.screen.width}x${window.screen.height}`,
+      ...locationData
     }, { merge: true });
   } catch (e) {
-    // Silently fail if they don't have the proper rules set up for presence tracking yet
+    // Silently fail if they don't have proper rules or credentials yet
   }
 };
 
 export const listenToActiveUsers = (callback: (count: number) => void): Unsubscribe => {
-  // Listen to users active in the last 2 hours to keep the working set small
   const q = query(collection(db, 'presence'), where('lastActive', '>', Date.now() - 7200000));
   let latestDocs: any[] = [];
   
@@ -515,4 +607,54 @@ export const listenToActiveUsers = (callback: (count: number) => void): Unsubscr
     unsubscribe();
     clearInterval(interval);
   };
+};
+
+export const listenToActiveVisitors = (callback: (visitors: any[]) => void): Unsubscribe => {
+  const q = query(collection(db, 'presence'), where('lastActive', '>', Date.now() - 7200000));
+  return onSnapshot(q, (snapshot) => {
+    const visitors = snapshot.docs.map(d => d.data());
+    // filter to active in last 5 minutes or keep all and mark active
+    visitors.sort((a, b) => b.lastActive - a.lastActive);
+    callback(visitors);
+  }, (error) => {
+    console.warn("Could not listen to active visitors:", error);
+  });
+};
+
+export interface FileAuditLog {
+  id?: string;
+  userId: string;
+  userEmail: string;
+  fileName: string;
+  fileType: string;
+  fileSize: number;
+  url: string;
+  timestamp: string;
+  status: 'passed' | 'warning' | 'blocked';
+  checks: {
+    extensionMatch: boolean;
+    mimeVerified: boolean;
+    signaturePassed: boolean;
+  };
+}
+
+export const logFileUploadSecurity = async (log: Omit<FileAuditLog, 'timestamp'>) => {
+  try {
+    await addDoc(collection(db, 'security_audit_logs'), {
+      ...log,
+      timestamp: new Date().toISOString()
+    });
+  } catch (e) {
+    console.error("Error logging file upload security:", e);
+  }
+};
+
+export const listenToSecurityLogs = (callback: (logs: FileAuditLog[]) => void): Unsubscribe => {
+  const q = query(collection(db, 'security_audit_logs'), orderBy('timestamp', 'desc'));
+  return onSnapshot(q, (snapshot) => {
+    const logs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as FileAuditLog));
+    callback(logs);
+  }, (error) => {
+    console.warn("Could not listen to security logs:", error);
+  });
 };
