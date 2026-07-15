@@ -104,7 +104,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user }) => {
            </InteractiveButton>
         </div>
 
-        <div className="flex gap-8 border-b border-gray-200 dark:border-slate-700 mb-8">
+        <div className="flex flex-wrap gap-4 sm:gap-8 border-b border-gray-200 dark:border-slate-700 mb-8">
             <button 
                 onClick={() => handleTabChange('projects')}
                 className={`pb-4 px-2 font-bold uppercase tracking-widest text-xs transition-colors border-b-2 ${activeTab === 'projects' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:text-slate-100'}`}
@@ -222,7 +222,7 @@ const ProjectCard = ({ order, onRequestRevision }: { order: Order; onRequestRevi
         </div>
 
         {order.status !== OrderStatus.CANCELLED && (
-           <div className="relative flex justify-between mb-10 max-w-md mt-6">
+           <div className="relative flex justify-between mb-10 w-full max-w-md mt-6 px-2">
               <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-gray-100 dark:bg-slate-700 rounded-full" />
               <div 
                 className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-purple-500 rounded-full transition-all duration-1000" 

@@ -55,7 +55,7 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({ user }) => {
   };
 
   return (
-    <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-gray-300 dark:border-slate-600 rounded-3xl p-8 shadow-[0_8px_32px_rgba(0,0,0,0.12)] max-w-3xl mx-auto space-y-8 mt-4">
+    <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-gray-300 dark:border-slate-600 rounded-3xl p-6 md:p-8 shadow-[0_8px_32px_rgba(0,0,0,0.12)] w-full max-w-full sm:max-w-3xl mx-auto space-y-8 mt-4">
       <div className="flex items-center gap-4 border-b border-gray-200 dark:border-slate-700 pb-6 mb-6">
         <UserIcon size={24} className="text-gray-900 dark:text-slate-100" />
         <h2 className="text-2xl font-bold font-display text-gray-900 dark:text-slate-100">Client Profile</h2>

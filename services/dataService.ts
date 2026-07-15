@@ -1,6 +1,7 @@
 import { collection, doc, getDocs, updateDoc, setDoc, deleteDoc, addDoc, query, orderBy, onSnapshot, where } from 'firebase/firestore';
 import { db } from './firebase';
 import type { Unsubscribe } from 'firebase/firestore';
+import { WheelSegment } from '../types';
 
 export interface SkillItem {
   id?: string;
@@ -335,6 +336,34 @@ export const updateDiscountsConfig = async (config: { globalDiscount: number, is
   return await setDoc(ref, config, { merge: true });
 }
 
+export const getLuckyWheelConfig = async (): Promise<WheelSegment[]> => {
+  try {
+    const q = query(collection(db, 'settings'));
+    const snapshot = await getDocs(q);
+    const docItem = snapshot.docs.find(d => d.id === 'lucky_wheel');
+    if (docItem && docItem.data().segments && docItem.data().segments.length > 0) {
+      return docItem.data().segments;
+    }
+  } catch (e) {
+    console.error("Error getting lucky wheel config:", e);
+  }
+  return [
+    { id: 'd10', title: '10% OFF', promoCode: 'WHEEL10', color: '#6366f1', textColor: '#ffffff', description: 'Get a 10% discount on any design service order.', probability: 15 },
+    { id: 'frev', title: 'Free Extra Revision', promoCode: 'WHEELREV', color: '#a855f7', textColor: '#ffffff', description: 'Get an extra round of revision for your design project.', probability: 15 },
+    { id: 'd5', title: '5% OFF', promoCode: 'WHEEL5', color: '#ec4899', textColor: '#ffffff', description: 'Save 5% on your next order immediately.', probability: 15 },
+    { id: 'mock', title: 'Free 3D Mockup', promoCode: 'WHEEL3D', color: '#f43f5e', textColor: '#ffffff', description: 'Receive an additional high-quality 3D visual showcase mockup.', probability: 10 },
+    { id: 'd15', title: '15% OFF', promoCode: 'WHEEL15', color: '#ef4444', textColor: '#ffffff', description: 'Get a super 15% discount on your design service.', probability: 15 },
+    { id: 'extra', title: 'Free Priority Support', promoCode: 'WHEELVIP', color: '#f97316', textColor: '#ffffff', description: 'Your order is bumped to high-priority status.', probability: 10 },
+    { id: 'd20', title: 'MEGA 20% OFF', promoCode: 'WHEEL20', color: '#10b981', textColor: '#ffffff', description: 'Jackpot! Save a full 20% on your premium services.', probability: 10 },
+    { id: 'd8', title: '8% OFF', promoCode: 'WHEEL8', color: '#06b6d4', textColor: '#ffffff', description: 'Save 8% on your selected project today.', probability: 10 },
+  ];
+};
+
+export const updateLuckyWheelConfig = async (segments: WheelSegment[]) => {
+  const ref = doc(db, 'settings', 'lucky_wheel');
+  return await setDoc(ref, { segments }, { merge: true });
+}
+
 export interface FooterURL {
   title: string;
   url: string;
@@ -416,6 +445,8 @@ export const deleteTestimonial = async (id: string) => {
 
 export interface DisplayConfig {
   showServiceAnimations: boolean;
+  enableServiceWheel?: boolean;
+  enableDiscountWheel?: boolean;
 }
 
 export const getDisplayConfig = async (): Promise<DisplayConfig> => {
@@ -424,12 +455,17 @@ export const getDisplayConfig = async (): Promise<DisplayConfig> => {
     const snapshot = await getDocs(q);
     const docItem = snapshot.docs.find(d => d.id === 'display_config');
     if (docItem) {
-      return { showServiceAnimations: docItem.data().showServiceAnimations || false };
+      const data = docItem.data();
+      return { 
+        showServiceAnimations: data.showServiceAnimations || false,
+        enableServiceWheel: data.enableServiceWheel !== false, // default true
+        enableDiscountWheel: data.enableDiscountWheel !== false // default true
+      };
     }
   } catch (e) {
     console.error("Error getting display config:", e);
   }
-  return { showServiceAnimations: false };
+  return { showServiceAnimations: false, enableServiceWheel: true, enableDiscountWheel: true };
 }
 
 export const updateDisplayConfig = async (config: DisplayConfig) => {
@@ -451,7 +487,7 @@ export const trackPresence = async () => {
       path: window.location.pathname
     }, { merge: true });
   } catch (e) {
-    console.error("Presence error", e);
+    // Silently fail if they don't have the proper rules set up for presence tracking yet
   }
 };
 
@@ -463,6 +499,8 @@ export const listenToActiveUsers = (callback: (count: number) => void): Unsubscr
   const unsubscribe = onSnapshot(q, (snapshot) => {
     latestDocs = snapshot.docs.map(d => d.data());
     updateCount();
+  }, (error) => {
+    console.warn("Could not listen to presence:", error);
   });
   
   const updateCount = () => {

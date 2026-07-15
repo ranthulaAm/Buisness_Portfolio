@@ -216,6 +216,82 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
   const [serviceConfigs, setServiceConfigs] = useState<Record<string, any>>({});
   const [globalDiscountConfig, setGlobalDiscountConfig] = useState({ globalDiscount: 0, isActive: false });
 
+  // Lucky Option Wheel Promo states
+  const [promoCode, setPromoCode] = useState(() => sessionStorage.getItem('active_promo_code') || '');
+  const [promoDiscountApplied, setPromoDiscountApplied] = useState(() => {
+    const code = sessionStorage.getItem('active_promo_code');
+    if (code === 'WHEEL5') return 5;
+    if (code === 'WHEEL8') return 8;
+    if (code === 'WHEEL10') return 10;
+    if (code === 'WHEEL15') return 15;
+    if (code === 'WHEEL20') return 20;
+    return 0;
+  });
+  const [promoMsg, setPromoMsg] = useState(() => {
+    const code = sessionStorage.getItem('active_promo_code');
+    const label = sessionStorage.getItem('active_promo_discount');
+    return code ? `Lucky Promo: ${label || code}` : '';
+  });
+  const [promoInput, setPromoInput] = useState(() => sessionStorage.getItem('active_promo_code') || '');
+
+  useEffect(() => {
+    const code = sessionStorage.getItem('active_promo_code');
+    const label = sessionStorage.getItem('active_promo_discount');
+    if (code) {
+      setPromoCode(code);
+      setPromoInput(code);
+      let discount = 0;
+      if (code === 'WHEEL5') discount = 5;
+      else if (code === 'WHEEL8') discount = 8;
+      else if (code === 'WHEEL10') discount = 10;
+      else if (code === 'WHEEL15') discount = 15;
+      else if (code === 'WHEEL20') discount = 20;
+      setPromoDiscountApplied(discount);
+      setPromoMsg(`Lucky Promo: ${label || code}`);
+      sessionStorage.removeItem('active_promo_code');
+      sessionStorage.removeItem('active_promo_discount');
+    }
+  }, []);
+
+  const handleApplyPromo = (code: string) => {
+    const normalized = code.trim().toUpperCase();
+    if (normalized === 'WHEEL5') {
+      setPromoCode(normalized);
+      setPromoDiscountApplied(5);
+      setPromoMsg('Lucky Promo: 5% OFF Applied!');
+    } else if (normalized === 'WHEEL8') {
+      setPromoCode(normalized);
+      setPromoDiscountApplied(8);
+      setPromoMsg('Lucky Promo: 8% OFF Applied!');
+    } else if (normalized === 'WHEEL10') {
+      setPromoCode(normalized);
+      setPromoDiscountApplied(10);
+      setPromoMsg('Lucky Promo: 10% OFF Applied!');
+    } else if (normalized === 'WHEEL15') {
+      setPromoCode(normalized);
+      setPromoDiscountApplied(15);
+      setPromoMsg('Lucky Promo: 15% OFF Applied!');
+    } else if (normalized === 'WHEEL20') {
+      setPromoCode(normalized);
+      setPromoDiscountApplied(20);
+      setPromoMsg('Lucky Promo: MEGA 20% OFF Applied!');
+    } else if (normalized === 'WHEELREV') {
+      setPromoCode(normalized);
+      setPromoDiscountApplied(0);
+      setPromoMsg('Lucky Promo: Free Extra Revision Applied!');
+    } else if (normalized === 'WHEEL3D') {
+      setPromoCode(normalized);
+      setPromoDiscountApplied(0);
+      setPromoMsg('Lucky Promo: Free 3D Mockup Applied!');
+    } else if (normalized === 'WHEELVIP') {
+      setPromoCode(normalized);
+      setPromoDiscountApplied(0);
+      setPromoMsg('Lucky Promo: Free Priority Support Applied!');
+    } else {
+      alert('Invalid Promo Code');
+    }
+  };
+
   useEffect(() => {
     getServicesConfig().then(configs => {
       setServiceConfigs(configs);
@@ -420,7 +496,8 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
   }, [editOrderId]);
 
   const isPrintMode = ['s_invite', 's_banner', 's_tute', 's_letterhead', 's_book', 's_businesscard'].includes(formData.serviceType);
-  const selectedServiceTitle = services.find(s => s.id === formData.serviceType)?.title || 'New Project';
+  const selectedService = services.find(s => s.id === formData.serviceType);
+  const selectedServiceTitle = selectedService?.title || 'New Project';
 
   useEffect(() => {
     if (user) setFormData(prev => ({ ...prev, name: user.name, email: user.email }));
@@ -603,7 +680,6 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
     if (isSubmitting || !user) { if (!user) onLoginRequest(); return; }
     setIsSubmitting(true);
     try {
-      const service = services.find(s => s.id === formData.serviceType);
       const orderId = currentOrderId;
       
       // Client-side validation and sequential upload to prevent freezing
@@ -702,7 +778,7 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
       if(formData.books.some(b => b.title)) customFields['Books'] = formData.books.filter(b => b.title);
       addIf('Extra Details', formData.extraDetails);
 
-      let originalPrice = service?.price || 0;
+      let originalPrice = selectedService?.price || 0;
       let finalPrice = originalPrice;
       let discountApplied = 0;
       
@@ -715,12 +791,23 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
         finalPrice = originalPrice - (originalPrice * (discountApplied / 100));
       }
 
+      // Apply extra promo discount if any
+      if (promoDiscountApplied > 0) {
+        finalPrice = finalPrice - (finalPrice * (promoDiscountApplied / 100));
+      }
+
+      // Record promo code in customFields
+      if (promoCode) {
+        customFields['Applied Promo Code'] = promoCode;
+        customFields['Promo Details'] = promoMsg;
+      }
+
       const orderPayload = {
         clientId: user.id,
         clientName: formData.name,
         email: formData.email,
         mobile: formData.mobile,
-        serviceType: service?.title || 'Custom',
+        serviceType: selectedService?.title || 'Custom',
         serviceId: formData.serviceType,
         industry: formData.industry || 'Design',
         targetAudience: formData.audience || 'General',
@@ -737,7 +824,7 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
         createdAt: new Date().toISOString(),
         price: finalPrice,
         originalPrice: originalPrice,
-        discountApplied: discountApplied,
+        discountApplied: discountApplied + promoDiscountApplied,
         dimensions: formData.dimensions,
         customFields: customFields, 
       };
@@ -875,16 +962,16 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
                   ></textarea>
                 </div>
 
-                <div className="pt-8 border-t border-gray-100 dark:border-slate-700"><label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4 block">Can't describe it in text? Use voice:</label><div className="flex items-center gap-4"><button type="button" onClick={isRecording ? stopRecording : startRecording} className={`flex items-center gap-3 px-6 py-3 rounded-full font-bold text-xs uppercase tracking-widest transition-all ${isRecording ? 'bg-pink-500 text-white animate-pulse' : 'bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-gray-250 border border-gray-200 dark:border-slate-700 hover:bg-gray-200'}`}>{isRecording ? <><Square size={14} fill="white" /> Stop Recording</> : <><Mic size={14} /> Record Voice</>}</button>{isRecording && <span className="text-pink-500 text-xs font-bold animate-pulse">Recording...</span>}{isConverting && <span className="text-purple-500 text-xs font-bold animate-pulse">Converting to MP3...</span>}</div></div>
-                {formData.voiceClips.length > 0 && <div className="space-y-3"><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Voice Notes</label>{formData.voiceClips.map((clip, i) => (<div key={i} className="flex items-center justify-between bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 p-3 rounded-2xl relative overflow-hidden">
+                <div className="pt-8 border-t border-gray-100 dark:border-slate-700"><label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4 block">Can't describe it in text? Use voice:</label><div className="flex flex-wrap items-center gap-4"><button type="button" onClick={isRecording ? stopRecording : startRecording} className={`flex items-center gap-3 px-6 py-3 rounded-full font-bold text-xs uppercase tracking-widest transition-all ${isRecording ? 'bg-pink-500 text-white animate-pulse' : 'bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 hover:bg-gray-250 border border-gray-200 dark:border-slate-700 hover:bg-gray-200'}`}>{isRecording ? <><Square size={14} fill="white" /> Stop Recording</> : <><Mic size={14} /> Record Voice</>}</button>{isRecording && <span className="text-pink-500 text-xs font-bold animate-pulse">Recording...</span>}{isConverting && <span className="text-purple-500 text-xs font-bold animate-pulse">Converting to MP3...</span>}</div></div>
+                {formData.voiceClips.length > 0 && <div className="space-y-3"><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Voice Notes</label>{formData.voiceClips.map((clip, i) => (<div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 p-4 rounded-2xl relative overflow-hidden gap-3">
                     {uploadProgress[clip.name] !== undefined && (
                         <div className="absolute left-0 top-0 bottom-0 bg-purple-100 dark:bg-purple-900/20 transition-all duration-300 -z-0" style={{ width: `${uploadProgress[clip.name]}%` }} />
                     )}
-                    <div className="flex items-center gap-3 z-10"><Play size={14} className="text-purple-600" /><span className="text-sm font-medium text-gray-700 dark:text-slate-300">{clip.name}</span>
+                    <div className="flex items-center gap-3 z-10"><Play size={14} className="text-purple-600 shrink-0" /><span className="text-sm font-medium text-gray-700 dark:text-slate-300 truncate max-w-[150px] sm:max-w-xs">{clip.name}</span>
                     {uploadProgress[clip.name] !== undefined && (
-                        <span className="text-purple-600 font-bold text-sm">{Math.round(uploadProgress[clip.name])}%</span>
+                        <span className="text-purple-600 font-bold text-sm shrink-0">{Math.round(uploadProgress[clip.name])}%</span>
                     )}
-                    </div><div className="flex items-center gap-4 z-10"><audio src={clip.url} controls className="h-8 max-w-[150px] opacity-60" /><button type="button" disabled={isSubmitting} onClick={() => removeVoiceClip(i)} className="p-2 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors disabled:opacity-50"><Trash2 size={16} /></button></div></div>))}</div>}
+                    </div><div className="flex items-center justify-between sm:justify-end gap-4 z-10 w-full sm:w-auto"><audio src={clip.url} controls className="h-8 max-w-[200px] sm:max-w-[150px] opacity-60" /><button type="button" disabled={isSubmitting} onClick={() => removeVoiceClip(i)} className="p-2 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors disabled:opacity-50 shrink-0"><Trash2 size={16} /></button></div></div>))}</div>}
               </div>
             </div>
 
@@ -922,7 +1009,7 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
                     </div>
 
                     <div className="flex flex-wrap items-center justify-between gap-8 pt-8 border-t border-gray-100 dark:border-slate-700">
-                      <div className="flex items-center gap-10">
+                      <div className="flex flex-wrap items-center gap-6 sm:gap-10">
                         <div className="space-y-3"><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Orientation</label><div className="flex bg-white dark:bg-slate-900 rounded-xl p-1 text-gray-300 border border-gray-200 dark:border-slate-700"><button type="button" onClick={toggleOrientation} className={`p-3 rounded-lg transition-all flex items-center justify-center gap-2 ${formData.dimensions.orientation === 'portrait' ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-400 hover:text-gray-700 dark:text-slate-300'}`}><div className="w-3 h-4 border-2 border-current rounded-sm"></div></button><button type="button" onClick={toggleOrientation} className={`p-3 rounded-lg transition-all flex items-center justify-center gap-2 ${formData.dimensions.orientation === 'landscape' ? 'bg-purple-600 text-white shadow-sm' : 'text-gray-400 hover:text-gray-700 dark:text-slate-300'}`}><div className="w-4 h-3 border-2 border-current rounded-sm"></div></button></div></div>
                         <div className="space-y-3"><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Resolution (PPI)</label><select value={formData.dimensions.ppi} onChange={(e) => handleDimensionChange('ppi', e.target.value)} className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-5 py-3 text-gray-900 dark:text-slate-100 text-xs outline-none block focus:border-purple-600 cursor-pointer h-12 align-middle"><option value="72">72 (Screen / Web)</option><option value="150">150 (Digital Print)</option><option value="300">300 (Offset Print)</option></select></div>
                       </div>
@@ -961,7 +1048,90 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
                         <button type="button" disabled={isSubmitting} onClick={() => removeFile(i)} className="p-2 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors z-10 disabled:opacity-50"><Trash2 size={16} /></button>
                     </div>
                 ))}</div>}
-                <div className="bg-gray-50 dark:bg-slate-800 p-8 rounded-[2rem] border border-gray-200 dark:border-slate-700"><div className="text-purple-600 font-black text-[10px] uppercase mb-4 tracking-widest flex items-center gap-2"><ShieldCheck size={14} /> Ready to start</div><div className="grid grid-cols-2 gap-8 text-xs"><div><p className="text-gray-400 uppercase text-[9px] mb-2 font-black">Project Type</p><p className="text-gray-800 dark:text-slate-200 font-bold">{selectedServiceTitle}</p></div><div><p className="text-gray-400 uppercase text-[9px] mb-2 font-black">Color Mode</p><p className="text-gray-800 dark:text-slate-200 font-bold">{isPrintMode ? 'Print Ready (CMYK)' : 'Web (RGB)'}</p></div></div></div>
+                <div className="bg-gray-50 dark:bg-slate-800 p-8 rounded-[2rem] border border-gray-200 dark:border-slate-700">
+                  <div className="text-purple-600 font-black text-[10px] uppercase mb-4 tracking-widest flex items-center gap-2">
+                    <ShieldCheck size={14} /> Ready to start
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-xs pb-6 border-b border-gray-200 dark:border-slate-700">
+                    <div>
+                      <p className="text-gray-400 uppercase text-[9px] mb-2 font-black">Project Type</p>
+                      <p className="text-gray-800 dark:text-slate-200 font-bold text-sm">{selectedServiceTitle}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-400 uppercase text-[9px] mb-2 font-black">Color Mode</p>
+                      <p className="text-gray-800 dark:text-slate-200 font-bold text-sm">{isPrintMode ? 'Print Ready (CMYK)' : 'Web (RGB)'}</p>
+                    </div>
+                  </div>
+
+                  {/* Promo Code Input & Application */}
+                  <div className="py-6 border-b border-gray-200 dark:border-slate-700">
+                    <p className="text-gray-400 uppercase text-[9px] mb-2 font-black">Lucky Promo Code</p>
+                    <div className="flex gap-2 w-full max-w-full sm:max-w-sm">
+                      <input 
+                        type="text" 
+                        value={promoInput} 
+                        onChange={(e) => setPromoInput(e.target.value)} 
+                        placeholder="ENTER WHEEL CODE" 
+                        className="flex-1 bg-white dark:bg-slate-900 border border-zinc-300 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs font-mono font-bold uppercase tracking-wider outline-none focus:border-purple-600"
+                      />
+                      <button 
+                        type="button" 
+                        onClick={() => handleApplyPromo(promoInput)}
+                        className="px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors shadow-sm"
+                      >
+                        Apply
+                      </button>
+                    </div>
+                    {promoMsg && (
+                      <div className="mt-2 text-[10px] font-bold text-green-500 flex items-center gap-1.5 animate-pulse">
+                        <Check size={12} />
+                        <span>{promoMsg}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Pricing Breakdown */}
+                  <div className="pt-6 space-y-3">
+                    <p className="text-gray-400 uppercase text-[9px] font-black">Pricing Breakdown</p>
+                    
+                    <div className="flex justify-between items-center text-xs text-gray-500 dark:text-slate-400">
+                      <span>Base Design Price:</span>
+                      <span className="font-mono">LKR {(selectedService?.price || 0).toLocaleString()}</span>
+                    </div>
+
+                    {(serviceConfigs[formData.serviceType]?.discountPercentage || globalDiscountConfig.isActive ? (serviceConfigs[formData.serviceType]?.discountPercentage || globalDiscountConfig.globalDiscount) : 0) > 0 && (
+                      <div className="flex justify-between items-center text-xs text-rose-500">
+                        <span>Standard Discount (-{(serviceConfigs[formData.serviceType]?.discountPercentage || (globalDiscountConfig.isActive ? globalDiscountConfig.globalDiscount : 0))}%):</span>
+                        <span className="font-mono">-LKR {((selectedService?.price || 0) * ((serviceConfigs[formData.serviceType]?.discountPercentage || (globalDiscountConfig.isActive ? globalDiscountConfig.globalDiscount : 0)) / 100)).toLocaleString()}</span>
+                      </div>
+                    )}
+
+                    {promoDiscountApplied > 0 && (
+                      <div className="flex justify-between items-center text-xs text-rose-600 dark:text-rose-400 font-bold">
+                        <span>Lucky Wheel Promo (-{promoDiscountApplied}%):</span>
+                        <span className="font-mono">-LKR {(((selectedService?.price || 0) - ((selectedService?.price || 0) * ((serviceConfigs[formData.serviceType]?.discountPercentage || (globalDiscountConfig.isActive ? globalDiscountConfig.globalDiscount : 0)) / 100))) * (promoDiscountApplied / 100)).toLocaleString()}</span>
+                      </div>
+                    )}
+
+                    {promoCode && promoDiscountApplied === 0 && (
+                      <div className="flex justify-between items-center text-xs text-purple-600 dark:text-purple-400 font-bold">
+                        <span>Lucky Feature Claimed:</span>
+                        <span>{promoMsg}</span>
+                      </div>
+                    )}
+
+                    <div className="flex justify-between items-center text-sm font-bold text-gray-900 dark:text-slate-100 pt-3 border-t border-gray-200 dark:border-slate-700">
+                      <span>Estimated Order Total:</span>
+                      <span className="font-mono text-base text-purple-600 dark:text-purple-400">
+                        LKR {(
+                          ((selectedService?.price || 0) - ((selectedService?.price || 0) * ((serviceConfigs[formData.serviceType]?.discountPercentage || (globalDiscountConfig.isActive ? globalDiscountConfig.globalDiscount : 0)) / 100))) - 
+                          (((selectedService?.price || 0) - ((selectedService?.price || 0) * ((serviceConfigs[formData.serviceType]?.discountPercentage || (globalDiscountConfig.isActive ? globalDiscountConfig.globalDiscount : 0)) / 100))) * (promoDiscountApplied / 100))
+                        ).toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 

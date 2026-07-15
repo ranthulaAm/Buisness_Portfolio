@@ -3,7 +3,6 @@ import { HashRouter as Router, Routes, Route, Navigate, useLocation, useNavigate
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { AuthModal } from './components/AuthModal';
-import { ClientBackground } from './components/ClientBackground';
 import { IntroSequence } from './components/IntroSequence';
 import { AdminGuard } from './components/AdminGuard';
 import { Home } from './pages/Home';
@@ -89,8 +88,7 @@ const AppContent: React.FC = () => {
           saveUserProfile(appUser).catch(console.error);
         } else if (!firebaseUser) {
           setUser(null);
-          // Sign in anonymously to allow reading public data if Firebase rules default to auth required
-          signInAnonymously(auth).catch(console.error);
+          // Removed signInAnonymously to prevent admin-restricted-operation error
         } else {
           // Is anonymous
           setUser(null);
@@ -127,6 +125,7 @@ const AppContent: React.FC = () => {
 
   return (
     <>
+      {!isAdmin && <div className="fixed inset-0 w-full h-full -z-10 bg-gray-50 dark:bg-slate-800" />}
       {showIntro && (
         <IntroSequence 
           onComplete={handleIntroComplete} 
@@ -134,14 +133,11 @@ const AppContent: React.FC = () => {
         />
       )}
 
-      <div className={`relative min-h-screen font-sans selection:bg-accent-magenta selection:text-white flex flex-col transition-opacity duration-1000 ${showIntro ? 'opacity-0' : 'opacity-100'}`}>
+      <div className={`relative min-h-screen overflow-x-hidden font-sans selection:bg-accent-magenta selection:text-white flex flex-col transition-opacity duration-1000 ${showIntro ? 'opacity-0' : 'opacity-100'}`}>
         
         {/* Scroll restoration */}
         <ScrollToTop />
         
-        {/* Animated Client Background handles the smooth white aesthetic - Hidden on Admin */}
-        {!isAdmin && <ClientBackground />}
-
         <div className="relative z-10 flex flex-col min-h-screen">
           <Navbar 
             user={user} 

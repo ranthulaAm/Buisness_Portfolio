@@ -1,3 +1,14 @@
+export interface WheelSegment {
+  id: string;
+  title: string;
+  color: string;
+  textColor: string;
+  icon?: string;
+  promoCode?: string;
+  description?: string;
+  probability?: number;
+}
+
 export enum OrderStatus {
   PENDING = 'Pending',
   REVIEWING = 'Reviewing',

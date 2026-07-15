@@ -276,7 +276,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                </div>
              </div>
              
-             <div className="relative pl-4 md:pl-6 space-y-8 md:space-y-10 my-8 md:my-12 max-w-sm">
+             <div className="relative pl-4 md:pl-6 space-y-8 md:space-y-10 my-8 md:my-12 w-full max-w-full sm:max-w-sm">
                 <div className="absolute left-[23px] md:left-[31px] top-2 bottom-2 w-0.5 bg-zinc-300 dark:bg-slate-700"></div>
                 {STATUS_FLOW.map((s, idx) => {
                    const isCompleted = idx <= activeIndex;
@@ -355,7 +355,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                               ))}
                             </div>
                             
-                            <div className="mt-6 pt-6 border-t border-green-200/50 flex gap-4">
+                            <div className="mt-6 pt-6 border-t border-green-200/50 flex flex-col sm:flex-row gap-3 sm:gap-4">
                               <button onClick={() => window.print()} className="flex-1 flex items-center justify-center gap-2 bg-white dark:bg-slate-900 hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-800 border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-300 font-bold uppercase tracking-widest text-[10px] py-4 rounded-xl transition-colors shadow-sm">
                                  <Printer size={16} /> Print Invoice
                               </button>
@@ -508,7 +508,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                              autoFocus
                            />
                         </div>
-                        <div className="flex gap-4">
+                        <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
                            <button onClick={() => setIsRevisionMode(false)} className="flex-1 py-4 text-gray-400 font-bold uppercase text-[10px] tracking-widest hover:text-gray-900 dark:text-slate-100 transition-colors">Cancel</button>
                            <button 
                              onClick={handleSubmitRevision} 

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { getPortfolioItems, getServicesConfig, addPortfolioItem, updatePortfolioItem, deletePortfolioItem, updateServiceConfig, deleteServiceConfig, PortfolioItem, ServiceItem, updateAdminPassword, getAdminEmails, updateAdminEmails, getDiscountsConfig, updateDiscountsConfig, getDisplayConfig, updateDisplayConfig, DisplayConfig } from '../services/dataService';
+import { getPortfolioItems, getServicesConfig, addPortfolioItem, updatePortfolioItem, deletePortfolioItem, updateServiceConfig, deleteServiceConfig, PortfolioItem, ServiceItem, updateAdminPassword, getAdminEmails, updateAdminEmails, getDiscountsConfig, updateDiscountsConfig, getDisplayConfig, updateDisplayConfig, DisplayConfig, getLuckyWheelConfig, updateLuckyWheelConfig } from '../services/dataService';
 import { SERVICES as DEFAULT_SERVICES, PORTFOLIO_ITEMS as DEFAULT_PORTFOLIO } from '../constants';
 import { Save, Loader2, Plus, Trash2, Key, UserPlus, ShieldCheck, Mail, Eye, EyeOff, Tag, Edit3, Upload } from 'lucide-react';
-import { User } from '../types';
+import { User, WheelSegment } from '../types';
 import { uploadFileWithProgress } from '../services/fileUploadService';
 import { MediaRenderer } from './MediaRenderer';
 
@@ -32,6 +32,9 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
     
     // Display Config
     const [showServiceAnimations, setShowServiceAnimations] = useState(false);
+    const [enableServiceWheel, setEnableServiceWheel] = useState(true);
+    const [enableDiscountWheel, setEnableDiscountWheel] = useState(true);
+    const [luckyWheelSegments, setLuckyWheelSegments] = useState<WheelSegment[]>([]);
 
     useEffect(() => {
         loadData();
@@ -56,14 +59,12 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
                 }
             });
             setServiceConfigs(loadedConfigs);
-
             const items = await getPortfolioItems();
             if (items.length > 0) {
                 setPortfolio(items);
             } else {
                 setPortfolio(DEFAULT_PORTFOLIO.map(p => ({ ...p, id: String(p.id) })));
             }
-
             const emails = await getAdminEmails();
             setAdminEmails(emails);
             
@@ -73,6 +74,11 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
             
             const displayInfo = await getDisplayConfig();
             setShowServiceAnimations(displayInfo.showServiceAnimations);
+            setEnableServiceWheel(displayInfo.enableServiceWheel !== false);
+            setEnableDiscountWheel(displayInfo.enableDiscountWheel !== false);
+
+            const wheelConfigs = await getLuckyWheelConfig();
+            setLuckyWheelSegments(wheelConfigs);
         } catch (e) {
             console.error(e);
         } finally {
@@ -100,7 +106,8 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
                 await updateServiceConfig(key, payload);
             }
             await updateDiscountsConfig({ globalDiscount, isActive: isGlobalDiscountActive });
-            await updateDisplayConfig({ showServiceAnimations });
+            await updateDisplayConfig({ showServiceAnimations, enableServiceWheel, enableDiscountWheel });
+            await updateLuckyWheelConfig(luckyWheelSegments);
             alert("Services updated successfully.");
         } catch (e) {
             console.error(e);
@@ -399,19 +406,133 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
                 {/* Display Settings */}
                 <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl p-6 mb-8">
                     <h4 className="text-sm font-bold text-gray-900 dark:text-slate-100 uppercase tracking-widest mb-4">Display Configurations</h4>
-                    <div className="flex items-center gap-3 mb-2">
-                        <label className="relative inline-flex items-center cursor-pointer">
-                            <input 
-                                type="checkbox" 
-                                className="sr-only peer"
-                                checked={showServiceAnimations}
-                                onChange={(e) => setShowServiceAnimations(e.target.checked)}
-                            />
-                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-purple-600"></div>
-                        </label>
-                        <span className="text-sm font-bold text-gray-900 dark:text-slate-100">Show Abstract Animations Instead of Images</span>
+                    
+                    <div className="flex flex-col gap-5">
+                        <div>
+                            <div className="flex items-center gap-3 mb-2">
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input 
+                                        type="checkbox" 
+                                        className="sr-only peer"
+                                        checked={showServiceAnimations}
+                                        onChange={(e) => setShowServiceAnimations(e.target.checked)}
+                                    />
+                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-purple-600"></div>
+                                </label>
+                                <span className="text-sm font-bold text-gray-900 dark:text-slate-100">Show Abstract Animations Instead of Images</span>
+                            </div>
+                            <p className="text-xs text-gray-500 dark:text-slate-400">If enabled, the product images in the 'Select Mode' section on the homepage will be replaced by decorative abstract CSS animations.</p>
+                        </div>
+
+                        <div>
+                            <div className="flex items-center gap-3 mb-2">
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input 
+                                        type="checkbox" 
+                                        className="sr-only peer"
+                                        checked={enableServiceWheel}
+                                        onChange={(e) => setEnableServiceWheel(e.target.checked)}
+                                    />
+                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-purple-600"></div>
+                                </label>
+                                <span className="text-sm font-bold text-gray-900 dark:text-slate-100">Enable Service Picker Wheel</span>
+                            </div>
+                            <p className="text-xs text-gray-500 dark:text-slate-400">If disabled, the Service Picker mode on the Option Wheel will be hidden.</p>
+                        </div>
+
+                        <div>
+                            <div className="flex items-center gap-3 mb-2">
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input 
+                                        type="checkbox" 
+                                        className="sr-only peer"
+                                        checked={enableDiscountWheel}
+                                        onChange={(e) => setEnableDiscountWheel(e.target.checked)}
+                                    />
+                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-purple-600"></div>
+                                </label>
+                                <span className="text-sm font-bold text-gray-900 dark:text-slate-100">Enable Lucky Discount Wheel</span>
+                            </div>
+                            <p className="text-xs text-gray-500 dark:text-slate-400">If disabled, the Lucky Discount mode on the Option Wheel will be hidden.</p>
+                        </div>
                     </div>
-                    <p className="text-xs text-gray-500 dark:text-slate-400">If enabled, the product images in the 'Select Mode' section on the homepage will be replaced by decorative abstract CSS animations.</p>
+                </div>
+
+                <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 dark:border-slate-700 mb-8">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 mb-4 flex justify-between items-center">
+                        Lucky Discount Wheel Configuration
+                        <button onClick={handleSavePrices} disabled={loading} className="bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors disabled:opacity-50">
+                            {loading && <Loader2 size={16} className="animate-spin" />}
+                            <Save size={16} /> Save Wheel
+                        </button>
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-slate-400 mb-6">Customize the 8 options on the lucky discount wheel.</p>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        {luckyWheelSegments.map((segment, index) => (
+                            <div key={index} className="flex flex-col gap-2 p-4 border border-gray-200 dark:border-slate-700 rounded-xl bg-gray-50 dark:bg-slate-900">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <span className="font-bold text-xs uppercase text-gray-400 w-24">Segment {index + 1}</span>
+                                    <input 
+                                        type="color" 
+                                        value={segment.color}
+                                        onChange={(e) => {
+                                            const newSegments = [...luckyWheelSegments];
+                                            newSegments[index].color = e.target.value;
+                                            setLuckyWheelSegments(newSegments);
+                                        }}
+                                        className="w-8 h-8 rounded cursor-pointer"
+                                    />
+                                </div>
+                                <input
+                                    type="text"
+                                    placeholder="Title (e.g. 10% OFF)"
+                                    value={segment.title}
+                                    onChange={(e) => {
+                                        const newSegments = [...luckyWheelSegments];
+                                        newSegments[index].title = e.target.value;
+                                        setLuckyWheelSegments(newSegments);
+                                    }}
+                                    className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-purple-500 outline-none"
+                                />
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        placeholder="Promo Code"
+                                        value={segment.promoCode || ''}
+                                        onChange={(e) => {
+                                            const newSegments = [...luckyWheelSegments];
+                                            newSegments[index].promoCode = e.target.value;
+                                            setLuckyWheelSegments(newSegments);
+                                        }}
+                                        className="w-1/2 px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-purple-500 outline-none"
+                                    />
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        placeholder="Win Probability %"
+                                        value={segment.probability ?? 1}
+                                        onChange={(e) => {
+                                            const newSegments = [...luckyWheelSegments];
+                                            newSegments[index].probability = parseFloat(e.target.value) || 0;
+                                            setLuckyWheelSegments(newSegments);
+                                        }}
+                                        className="w-1/2 px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-purple-500 outline-none"
+                                    />
+                                </div>
+                                <textarea
+                                    placeholder="Description"
+                                    value={segment.description || ''}
+                                    onChange={(e) => {
+                                        const newSegments = [...luckyWheelSegments];
+                                        newSegments[index].description = e.target.value;
+                                        setLuckyWheelSegments(newSegments);
+                                    }}
+                                    rows={2}
+                                    className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm focus:ring-2 focus:ring-purple-500 outline-none resize-none"
+                                />
+                            </div>
+                        ))}
+                    </div>
                 </div>
 
                 <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 mb-6 flex justify-between items-center">

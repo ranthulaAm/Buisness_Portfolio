@@ -1050,7 +1050,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                      <X size={20} />
                   </button>
                </div>
-               <div className="p-6 overflow-y-auto">
+               <div className="p-6 overflow-auto">
                   <table className="w-full text-left border-collapse">
                      <thead>
                         <tr className="bg-gray-50/50 dark:bg-slate-800/50 border-b border-gray-200 dark:border-slate-700 text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
@@ -1096,7 +1096,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                      <X size={20} />
                   </button>
                </div>
-               <div className="p-6 overflow-y-auto">
+               <div className="p-6 overflow-auto">
                   <table className="w-full text-left border-collapse">
                      <thead>
                         <tr className="bg-gray-50/50 dark:bg-slate-800/50 border-b border-gray-200 dark:border-slate-700 text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
@@ -1150,7 +1150,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                      <X size={20} />
                   </button>
                </div>
-               <div className="p-6 overflow-y-auto">
+               <div className="p-6 overflow-auto">
                   <table className="w-full text-left border-collapse">
                      <thead>
                         <tr className="bg-gray-50/50 dark:bg-slate-800/50 border-b border-gray-200 dark:border-slate-700 text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
@@ -1261,7 +1261,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                      <X size={20} />
                   </button>
                </div>
-               <div className="p-6 overflow-y-auto">
+               <div className="p-6 overflow-auto">
                   <table className="w-full text-left border-collapse">
                      <thead>
                         <tr className="bg-gray-50/50 dark:bg-slate-800/50 border-b border-gray-200 dark:border-slate-700 text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">

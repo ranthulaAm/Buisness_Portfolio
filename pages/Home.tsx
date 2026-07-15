@@ -24,6 +24,7 @@ import { OfferBanner } from '../components/OfferBanner';
 import { listenToOrders } from '../services/storageService';
 import { Order, OrderStatus } from '../types';
 import { MediaRenderer } from '../components/MediaRenderer';
+import { OptionWheel } from '../components/OptionWheel';
 
 export function useViewportDimensions(ref: React.RefObject<HTMLElement | SVGElement>) {
   useEffect(() => {
@@ -250,6 +251,9 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
   const [portfolio, setPortfolio] = useState(DEFAULT_PORTFOLIO);
   const [loadingPortfolio, setLoadingPortfolio] = useState(true);
   const [showServiceAnimations, setShowServiceAnimations] = useState(false);
+  const [enableServiceWheel, setEnableServiceWheel] = useState(true);
+  const [enableDiscountWheel, setEnableDiscountWheel] = useState(true);
+
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const FAQS = [
@@ -300,6 +304,9 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
 
     Promise.all([getServicesConfig(), getDiscountsConfig(), getDisplayConfig()]).then(([configs, discountInfo, displayInfo]) => {
       setShowServiceAnimations(displayInfo.showServiceAnimations);
+      setEnableServiceWheel(displayInfo.enableServiceWheel !== false);
+      setEnableDiscountWheel(displayInfo.enableDiscountWheel !== false);
+
       let baseServices = [...DEFAULT_SERVICES];
       
       // Add custom ones from configs that aren't in DEFAULT_SERVICES
@@ -424,33 +431,33 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
       <section className="min-h-[90vh] flex flex-col justify-center items-center text-center px-4 md:px-12 max-w-7xl mx-auto pt-20 relative z-10">
         <div className="max-w-5xl">
             <h1 className="text-5xl sm:text-6xl md:text-8xl font-display font-bold mb-6 md:mb-8 tracking-tight md:tracking-tighter leading-tight md:leading-none animate-fade-in select-none">
-              <span className="block text-gray-900 dark:text-slate-100 mb-1 md:mb-0">Bring your ideas</span>
-              <span className="block text-gray-900 dark:text-slate-100 mb-1 md:mb-0">to life with</span>
-              <span className="block bg-clip-text text-transparent bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 animate-gradient pb-2">vivid visuals!</span>
-            </h1>
-            
-            <p className="text-sm sm:text-base md:text-2xl text-gray-500 dark:text-slate-400 max-w-2xl mx-auto mb-8 md:mb-16 font-light leading-relaxed animate-fade-in px-4" style={{ animationDelay: '0.2s' }}>
-              Immersive brand experiences crafted with precision. <br className="hidden md:block" />
-              Visual soundscapes for your digital identity.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in w-full max-w-xs sm:max-w-none mx-auto" style={{ animationDelay: '0.4s' }}>
-                <InteractiveButton onClick={() => navigate('/order')} className="w-full sm:w-auto h-14 sm:h-auto flex items-center justify-center">
-                   START PROJECT
-                </InteractiveButton>
-
-                <InteractiveButton onClick={() => navigate('/tracking')} className="w-full sm:w-auto h-14 sm:h-auto flex items-center justify-center !bg-gray-100 dark:!bg-slate-800 !text-gray-900 dark:!text-slate-100 hover:!bg-gray-200 dark:hover:!bg-slate-700">
-                   TRACK ORDER
-                </InteractiveButton>
-
-                {!user && (
-                  <InteractiveButton onClick={onLoginClick} className="w-full sm:w-auto h-14 sm:h-auto flex items-center justify-center !bg-purple-100 !text-purple-600 hover:!bg-purple-200 dark:!bg-purple-900/30 dark:!text-purple-400 dark:hover:!bg-purple-900/50">
-                     SIGN IN
+                <span className="block text-gray-900 dark:text-slate-100 mb-1 md:mb-0">Bring your ideas</span>
+                <span className="block text-gray-900 dark:text-slate-100 mb-1 md:mb-0">to life with</span>
+                <span className="block bg-clip-text text-transparent bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 animate-gradient pb-2">vivid visuals!</span>
+              </h1>
+              
+              <p className="text-sm sm:text-base md:text-2xl text-gray-500 dark:text-slate-400 max-w-2xl mx-auto mb-8 md:mb-16 font-light leading-relaxed animate-fade-in px-4" style={{ animationDelay: '0.2s' }}>
+                Immersive brand experiences crafted with precision. <br className="hidden md:block" />
+                Visual soundscapes for your digital identity.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in w-full max-w-xs sm:max-w-none mx-auto" style={{ animationDelay: '0.4s' }}>
+                  <InteractiveButton onClick={() => navigate('/order')} className="w-full sm:w-auto h-14 sm:h-auto flex items-center justify-center">
+                     START PROJECT
                   </InteractiveButton>
-                )}
-            </div>
-        </div>
-      </section>
+
+                  <InteractiveButton onClick={() => navigate('/tracking')} className="w-full sm:w-auto h-14 sm:h-auto flex items-center justify-center !bg-gray-100 dark:!bg-slate-800 !text-gray-900 dark:!text-slate-100 hover:!bg-gray-200 dark:hover:!bg-slate-700">
+                     TRACK ORDER
+                  </InteractiveButton>
+
+                  {!user && (
+                    <InteractiveButton onClick={onLoginClick} className="w-full sm:w-auto h-14 sm:h-auto flex items-center justify-center !bg-purple-100 !text-purple-600 hover:!bg-purple-200 dark:!bg-purple-900/30 dark:!text-purple-400 dark:hover:!bg-purple-900/50">
+                       SIGN IN
+                    </InteractiveButton>
+                  )}
+              </div>
+          </div>
+        </section>
 
       {/* 2. SKILLS */}
       {skills.filter(s => !s.hidden).length > 0 && (
@@ -619,6 +626,25 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
           </div>
         </div>
       </section>
+
+      {/* LUCKY WHEEL OF FORTUNE SECTION */}
+      {(enableServiceWheel || enableDiscountWheel) && (
+        <section className="py-24 relative z-10 bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-700 overflow-hidden">
+          <div className="px-6 md:px-12 max-w-7xl mx-auto flex flex-col items-center">
+            <div className="max-w-3xl text-center mb-12">
+              <h2 className="text-4xl md:text-6xl font-display font-bold tracking-tight text-gray-900 dark:text-slate-100 mb-6 uppercase">
+                The Lucky Wheel of Fortune
+              </h2>
+              <p className="text-gray-500 dark:text-slate-400 font-light text-base md:text-lg leading-relaxed">
+                Feeling lucky? Spin our dynamic option wheel to find your perfect service, or switch to <strong className="text-purple-600 font-semibold">Lucky Discount Mode</strong> to win up to <strong className="text-purple-600 font-semibold">20% OFF</strong> your project instantly! Your prize will automatically load onto your order checkout.
+              </p>
+            </div>
+            <div className="w-full max-w-4xl bg-gray-50 dark:bg-slate-800 rounded-[3rem] p-8 md:p-14 border border-gray-150 dark:border-slate-700 shadow-xl">
+              <OptionWheel />
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* 5. SERVICES SECTION */}
       <section id="services" className="py-24 relative z-10 bg-gray-50 dark:bg-slate-800 border-y border-gray-100 dark:border-slate-700">
@@ -830,7 +856,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
 
       {/* SMART LIGHTBOX MODAL - FIXED CENTER POSITIONING */}
       {selectedWork && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 animate-[fadeIn_0.3s_ease-out_forwards] overflow-y-auto overflow-x-hidden">
+        <div className="fixed inset-0 z-[100] flex items-start md:items-center justify-center p-4 md:p-8 animate-[fadeIn_0.3s_ease-out_forwards] overflow-y-auto overflow-x-hidden">
           <div className="fixed inset-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl" onClick={closeLightbox}></div>
           
           <div className="relative w-full max-w-6xl my-auto pointer-events-none">

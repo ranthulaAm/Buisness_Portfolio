@@ -11,6 +11,12 @@ service cloud.firestore {
     match /service_configs/{document} { allow read: if true; }
     match /settings/{document} { allow read: if true; }
     match /testimonials/{document} { allow read: if true; }
+    match /presence/{document} {
+      allow read, write: if true;
+    }
+    match /orders/{document} {
+      allow read, write: if true;
+    }
     match /contacts/{document} {
       allow read: if request.auth != null;
       allow create: if true;
