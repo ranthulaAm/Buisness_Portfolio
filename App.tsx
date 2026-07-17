@@ -16,7 +16,7 @@ import { SharedProjectView } from './pages/SharedProjectView';
 import { User } from './types';
 import { saveUserProfile } from './services/storageService';
 import { auth } from './services/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, getRedirectResult } from 'firebase/auth';
 import { trackPresence } from './services/dataService';
 
 // ScrollToTop component to reset scroll position on every route change
@@ -56,6 +56,20 @@ const AppContent: React.FC = () => {
          setIsAuthModalOpen(false);
      }
   }, [location.search]);
+
+  // Handle Redirect Login Result
+  useEffect(() => {
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result) {
+          console.log("Successfully logged in via redirect:", result.user.displayName);
+          closeAuthModal(); // Close modal if open
+        }
+      })
+      .catch((error) => {
+        console.error("Redirect login failed:", error.message);
+      });
+  }, []);
 
   const openAuthModal = () => {
       const params = new URLSearchParams(location.search);
