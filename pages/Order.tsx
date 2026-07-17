@@ -568,8 +568,32 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
   const selectedServiceTitle = selectedService?.title || 'New Project';
 
   useEffect(() => {
-    if (user) setFormData(prev => ({ ...prev, name: user.name, email: user.email }));
-  }, [user]);
+    if (user) {
+      setFormData(prev => ({ ...prev, name: user.name, email: user.email }));
+      if (!editOrderId && user.mobiles && user.mobiles.length > 0) {
+        const mobArray = user.mobiles;
+        const firstMob = mobArray[0] ? mobArray[0].trim() : '';
+        if (firstMob.startsWith('+94')) { setCountryCode('+94'); }
+        else if (firstMob.startsWith('+1')) { setCountryCode('+1'); }
+        else if (firstMob.startsWith('+44')) { setCountryCode('+44'); }
+        else if (firstMob.startsWith('+61')) { setCountryCode('+61'); }
+        else if (firstMob.startsWith('+91')) { setCountryCode('+91'); }
+        else if (firstMob.startsWith('+971')) { setCountryCode('+971'); }
+        else { setCountryCode(''); }
+        
+        setPhoneInput(mobArray.map(m => {
+          let num = m.trim();
+          if (num.startsWith('+94')) num = num.replace('+94', '');
+          else if (num.startsWith('+1')) num = num.replace('+1', '');
+          else if (num.startsWith('+44')) num = num.replace('+44', '');
+          else if (num.startsWith('+61')) num = num.replace('+61', '');
+          else if (num.startsWith('+91')) num = num.replace('+91', '');
+          else if (num.startsWith('+971')) num = num.replace('+971', '');
+          return num.trim();
+        }).join(', '));
+      }
+    }
+  }, [user, editOrderId]);
 
   useEffect(() => {
     if (formRef.current) {
