@@ -102,7 +102,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }
   const handleGoogleLogin = async () => {
     try {
       await signInWithRedirect(auth, googleProvider);
-      // Removed onClose as the redirect will navigate away immediately
     } catch (err: any) {
       console.error(err);
       setError('Google sign-in failed.');
@@ -112,7 +111,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }
   const handleFacebookLogin = async () => {
     try {
       await signInWithRedirect(auth, facebookProvider);
-      // Removed onClose as the redirect will navigate away immediately
     } catch (err: any) {
       console.error(err);
       setError('Facebook sign-in failed.');
