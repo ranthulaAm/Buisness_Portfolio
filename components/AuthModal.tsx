@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Mail, AlertCircle, ArrowRight, Loader, Lock, Info, Eye, EyeOff } from 'lucide-react';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithRedirect } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider, facebookProvider } from '../services/firebase';
 import { toast } from 'react-hot-toast';
 
@@ -101,19 +101,29 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }
 
   const handleGoogleLogin = async () => {
     try {
-      await signInWithRedirect(auth, googleProvider);
+      await signInWithPopup(auth, googleProvider);
+      onClose();
     } catch (err: any) {
       console.error(err);
-      setError('Google sign-in failed.');
+      if (err.code === 'auth/popup-closed-by-user') {
+        setError('Sign-in window was closed before completion. Please try again.');
+      } else {
+        setError('Google sign-in failed.');
+      }
     }
   };
 
   const handleFacebookLogin = async () => {
     try {
-      await signInWithRedirect(auth, facebookProvider);
+      await signInWithPopup(auth, facebookProvider);
+      onClose();
     } catch (err: any) {
       console.error(err);
-      setError('Facebook sign-in failed.');
+      if (err.code === 'auth/popup-closed-by-user') {
+        setError('Sign-in window was closed before completion. Please try again.');
+      } else {
+        setError('Facebook sign-in failed.');
+      }
     }
   };
 
