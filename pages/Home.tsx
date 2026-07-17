@@ -441,17 +441,17 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
                 Visual soundscapes for your digital identity.
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in w-full max-w-xs sm:max-w-none mx-auto" style={{ animationDelay: '0.4s' }}>
-                  <InteractiveButton onClick={() => navigate('/order')} className="w-full sm:w-auto h-14 sm:h-auto flex items-center justify-center">
+              <div className="flex flex-wrap gap-4 justify-center items-center animate-fade-in w-full mx-auto mt-4" style={{ animationDelay: '0.4s' }}>
+                  <InteractiveButton onClick={() => navigate('/order')} className="">
                      START PROJECT
                   </InteractiveButton>
 
-                  <InteractiveButton onClick={() => navigate('/tracking')} className="w-full sm:w-auto h-14 sm:h-auto flex items-center justify-center !bg-gray-100 dark:!bg-slate-800 !text-gray-900 dark:!text-slate-100 hover:!bg-gray-200 dark:hover:!bg-slate-700">
+                  <InteractiveButton onClick={() => navigate('/tracking')} className="!bg-gray-100 dark:!bg-slate-800 !text-gray-900 dark:!text-slate-100 hover:!bg-gray-200 dark:hover:!bg-slate-700">
                      TRACK ORDER
                   </InteractiveButton>
 
                   {!user && (
-                    <InteractiveButton onClick={onLoginClick} className="w-full sm:w-auto h-14 sm:h-auto flex items-center justify-center !bg-purple-100 !text-purple-600 hover:!bg-purple-200 dark:!bg-purple-900/30 dark:!text-purple-400 dark:hover:!bg-purple-900/50">
+                    <InteractiveButton onClick={onLoginClick} className="!bg-purple-100 !text-purple-600 hover:!bg-purple-200 dark:!bg-purple-900/30 dark:!text-purple-400 dark:hover:!bg-purple-900/50">
                        SIGN IN
                     </InteractiveButton>
                   )}
