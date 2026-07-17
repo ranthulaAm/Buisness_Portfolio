@@ -1,10 +1,11 @@
+import { toast } from "react-hot-toast";
 import React, { useState, useEffect } from 'react';
 import { getPortfolioItems, addPortfolioItem, updatePortfolioItem, deletePortfolioItem, PortfolioItem } from '../services/dataService';
 import { uploadFileWithProgress } from '../services/fileUploadService';
 import imageCompression from 'browser-image-compression';
 import { PORTFOLIO_ITEMS as DEFAULT_PORTFOLIO } from '../constants';
 import { Save, Plus, Trash2, Loader2, Upload, ArrowUp, ArrowDown, ImageIcon, Eye, EyeOff } from 'lucide-react';
-import { ConfirmModal } from './ConfirmModal';
+import { ConfirmationDialog } from './ConfirmationDialog';
 import { MediaRenderer } from './MediaRenderer';
 
 export const AdminPortfolio: React.FC = () => {
@@ -121,7 +122,7 @@ export const AdminPortfolio: React.FC = () => {
             handlePortfolioChange(index, field, url);
         } catch (e) {
             console.error(e);
-            alert("Upload failed.");
+            toast("Upload failed.");
         } finally {
             setUploadingIdx(null);
             setProgress(0);
@@ -142,10 +143,10 @@ export const AdminPortfolio: React.FC = () => {
                 newPortfolio[index].id = ref.id;
                 setPortfolio(newPortfolio);
             }
-            alert("Saved item successfully.");
+            toast("Saved item successfully.");
         } catch (e) {
             console.error(e);
-            alert("Error saving item");
+            toast("Error saving item");
         } finally {
             setLoading(false);
         }
@@ -175,7 +176,7 @@ export const AdminPortfolio: React.FC = () => {
 
     return (
         <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-6 relative">
-            <ConfirmModal 
+            <ConfirmationDialog 
                 isOpen={itemToDelete !== null}
                 title="Delete Portfolio Item"
                 message="Are you sure you want to delete this item? This action is permanent and cannot be undone."

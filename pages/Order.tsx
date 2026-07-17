@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
-import { Upload, Check, ChevronRight, Palette, Plus, X, ArrowLeft, AlertCircle, Home as HomeIcon, ShieldCheck, Mic, Square, Play, Trash2, PlusCircle, MinusCircle, Monitor, Smartphone, Printer, Layers, Move, Maximize, CreditCard, BookOpen, FileText, ImageIcon, Video, Facebook, Linkedin, Youtube, Instagram, Twitter, Loader } from 'lucide-react';
+import { Upload, Check, ChevronRight, Palette, Plus, X, ArrowLeft, ChevronLeft, AlertCircle, Home as HomeIcon, ShieldCheck, Mic, Square, Play, Trash2, PlusCircle, MinusCircle, Monitor, Smartphone, Printer, Layers, Move, Maximize, CreditCard, BookOpen, FileText, ImageIcon, Video, Facebook, Linkedin, Youtube, Instagram, Twitter, Loader } from 'lucide-react';
 import { SERVICES as DEFAULT_SERVICES } from '../constants';
 import { User } from '../types';
 import { saveOrder, updateOrder, getOrderById, generateOrderId } from '../services/storageService';
@@ -13,6 +13,7 @@ import { getServicesConfig, getDiscountsConfig } from '../services/dataService';
 import { OfferBanner } from '../components/OfferBanner';
 import imageCompression from 'browser-image-compression';
 import { convertToMp3 } from '../utils/audioConverter';
+import { toast } from 'react-hot-toast';
 
 interface OrderProps {
   user: User | null;
@@ -209,6 +210,73 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const formRef = useRef<HTMLDivElement>(null);
+  const [showBackButton, setShowBackButton] = useState(true);
+  const lastScrollY = useRef(0);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let ticking = false;
+
+    const handleScrollEvent = (currentScrollY: number) => {
+      if (currentScrollY < 20) {
+        setShowBackButton(true);
+        return;
+      }
+      
+      const diff = currentScrollY - lastScrollY.current;
+      if (diff > 8) {
+        // Scrolling down - hide back button (make it go downward)
+        setShowBackButton(false);
+      } else if (diff < -8) {
+        // Scrolling up - show back button
+        setShowBackButton(true);
+      }
+      lastScrollY.current = currentScrollY;
+    };
+
+    const handleWindowScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          handleScrollEvent(window.scrollY);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    const handleContainerScroll = () => {
+      if (!ticking && scrollContainerRef.current) {
+        window.requestAnimationFrame(() => {
+          handleScrollEvent(scrollContainerRef.current?.scrollTop || 0);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('scroll', handleWindowScroll, { passive: true });
+    
+    let container = scrollContainerRef.current;
+    if (container) {
+      container.addEventListener('scroll', handleContainerScroll, { passive: true });
+    }
+
+    const intervalId = setInterval(() => {
+      if (!container && scrollContainerRef.current) {
+        container = scrollContainerRef.current;
+        container.addEventListener('scroll', handleContainerScroll, { passive: true });
+      }
+    }, 500);
+
+    return () => {
+      window.removeEventListener('scroll', handleWindowScroll);
+      if (container) {
+        container.removeEventListener('scroll', handleContainerScroll);
+      }
+      clearInterval(intervalId);
+    };
+  }, []);
+
   const step = parseInt(searchParams.get('step') || '1', 10);
   const preSelectedServiceId = searchParams.get('service');
   const editOrderId = searchParams.get('edit');
@@ -288,7 +356,7 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
       setPromoDiscountApplied(0);
       setPromoMsg('Lucky Promo: Free Priority Support Applied!');
     } else {
-      alert('Invalid Promo Code');
+      toast.error('Invalid Promo Code');
     }
   };
 
@@ -669,7 +737,7 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
       };
       mediaRecorder.start();
       setIsRecording(true);
-    } catch (err) { alert('Microphone access denied.'); }
+    } catch (err) { toast.error('Microphone access denied.'); }
   };
 
   const stopRecording = () => { if (mediaRecorderRef.current && isRecording) { mediaRecorderRef.current.stop(); setIsRecording(false); } };
@@ -688,11 +756,11 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
       
       const uploadFilePromises = formData.files.map(async (f) => {
           if (f.size > MAX_SIZE_MB * 1024 * 1024) {
-              alert(`File ${f.name} exceeds ${MAX_SIZE_MB}MB limit.`);
+              toast.error(`File ${f.name} exceeds ${MAX_SIZE_MB}MB limit.`);
               return null;
           }
           if (BLOCKED_TYPES.includes(f.type) || f.name.match(/\.(exe|bat|sh|cmd)$/i)) {
-              alert(`File ${f.name} has an unsupported file type.`);
+              toast.error(`File ${f.name} has an unsupported file type.`);
               return null;
           }
           if (uploadedUrls[f.name]) {
@@ -832,7 +900,7 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
       if (editOrderId) {
          const updatedOrder = { ...orderPayload, id: editOrderId };
          await updateOrder(updatedOrder);
-         alert("Order updated successfully!");
+         toast.success("Order updated successfully!");
          navigate(`/tracking?id=${editOrderId}`);
       } else {
          const newOrder = { ...orderPayload, id: orderId };
@@ -840,12 +908,12 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
          await sendConfirmationEmail(newOrder);
          // Call Telegram Bot Notification
          await sendTelegramNotification(newOrder);
-         alert("Order placed successfully!");
+         toast.success("Order placed successfully!");
          navigate(`/tracking?id=${newOrder.id}`);
       }
     } catch (e: any) { 
         console.error(e);
-        alert(`Submission failed: ${e.message || "Error saving data."}`); 
+        toast.error(`Submission failed: ${e.message || "Error saving data."}`); 
     } finally { setIsSubmitting(false); }
   };
 
@@ -890,8 +958,14 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
       </Helmet>
       <OfferBanner />
       <div className="pt-24 pb-12 px-4 max-w-7xl mx-auto w-full">
-        <div className="mb-8">
-        <Link to="/" className="inline-flex items-center gap-3 text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:text-slate-100 transition-all bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 px-5 py-2.5 rounded-full shadow-sm"><HomeIcon size={18} /><span className="text-xs font-black uppercase tracking-widest">Back to Home</span></Link>
+        <div className="print:hidden">
+        <Link 
+          to="/" 
+          className="fixed z-50 inline-flex items-center gap-1.5 text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 active:scale-[0.96] bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-purple-150 dark:border-slate-800 px-4 py-2.5 md:px-5 md:py-2.5 rounded-full shadow-lg font-bold text-xs uppercase tracking-wider transition-all duration-300 ease-in-out top-[4.5rem] left-4 md:top-8 md:left-28 opacity-100 translate-y-0 scale-100"
+        >
+          <ChevronLeft size={16} strokeWidth={3} className="text-purple-600 dark:text-purple-400" />
+          <span>Back to Home</span>
+        </Link>
       </div>
       <div className="mb-10 text-center"><h1 className="text-5xl md:text-7xl font-display text-gray-900 dark:text-slate-100 mb-4 uppercase tracking-tighter leading-none">{editOrderId ? 'Edit Project' : selectedServiceTitle}</h1><p className="text-gray-500 dark:text-slate-400 font-light text-lg">{editOrderId ? 'Update your requirements' : 'Just 4 simple steps to bring your idea to life.'}</p></div>
 
@@ -905,8 +979,22 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
           ))}
         </div>
 
-        <div className="flex-1 p-8 md:p-14 relative bg-transparent overflow-y-auto">
+        <div ref={scrollContainerRef} className="flex-1 p-8 md:p-14 relative bg-transparent overflow-y-auto">
           <form onSubmit={handleSubmit} className="h-full flex flex-col">
+            
+            {/* Mobile step indicator */}
+            <div className="flex md:hidden items-center justify-between gap-1 mb-8 pb-4 border-b border-gray-150 dark:border-slate-800">
+              {[1, 2, 3, 4].map(s => (
+                <div key={s} className="flex-grow flex flex-col items-center">
+                  <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center font-black text-xs transition-all ${step === s ? 'border-purple-600 text-purple-600 bg-purple-50 dark:bg-purple-950/20' : step > s ? 'border-purple-600 bg-purple-600 text-white' : 'border-gray-200 dark:border-slate-700 text-gray-300 dark:text-slate-600'}`}>
+                    {step > s ? <Check size={14} strokeWidth={3} /> : s}
+                  </div>
+                  <span className={`text-[8px] font-black tracking-wider uppercase mt-1.5 ${step === s ? 'text-purple-600 dark:text-purple-400 font-extrabold' : 'text-gray-400 dark:text-slate-500'}`}>
+                    {s === 1 ? 'Info' : s === 2 ? 'Detail' : s === 3 ? 'Style' : 'Finish'}
+                  </span>
+                </div>
+              ))}
+            </div>
             
             {/* STEP 1: BASIC INFO */}
             <div className={getStepClasses(1)}>
@@ -1135,8 +1223,17 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
               </div>
             </div>
 
-            <div className="mt-auto flex justify-between items-center pt-10 border-t border-gray-100 dark:border-slate-700 sticky bottom-0 bg-transparent pb-4">
-               {step > 1 ? <button type="button" onClick={() => changeStep(step - 1)} className="text-gray-400 hover:text-gray-900 dark:text-slate-100 uppercase text-[10px] font-black tracking-widest flex items-center gap-3"><ArrowLeft size={16} /> Go Back</button> : <div />}
+            <div className="mt-auto flex justify-end items-center gap-4 pt-10 border-t border-gray-100 dark:border-slate-700 sticky bottom-0 bg-transparent pb-4">
+               {step > 1 && (
+                 <button 
+                   type="button" 
+                   onClick={() => changeStep(step - 1)} 
+                   className="inline-flex items-center gap-1.5 text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 active:scale-[0.96] bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 px-5 py-3 rounded-full shadow-sm hover:shadow font-bold text-xs uppercase tracking-widest transition-all duration-300 ease-in-out"
+                 >
+                   <ChevronLeft size={18} strokeWidth={3} className="text-purple-600 dark:text-purple-400" />
+                   <span>Go Back</span>
+                 </button>
+               )}
                {step < 4 ? <button type="button" onClick={handleNextStep} className="bg-purple-600 text-white px-12 py-5 rounded-full font-black text-[10px] uppercase tracking-widest hover:bg-purple-700 transition-all shadow-md">Continue</button> :
                 <div className="flex items-center gap-4">
                   {isSubmitting && (formData.files.length > 0 || formData.voiceClips.length > 0) && (

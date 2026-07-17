@@ -1,7 +1,8 @@
+import { toast } from "react-hot-toast";
 import React, { useState, useEffect } from 'react';
 import { getExperience, deleteExperience, updateExperience, addExperience, ExperienceItem } from '../services/dataService';
 import { Loader2, Trash2, Briefcase, Plus, Save, Eye, EyeOff } from 'lucide-react';
-import { ConfirmModal } from './ConfirmModal';
+import { ConfirmationDialog } from './ConfirmationDialog';
 
 export const AdminExperience: React.FC = () => {
     const [experience, setExperience] = useState<ExperienceItem[]>([]);
@@ -47,10 +48,10 @@ export const AdminExperience: React.FC = () => {
                 newArr[index].id = ref.id;
                 setExperience(newArr);
             }
-            alert("Saved experience!");
+            toast("Saved experience!");
         } catch (e) {
             console.error(e);
-            alert("Save failed");
+            toast("Save failed");
         }
     };
 
@@ -71,7 +72,7 @@ export const AdminExperience: React.FC = () => {
 
     return (
         <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-6 max-w-4xl mx-auto relative">
-            <ConfirmModal 
+            <ConfirmationDialog 
                 isOpen={itemToDelete !== null}
                 title="Delete Experience Entry"
                 message="Are you sure you want to delete this? This action is permanent."

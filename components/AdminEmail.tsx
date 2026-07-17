@@ -1,3 +1,4 @@
+import { toast } from "react-hot-toast";
 import React, { useState, useEffect } from 'react';
 import { getEmailConfig, updateEmailConfig, EmailConfig } from '../services/dataService';
 import { Save, Loader2, Mail } from 'lucide-react';
@@ -21,10 +22,10 @@ export const AdminEmail: React.FC = () => {
         setLoading(true);
         try {
             await updateEmailConfig(config);
-            alert("Email template updated successfully.");
+            toast("Email template updated successfully.");
         } catch (e) {
             console.error(e);
-            alert("Error updating email template");
+            toast("Error updating email template");
         } finally {
             setLoading(false);
         }

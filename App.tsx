@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { AuthModal } from './components/AuthModal';
+import { ConfirmationDialog } from './components/ConfirmationDialog';
 import { IntroSequence } from './components/IntroSequence';
 import { AdminGuard } from './components/AdminGuard';
 import { Home } from './pages/Home';
@@ -35,6 +37,7 @@ const AppContent: React.FC = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   
   // Track Presence
   useEffect(() => {
@@ -110,9 +113,14 @@ const AppContent: React.FC = () => {
   // Determine if it's admin route
   const isAdmin = location.pathname.startsWith('/admin');
 
+  const confirmLogout = () => {
+    setIsLogoutModalOpen(true);
+  };
+
   const handleLogout = async () => {
     try {
       await auth.signOut();
+      setIsLogoutModalOpen(false);
       navigate('/');
     } catch (error) {
       console.error("Logout failed", error);
@@ -126,6 +134,7 @@ const AppContent: React.FC = () => {
 
   return (
     <>
+      <Toaster position="top-center" reverseOrder={false} />
       {!isAdmin && <div className="fixed inset-0 w-full h-full -z-10 bg-gray-50 dark:bg-slate-800" />}
       {showIntro && (
         <IntroSequence 
@@ -143,7 +152,7 @@ const AppContent: React.FC = () => {
           <Navbar 
             user={user} 
             onLoginClick={openAuthModal} 
-            onLogout={handleLogout} 
+            onLogout={confirmLogout} 
           />
           
           <main className="flex-grow">
@@ -184,6 +193,17 @@ const AppContent: React.FC = () => {
           isOpen={isAuthModalOpen} 
           onClose={closeAuthModal} 
           onLogin={() => {}} // No longer needed as AuthModal handles logic
+        />
+        
+        <ConfirmationDialog
+          isOpen={isLogoutModalOpen}
+          title="Sign Out"
+          message="Are you sure you want to sign out?"
+          confirmText="Yes, Sign Out"
+          cancelText="No, Stay"
+          onConfirm={handleLogout}
+          onCancel={() => setIsLogoutModalOpen(false)}
+          type="warning"
         />
       </div>
     </>

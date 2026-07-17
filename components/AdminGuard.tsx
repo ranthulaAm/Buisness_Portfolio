@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Lock, ArrowLeft, ShieldAlert, LogOut, Loader2, Key } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Lock, ArrowLeft, ShieldAlert, LogOut, Loader2, Key, ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getAdminPassword, getAdminEmails } from '../services/dataService';
 import { auth } from '../services/firebase';
@@ -16,7 +16,45 @@ export const AdminGuard: React.FC<AdminGuardProps> = ({ children, user }) => {
   const [allowedEmails, setAllowedEmails] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [verifyingPassword, setVerifyingPassword] = useState(false);
+  const [showBackButton, setShowBackButton] = useState(true);
+  const lastScrollY = useRef(0);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    let ticking = false;
+
+    const handleScrollEvent = (currentScrollY: number) => {
+      if (currentScrollY < 20) {
+        setShowBackButton(true);
+        return;
+      }
+      
+      const diff = currentScrollY - lastScrollY.current;
+      if (diff > 8) {
+        // Scrolling down - hide back button (make it go downward)
+        setShowBackButton(false);
+      } else if (diff < -8) {
+        // Scrolling up - show back button
+        setShowBackButton(true);
+      }
+      lastScrollY.current = currentScrollY;
+    };
+
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          handleScrollEvent(window.scrollY);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   useEffect(() => {
     // Check session persistence for password gate
@@ -87,10 +125,11 @@ export const AdminGuard: React.FC<AdminGuardProps> = ({ children, user }) => {
           <button 
             type="button"
             onClick={handleBack}
-            className="absolute top-6 left-6 text-gray-400 hover:text-gray-700 dark:text-slate-300 transition-colors p-2.5 rounded-full hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-800 border border-transparent hover:border-gray-200 dark:border-slate-700"
+            className="absolute top-6 left-6 inline-flex items-center gap-1 text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 active:scale-[0.96] bg-purple-50 dark:bg-slate-800 border border-purple-200 dark:border-slate-700 px-3.5 py-1.5 rounded-full shadow-sm font-bold text-[10px] uppercase tracking-wider transition-all duration-300 ease-in-out"
             title="Back to Home"
           >
-            <ArrowLeft size={18} />
+            <ChevronLeft size={16} strokeWidth={3} />
+            <span>Back</span>
           </button>
 
           <div className="mx-auto bg-purple-50 border border-purple-100 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 text-purple-600 shadow-sm">
@@ -169,10 +208,11 @@ export const AdminGuard: React.FC<AdminGuardProps> = ({ children, user }) => {
           <button 
             type="button"
             onClick={handleBack}
-            className="absolute top-6 left-6 text-gray-400 hover:text-gray-700 dark:text-slate-300 transition-colors p-2.5 rounded-full hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-800 border border-transparent hover:border-gray-200 dark:border-slate-700"
+            className="absolute top-6 left-6 inline-flex items-center gap-1 text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 active:scale-[0.96] bg-purple-50 dark:bg-slate-800 border border-purple-200 dark:border-slate-700 px-3.5 py-1.5 rounded-full shadow-sm font-bold text-[10px] uppercase tracking-wider transition-all duration-300 ease-in-out"
             title="Back to Home"
           >
-            <ArrowLeft size={18} />
+            <ChevronLeft size={16} strokeWidth={3} />
+            <span>Back</span>
           </button>
 
           <div className="mx-auto bg-purple-50 border border-purple-100 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 text-purple-600 shadow-sm">

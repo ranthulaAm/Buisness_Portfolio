@@ -1,3 +1,4 @@
+import { toast } from "react-hot-toast";
 import React, { useState, useEffect } from 'react';
 import { getFooterConfig, updateFooterConfig, FooterConfig } from '../services/dataService';
 import { Save, Loader2, Link as LinkIcon, Plus, Trash2 } from 'lucide-react';
@@ -15,10 +16,10 @@ export const AdminFooterSettings: React.FC = () => {
         setLoading(true);
         try {
             await updateFooterConfig(config);
-            alert("Saved footer contacts and URLs!");
+            toast("Saved footer contacts and URLs!");
         } catch (e) {
             console.error(e);
-            alert("Error saving footer data");
+            toast("Error saving footer data");
         }
         setLoading(false);
     };

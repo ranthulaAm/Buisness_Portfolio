@@ -1,7 +1,8 @@
+import { toast } from "react-hot-toast";
 import React, { useState, useEffect } from 'react';
 import { SharedProject, listenToSharedProjects, createSharedProject, updateSharedProject, deleteSharedProject, uploadShareFile, SharedFile } from '../services/shareService';
 import { Plus, Trash2, Link as LinkIcon, FileText, Image as ImageIcon, Video, Loader2, Copy, Lock, Mail, Globe, Save, Eye, EyeOff } from 'lucide-react';
-import { ConfirmModal } from './ConfirmModal';
+import { ConfirmationDialog } from './ConfirmationDialog';
 import { deleteFileFromUrl } from '../services/fileUploadService';
 import imageCompression from 'browser-image-compression';
 
@@ -50,7 +51,7 @@ export const AdminShares: React.FC = () => {
       setAccessValue('');
     } catch (e) {
       console.error(e);
-      alert('Failed to create project share');
+      toast('Failed to create project share');
     }
   };
 
@@ -81,11 +82,11 @@ export const AdminShares: React.FC = () => {
     
     for (const f of filesToUpload) {
       if (f.size > MAX_SIZE_MB * 1024 * 1024) {
-        alert(`File ${f.name} exceeds ${MAX_SIZE_MB}MB limit.`);
+        toast(`File ${f.name} exceeds ${MAX_SIZE_MB}MB limit.`);
         continue;
       }
       if (BLOCKED_TYPES.includes(f.type) || f.name.match(/\.(exe|bat|sh|cmd)$/i)) {
-        alert(`File ${f.name} has an unsupported file type.`);
+        toast(`File ${f.name} has an unsupported file type.`);
         continue;
       }
       validFiles.push(f);
@@ -112,7 +113,7 @@ export const AdminShares: React.FC = () => {
           return uploadedFile;
         } catch (err) {
           console.error("Upload failed for file " + file.name, err);
-          alert(`Failed to upload ${file.name}`);
+          toast(`Failed to upload ${file.name}`);
           return null;
         } finally {
           setUploadProgress(prev => {
@@ -408,7 +409,7 @@ export const AdminShares: React.FC = () => {
       </div>
 
       {deleteConfirm && (
-        <ConfirmModal 
+        <ConfirmationDialog 
           isOpen={!!deleteConfirm}
           title="Delete Shared Project?"
           message={`Are you sure you want to delete the shared project "${deleteConfirm.clientName}"? This will permanently delete all uploaded files and break the share link.`}

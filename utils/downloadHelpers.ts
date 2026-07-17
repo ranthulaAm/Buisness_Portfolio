@@ -1,3 +1,4 @@
+import { toast } from "react-hot-toast";
 import JSZip from 'jszip';
 
 export const handleSingleDownload = async (url: string, filename: string) => {
@@ -101,6 +102,6 @@ export const handleBulkDownload = async (
     window.URL.revokeObjectURL(objectUrl);
   } catch (error) {
     console.error('Error downloading files:', error);
-    alert('There was an error downloading the files. Try disabling adblock or downloading individually.');
+    toast('There was an error downloading the files. Try disabling adblock or downloading individually.');
   }
 };

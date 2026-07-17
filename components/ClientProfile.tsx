@@ -1,3 +1,4 @@
+import { toast } from "react-hot-toast";
 import React, { useState, useEffect } from 'react';
 import { User } from '../types';
 import { saveUserProfile } from '../services/storageService';
@@ -35,7 +36,7 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({ user }) => {
       setAvatar(url);
     } catch (e) {
       console.error(e);
-      alert('Failed to upload avatar.');
+      toast('Failed to upload avatar.');
     } finally {
       setUploading(false);
     }
@@ -54,10 +55,10 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({ user }) => {
         mobiles: mobiles.split(',').map(m => m.trim()).filter(Boolean),
         emailNotifications
       });
-      alert('Profile updated successfully!');
+      toast('Profile updated successfully!');
     } catch (e) {
       console.error(e);
-      alert('Failed to save profile.');
+      toast('Failed to save profile.');
     } finally {
       setSaving(false);
     }

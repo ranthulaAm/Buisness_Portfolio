@@ -1,7 +1,8 @@
+import { toast } from "react-hot-toast";
 import React, { useState, useEffect } from 'react';
 import { getSkills, deleteSkill, updateSkill, addSkill, SkillItem } from '../services/dataService';
 import { Loader2, Trash2, Award, Plus, Save, Eye, EyeOff } from 'lucide-react';
-import { ConfirmModal } from './ConfirmModal';
+import { ConfirmationDialog } from './ConfirmationDialog';
 
 export const AdminSkills: React.FC = () => {
     const [skills, setSkills] = useState<SkillItem[]>([]);
@@ -47,10 +48,10 @@ export const AdminSkills: React.FC = () => {
                 newArr[index].id = ref.id;
                 setSkills(newArr);
             }
-            alert("Saved skill!");
+            toast("Saved skill!");
         } catch (e) {
             console.error(e);
-            alert("Save failed");
+            toast("Save failed");
         }
     };
 
@@ -71,7 +72,7 @@ export const AdminSkills: React.FC = () => {
 
     return (
         <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-6 max-w-4xl mx-auto relative">
-            <ConfirmModal 
+            <ConfirmationDialog 
                 isOpen={itemToDelete !== null}
                 title="Delete Skill"
                 message="Are you sure you want to delete this skill? This action is permanent."

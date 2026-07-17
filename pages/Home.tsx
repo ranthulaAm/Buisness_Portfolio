@@ -538,7 +538,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
       )}
 
       {/* 4. SELECTED WORKS */}
-      <section className="py-24">
+      <section id="portfolio" className="py-24">
         <div className="px-6 md:px-12 max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
              <h2 className="text-5xl md:text-7xl font-display tracking-tighter text-gray-900 dark:text-slate-100">Selected<br/>Works</h2>
@@ -639,7 +639,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
                 Feeling lucky? Spin our dynamic option wheel to find your perfect service, or switch to <strong className="text-purple-600 font-semibold">Lucky Discount Mode</strong> to win up to <strong className="text-purple-600 font-semibold">20% OFF</strong> your project instantly! Your prize will automatically load onto your order checkout.
               </p>
             </div>
-            <div className="w-full max-w-4xl bg-gray-50 dark:bg-slate-800 rounded-[3rem] p-8 md:p-14 border border-gray-150 dark:border-slate-700 shadow-xl">
+            <div className="w-full max-w-4xl bg-gray-50 dark:bg-slate-800 rounded-[2rem] sm:rounded-[3rem] p-4 sm:p-8 md:p-14 border border-gray-150 dark:border-slate-700 shadow-xl">
               <OptionWheel />
             </div>
           </div>
@@ -782,7 +782,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
       </section>
 
       {/* 7. CONTACT / LET'S WORK TOGETHER */}
-      <section className="py-32 bg-gray-900 text-white relative overflow-hidden">
+      <section id="contact" className="py-32 bg-gray-900 text-white relative overflow-hidden">
         {/* Subtle background decoration */}
         <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-purple-900/40 to-transparent pointer-events-none"></div>
         <div className="absolute bottom-0 left-0 w-1/2 h-1/2 bg-gradient-to-t from-blue-900/30 to-transparent pointer-events-none"></div>

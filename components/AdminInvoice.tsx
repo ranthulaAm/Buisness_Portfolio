@@ -1,3 +1,4 @@
+import { toast } from "react-hot-toast";
 import React, { useState, useEffect, useRef } from 'react';
 import { getInvoiceConfig, updateInvoiceConfig, InvoiceConfig } from '../services/dataService';
 import { uploadFileWithProgress } from '../services/fileUploadService';
@@ -37,10 +38,10 @@ export const AdminInvoice: React.FC = () => {
         setSaving(true);
         try {
             await updateInvoiceConfig(config);
-            alert("Invoice configuration saved!");
+            toast("Invoice configuration saved!");
         } catch(e) {
             console.error(e);
-            alert("Failed to save invoice configuration.");
+            toast("Failed to save invoice configuration.");
         } finally {
             setSaving(false);
         }
@@ -94,12 +95,12 @@ export const AdminInvoice: React.FC = () => {
             
             reader.onerror = (error) => {
                  console.error("Failed to read file", error);
-                 alert("Failed to read file for base64 conversion.");
+                 toast("Failed to read file for base64 conversion.");
                  setUploadingLogo(false);
             };
         } catch (error) {
             console.error("Failed to upload logo", error);
-            alert("Failed to upload logo.");
+            toast("Failed to upload logo.");
             setUploadingLogo(false);
             setLogoProgress(0);
             if (logoInputRef.current) logoInputRef.current.value = '';

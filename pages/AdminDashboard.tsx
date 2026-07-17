@@ -1,8 +1,9 @@
+import { toast } from "react-hot-toast";
 import { handleSingleDownload, handleBulkDownload } from '../utils/downloadHelpers';
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { listenToOrders, updateOrder } from '../services/storageService';
+import { listenToOrders, updateOrder, deleteOrder } from '../services/storageService';
 import { deleteFileFromUrl } from '../services/fileUploadService';
 import { sendStatusUpdateEmail, sendPromotionalEmail } from '../services/emailService';
 import { listenToContacts, ContactMessage, addTestimonial, listenToActiveUsers } from '../services/dataService';
@@ -25,7 +26,8 @@ import { AdminShares } from '../components/AdminShares';
 import { AdminClients } from '../components/AdminClients';
 import { ClientActivityChart } from '../components/ClientActivityChart';
 import { AdminSecurity } from '../components/AdminSecurity';
-import { Package, Search, MessageSquare, MessageCircle, Layout as LayoutIcon, LogOut, ChevronRight, Save, User as UserIcon, X, AlertCircle, Download, Music, Copy, Check, Upload, ImageIcon, FileBox, RefreshCw, DollarSign, ChevronUp, ChevronDown, Loader2, Trash2, Bell, BarChart2, List, Settings, Briefcase, GraduationCap, Award, Mail, Plus, Star, ArrowLeft, Receipt, Shield } from 'lucide-react';
+import { ConfirmationDialog } from '../components/ConfirmationDialog';
+import { Package, Search, MessageSquare, MessageCircle, Layout as LayoutIcon, LogOut, ChevronRight, ChevronLeft, Save, User as UserIcon, X, AlertCircle, Download, Music, Copy, Check, Upload, ImageIcon, FileBox, RefreshCw, DollarSign, ChevronUp, ChevronDown, Loader2, Trash2, Bell, BarChart2, List, Settings, Briefcase, GraduationCap, Award, Mail, Plus, Star, ArrowLeft, Receipt, Shield } from 'lucide-react';
 import {
   BarChart,
   Bar,
@@ -51,7 +53,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const tabFromUrl = searchParams.get('tab');
   
-  const [activeTab, setActiveTab] = useState<'orders' | 'clients' | 'reviews' | 'charts' | 'settings' | 'portfolio' | 'skills' | 'experience' | 'education' | 'contacts' | 'testimonials' | 'invoice' | 'email'>(
+  const [activeTab, setActiveTab] = useState<'orders' | 'clients' | 'reviews' | 'charts' | 'settings' | 'portfolio' | 'skills' | 'experience' | 'education' | 'contacts' | 'testimonials' | 'invoice' | 'email' | 'security' | 'shares'>(
     (tabFromUrl as any) || 'orders'
   );
 
@@ -63,7 +65,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
     }
   }, [tabFromUrl]);
 
-  const handleTabChange = (tab: 'orders' | 'clients' | 'reviews' | 'charts' | 'settings' | 'portfolio' | 'skills' | 'experience' | 'education' | 'contacts' | 'testimonials' | 'invoice' | 'email') => {
+  const handleTabChange = (tab: 'orders' | 'clients' | 'reviews' | 'charts' | 'settings' | 'portfolio' | 'skills' | 'experience' | 'education' | 'contacts' | 'testimonials' | 'invoice' | 'email' | 'security' | 'shares') => {
     setActiveTab(tab);
     setSearchParams({ tab });
   };
@@ -71,6 +73,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [activeUsers, setActiveUsers] = useState(0);
   const [contacts, setContacts] = useState<ContactMessage[]>([]);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
   const [filterStatus, setFilterStatus] = useState<string>('All');
@@ -163,10 +166,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
            feedback: selectedOrder.feedback || '',
            order: 0
        });
-       alert("Testimonial added to public website!");
+       toast("Testimonial added to public website!");
     } catch (e) {
        console.error(e);
-       alert("Failed to add testimonial.");
+       toast("Failed to add testimonial.");
     }
   };
 
@@ -187,11 +190,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
       const BLOCKED_TYPES = ["application/x-msdownload", "application/x-sh", "application/x-bat", "application/x-executable"];
       
       if (file.size > MAX_SIZE_MB * 1024 * 1024) {
-        alert(`File ${file.name} exceeds ${MAX_SIZE_MB}MB limit.`);
+        toast(`File ${file.name} exceeds ${MAX_SIZE_MB}MB limit.`);
         return;
       }
       if (BLOCKED_TYPES.includes(file.type) || file.name.match(/\.(exe|bat|sh|cmd)$/i)) {
-        alert(`File ${file.name} has an unsupported file type.`);
+        toast(`File ${file.name} has an unsupported file type.`);
         return;
       }
 
@@ -217,7 +220,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
           }
       } catch (err) {
           console.error("Draft upload failed", err);
-          alert("Failed to upload draft.");
+          toast("Failed to upload draft.");
       } finally {
           setUploadProgress(prev => {
             const n = { ...prev };
@@ -248,11 +251,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
     
     for (const f of fileList) {
       if (f.size > MAX_SIZE_MB * 1024 * 1024) {
-        alert(`File ${f.name} exceeds ${MAX_SIZE_MB}MB limit.`);
+        toast(`File ${f.name} exceeds ${MAX_SIZE_MB}MB limit.`);
         continue;
       }
       if (BLOCKED_TYPES.includes(f.type) || f.name.match(/\.(exe|bat|sh|cmd)$/i)) {
-        alert(`File ${f.name} has an unsupported file type.`);
+        toast(`File ${f.name} has an unsupported file type.`);
         continue;
       }
       validFiles.push(f);
@@ -284,7 +287,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
           setFinalFiles(prev => [...prev, { name: f.name, type: f.type || "application/octet-stream", data: url }]);
         } catch (fileErr) {
           console.error(`Failed to upload ${f.name}`, fileErr);
-          alert(`Failed to upload ${f.name}`);
+          toast(`Failed to upload ${f.name}`);
         } finally {
           setUploadProgress(prev => {
             const n = { ...prev };
@@ -294,7 +297,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
         }
       }
     } catch (err) {
-      alert("Error processing uploads.");
+      toast("Error processing uploads.");
     }
     
     // Clear input
@@ -336,12 +339,30 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
 
   const markPaymentComplete = async () => {
       setEditStatus(OrderStatus.COMPLETED);
-      alert("Payment Marked as Completed. Please remember to 'Save Changes' to notify the client.");
+      toast("Payment Marked as Completed. Please remember to 'Save Changes' to notify the client.");
+  };
+
+  const confirmDeleteOrder = () => {
+      setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteOrder = async () => {
+      if (!selectedOrder) return;
+      try {
+          // If there are files, we might want to delete them too, but for now we just delete the order.
+          await deleteOrder(selectedOrder.id);
+          toast.success("Order deleted successfully.");
+          setIsDeleteModalOpen(false);
+          closeOrder();
+      } catch (err) {
+          console.error("Failed to delete order", err);
+          toast.error("Failed to delete order.");
+      }
   };
 
   const copyPalette = (palette: string[]) => {
     navigator.clipboard.writeText(palette.join(', '));
-    alert('Copied!');
+    toast('Copied!');
   };
 
   const exportPalette = (palette: string[]) => {
@@ -549,13 +570,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
          <div className="flex items-center gap-3">
              <span className="font-bold text-lg tracking-tight pl-2">Admin Dashboard</span>
              <span className="bg-green-100 text-green-800 text-[10px] font-bold px-2 py-0.5 rounded border border-green-200">CLOUD MODE</span>
-             <span className="flex items-center gap-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-[10px] font-bold px-2 py-0.5 rounded border border-blue-200 dark:border-blue-800 shadow-sm">
+             <button 
+               onClick={() => handleTabChange('security')}
+               className={`flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded border shadow-sm transition-all cursor-pointer hover:scale-105 active:scale-95 ${
+                 activeTab === 'security'
+                   ? 'bg-purple-600 border-purple-500 text-white ring-2 ring-purple-400/50 shadow-[0_0_12px_rgba(168,85,247,0.4)]'
+                   : 'bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-800/50 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800'
+               }`}
+               title="Open Security Map & Audits"
+             >
                <span className="relative flex h-2 w-2">
-                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                 <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                 <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${activeTab === 'security' ? 'bg-white' : 'bg-blue-400'}`}></span>
+                 <span className={`relative inline-flex rounded-full h-2 w-2 ${activeTab === 'security' ? 'bg-white' : 'bg-blue-500'}`}></span>
                </span>
                {activeUsers} ACTIVE
-             </span>
+             </button>
              {alertsCount > 0 && (
                 <div className="flex items-center gap-1.5 bg-red-100 text-red-700 px-3 py-1 rounded-full border border-red-200 text-xs font-bold animate-pulse shadow-sm cursor-pointer hover:bg-red-200 transition-colors" title="New orders or revisions need your attention" onClick={() => setFilterStatus(OrderStatus.PENDING)}>
                   <Bell size={12} className="animate-bounce" /> {alertsCount}
@@ -654,12 +683,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
             <BarChart2 size={16} /> Analytics
           </button>
           <button 
-            className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 relative ${activeTab === 'security' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:text-slate-300'}`}
-            onClick={() => handleTabChange('security' as any)}
-          >
-            <Shield size={16} className="text-purple-600 animate-pulse" /> Security Map & Audits
-          </button>
-          <button 
             className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'portfolio' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:text-slate-300'}`}
             onClick={() => handleTabChange('portfolio')}
           >
@@ -725,7 +748,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
           </button>
           <button 
             className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'shares' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:text-slate-300'}`}
-            onClick={() => handleTabChange('shares' as any)}
+            onClick={() => handleTabChange('shares')}
           >
             <FileBox size={16} /> Shared Files
           </button>
@@ -998,10 +1021,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                                          rating: o.rating
                                      });
                                      await updateOrder({...o, isFeedbackRead: true, testimonialId: ref.id}); 
-                                     alert("Testimonial added to public website!");
+                                     toast("Testimonial added to public website!");
                                  } catch (e) {
                                      console.error(e);
-                                     alert("Failed to add testimonial.");
+                                     toast("Failed to add testimonial.");
                                  }
                               }} className="flex-1 bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border border-yellow-200 text-xs uppercase tracking-widest font-black py-2.5 rounded-xl transition-all shadow-sm">Publish</button>
                               <button onClick={() => { updateOrder({...o, isFeedbackRead: true}); openOrder({...o, isFeedbackRead: true}); }} className="flex-1 bg-purple-600 text-white hover:bg-purple-700 text-xs uppercase tracking-widest font-black py-2.5 rounded-xl transition-all shadow-sm">View Details</button>
@@ -1033,9 +1056,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
           <AdminInvoice />
         ) : activeTab === 'email' ? (
           <AdminEmail />
-        ) : activeTab === 'shares' as any ? (
+        ) : activeTab === 'shares' ? (
           <AdminShares />
-        ) : activeTab === 'security' as any ? (
+        ) : activeTab === 'security' ? (
           <AdminSecurity />
         ) : null}
       </div>
@@ -1219,7 +1242,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                                              onClick={() => {
                                                 setSendingPromo(c.email);
                                                 sendPromotionalEmail(c.email, c.name, 'offer').then(() => {
-                                                   alert(`Special offer sent to ${c.name}`);
+                                                   toast(`Special offer sent to ${c.name}`);
                                                    setSendingPromo(null);
                                                 });
                                              }}
@@ -1232,7 +1255,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                                              onClick={() => {
                                                 setSendingPromo(c.email);
                                                 sendPromotionalEmail(c.email, c.name, 'feedback').then(() => {
-                                                   alert(`Feedback request sent to ${c.name}`);
+                                                   toast(`Feedback request sent to ${c.name}`);
                                                    setSendingPromo(null);
                                                 });
                                              }}
@@ -1320,7 +1343,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                   <div className="px-8 py-6 border-b border-gray-100 dark:border-slate-700 flex justify-between items-start bg-white dark:bg-slate-900 z-10 shrink-0">
                       <div className="flex items-start gap-4">
                           <button onClick={() => closeOrder(true)} className="p-1.5 mt-1 text-gray-400 hover:text-gray-900 dark:text-slate-100 bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 dark:bg-slate-800 rounded-full transition-colors hidden sm:block">
-                              <ArrowLeft size={20} />
+                              <ChevronLeft size={20} strokeWidth={3} className="text-purple-600 dark:text-purple-400" />
                           </button>
                           <div>
                               <div className="flex items-center gap-3">
@@ -1339,8 +1362,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                           </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <button onClick={() => closeOrder(true)} className="flex items-center gap-2 text-gray-600 dark:text-slate-400 font-medium hover:text-gray-900 dark:text-slate-100 bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 dark:bg-slate-800 px-3 py-1.5 rounded-full transition-colors sm:hidden">
-                            <ArrowLeft size={16} /> Back
+                        <button 
+                          onClick={() => closeOrder(true)} 
+                          className="inline-flex items-center gap-1.5 text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-all active:scale-[0.96] bg-gray-100 dark:bg-slate-800 border border-purple-200 dark:border-slate-700 px-5 py-3 rounded-full shadow-sm hover:shadow font-bold text-xs uppercase tracking-widest sm:hidden"
+                        >
+                            <ChevronLeft size={18} strokeWidth={3} className="text-purple-600 dark:text-purple-400" />
+                            <span>Back</span>
                         </button>
                         <button onClick={() => closeOrder(true)} className="text-gray-400 hover:text-gray-900 dark:text-slate-100 bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 dark:bg-slate-800 p-2 rounded-full transition-colors hidden sm:block">
                             <X size={20} />
@@ -1642,16 +1669,32 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                       </div>
                   </div>
                   
-                  <div className="px-8 py-5 border-t border-gray-100 dark:border-slate-700 bg-white dark:bg-slate-900 flex justify-end items-center gap-4 z-10 shrink-0">
-                      <button onClick={() => closeOrder()} className="px-6 py-2.5 rounded-lg text-gray-500 dark:text-slate-400 font-semibold hover:bg-gray-100 dark:hover:bg-slate-700 dark:bg-slate-800 transition-colors text-sm">Cancel</button>
-                      <button onClick={saveChanges} disabled={Object.keys(uploadProgress).length > 0} className={`px-10 py-3.5 bg-blue-600 text-white font-bold rounded-xl flex items-center gap-3 text-xs uppercase tracking-widest shadow-xl shadow-blue-600/20 transition-all ${Object.keys(uploadProgress).length > 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'}`}>
-                          {Object.keys(uploadProgress).length > 0 ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                          {Object.keys(uploadProgress).length > 0 ? 'Uploading...' : 'Save Changes'}
+                  <div className="px-8 py-5 border-t border-gray-100 dark:border-slate-700 bg-white dark:bg-slate-900 flex justify-between items-center gap-4 z-10 shrink-0">
+                      <button onClick={confirmDeleteOrder} className="px-6 py-2.5 rounded-lg text-red-500 font-semibold hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-sm flex items-center gap-2">
+                          <Trash2 size={16} /> Delete Order
                       </button>
+                      <div className="flex gap-4">
+                          <button onClick={() => closeOrder()} className="px-6 py-2.5 rounded-lg text-gray-500 dark:text-slate-400 font-semibold hover:bg-gray-100 dark:hover:bg-slate-700 dark:bg-slate-800 transition-colors text-sm">Cancel</button>
+                          <button onClick={saveChanges} disabled={Object.keys(uploadProgress).length > 0} className={`px-10 py-3.5 bg-blue-600 text-white font-bold rounded-xl flex items-center gap-3 text-xs uppercase tracking-widest shadow-xl shadow-blue-600/20 transition-all ${Object.keys(uploadProgress).length > 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'}`}>
+                              {Object.keys(uploadProgress).length > 0 ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                              {Object.keys(uploadProgress).length > 0 ? 'Uploading...' : 'Save Changes'}
+                          </button>
+                      </div>
                   </div>
               </div>
           </div>
       )}
+      
+      <ConfirmationDialog
+        isOpen={isDeleteModalOpen}
+        title="Delete Order"
+        message="Are you sure you want to delete this order? This action cannot be undone."
+        confirmText="Yes, Delete"
+        cancelText="Cancel"
+        onConfirm={handleDeleteOrder}
+        onCancel={() => setIsDeleteModalOpen(false)}
+        type="danger"
+      />
     </div>
   );
 };

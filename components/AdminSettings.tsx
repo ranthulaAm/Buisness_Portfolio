@@ -1,3 +1,4 @@
+import { toast } from "react-hot-toast";
 import React, { useState, useEffect } from 'react';
 import { getPortfolioItems, getServicesConfig, addPortfolioItem, updatePortfolioItem, deletePortfolioItem, updateServiceConfig, deleteServiceConfig, PortfolioItem, ServiceItem, updateAdminPassword, getAdminEmails, updateAdminEmails, getDiscountsConfig, updateDiscountsConfig, getDisplayConfig, updateDisplayConfig, DisplayConfig, getLuckyWheelConfig, updateLuckyWheelConfig } from '../services/dataService';
 import { SERVICES as DEFAULT_SERVICES, PORTFOLIO_ITEMS as DEFAULT_PORTFOLIO } from '../constants';
@@ -108,10 +109,10 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
             await updateDiscountsConfig({ globalDiscount, isActive: isGlobalDiscountActive });
             await updateDisplayConfig({ showServiceAnimations, enableServiceWheel, enableDiscountWheel });
             await updateLuckyWheelConfig(luckyWheelSegments);
-            alert("Services updated successfully.");
+            toast("Services updated successfully.");
         } catch (e) {
             console.error(e);
-            alert("Error updating services");
+            toast("Error updating services");
         } finally {
             setLoading(false);
         }
@@ -138,7 +139,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
             }
         } catch (error) {
             console.error("Upload error:", error);
-            alert("Failed to upload image. Please try again.");
+            toast("Failed to upload image. Please try again.");
         } finally {
             setUploadingServiceImage(false);
             setServiceImageProgress(0);
@@ -159,7 +160,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
             setServiceConfigs(newConfigs);
         } catch (e) {
             console.error(e);
-            alert("Error deleting service");
+            toast("Error deleting service");
         } finally {
             setLoading(false);
             setServiceToDelete(null);
@@ -197,10 +198,10 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
                 newPortfolio[index].id = ref.id;
                 setPortfolio(newPortfolio);
             }
-            alert("Saved item successfully.");
+            toast("Saved item successfully.");
         } catch (e) {
             console.error(e);
-            alert("Error saving item");
+            toast("Error saving item");
         } finally {
             setLoading(false);
         }
@@ -225,11 +226,11 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
         setLoading(true);
         try {
             await updateAdminPassword(newPassword);
-            alert("Admin password updated successfully.");
+            toast("Admin password updated successfully.");
             setNewPassword('');
         } catch (e) {
             console.error(e);
-            alert("Error updating password");
+            toast("Error updating password");
         } finally {
             setLoading(false);
         }
@@ -676,7 +677,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
                               const i = (document.getElementById('modal_service_image') as HTMLInputElement).value;
                               const p = Number((document.getElementById('modal_service_price') as HTMLInputElement).value);
                               const f = (document.getElementById('modal_service_features') as HTMLTextAreaElement).value;
-                              if (!t) return alert("Title required");
+                              if (!t) return toast("Title required");
                               
                               const id = editingService ? editingService.id : `s_custom_${Date.now()}`;
                               setServiceConfigs(prev => ({

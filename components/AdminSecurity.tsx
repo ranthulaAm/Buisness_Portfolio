@@ -33,6 +33,7 @@ import {
 
 export const AdminSecurity: React.FC = () => {
   const [activeVisitors, setActiveVisitors] = useState<any[]>([]);
+  const [now, setNow] = useState<number>(Date.now());
   const [securityLogs, setSecurityLogs] = useState<FileAuditLog[]>([]);
   const [selectedVisitor, setSelectedVisitor] = useState<any | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -168,6 +169,25 @@ export const AdminSecurity: React.FC = () => {
     };
   }, []);
 
+  // 4. Real-time data listener that periodically validates presence status
+  useEffect(() => {
+    const presenceTimer = setInterval(() => {
+      const currentNow = Date.now();
+      setNow(currentNow);
+      
+      // Periodically (every 10 seconds) print a validation log to the system console
+      if (Math.floor(currentNow / 1000) % 10 === 0) {
+        const stillOnline = activeVisitors.filter(v => (currentNow - v.lastActive) < 60000);
+        setSysLog(prev => [
+          `[${new Date().toLocaleTimeString()}] Checked presence: verified ${stillOnline.length} active node(s).`,
+          ...prev.slice(0, 10)
+        ]);
+      }
+    }, 1000);
+
+    return () => clearInterval(presenceTimer);
+  }, [activeVisitors]);
+
   const getCoords = (lat: number, lon: number) => {
     const minLat = 5.7;
     const maxLat = 10.0;
@@ -190,10 +210,10 @@ export const AdminSecurity: React.FC = () => {
   };
 
   const getVisitorStatus = (lastActive: number) => {
-    const elapsed = Date.now() - lastActive;
-    if (elapsed < 45000) return 'active';
-    if (elapsed < 300000) return 'idle';
-    return 'inactive';
+    const elapsed = now - lastActive;
+    if (elapsed < 30000) return 'active';
+    if (elapsed < 60000) return 'idle';
+    return 'offline';
   };
 
   const filteredLogs = securityLogs.filter(log => {
@@ -204,13 +224,15 @@ export const AdminSecurity: React.FC = () => {
     return matchesSearch && matchesFilter;
   });
 
+  const onlineVisitors = activeVisitors.filter(v => getVisitorStatus(v.lastActive) !== 'offline');
+
   const totals = {
     scanned: securityLogs.length,
     passed: securityLogs.filter(l => l.status === 'passed').length,
     warnings: securityLogs.filter(l => l.status === 'warning').length,
     blocked: securityLogs.filter(l => l.status === 'blocked').length,
-    activeCount: activeVisitors.filter(v => getVisitorStatus(v.lastActive) === 'active').length,
-    idleCount: activeVisitors.filter(v => getVisitorStatus(v.lastActive) === 'idle').length,
+    activeCount: onlineVisitors.filter(v => getVisitorStatus(v.lastActive) === 'active').length,
+    idleCount: onlineVisitors.filter(v => getVisitorStatus(v.lastActive) === 'idle').length,
   };
 
   // Sri Lanka boundary layout by latitude to render dot matrix map
@@ -437,7 +459,7 @@ export const AdminSecurity: React.FC = () => {
                 </g>
 
                 {/* Live Active Visitor Glowing Pins */}
-                {activeVisitors.map((v, index) => {
+                {onlineVisitors.map((v, index) => {
                   const { x, y } = getCoords(v.lat || 0, v.lon || 0);
                   const status = getVisitorStatus(v.lastActive);
                   const isSelected = selectedVisitor?.visitorId === v.visitorId;
@@ -535,7 +557,7 @@ export const AdminSecurity: React.FC = () => {
               <span className="text-[#d500f9] font-bold">●</span> Registered: <span className="text-slate-200">Fuchsia ★</span>
             </div>
             <div className="text-right">
-              Nodes: <span className="text-slate-200 font-bold">{activeVisitors.length}</span>
+              Nodes: <span className="text-slate-200 font-bold">{onlineVisitors.length}</span>
             </div>
           </div>
         </div>
@@ -552,14 +574,14 @@ export const AdminSecurity: React.FC = () => {
               </span>
             </div>
 
-            {activeVisitors.length === 0 ? (
+            {onlineVisitors.length === 0 ? (
               <div className="text-center py-12 text-gray-400 dark:text-slate-500 flex-1 flex flex-col items-center justify-center">
                 <Clock className="text-gray-300 mb-2 animate-pulse" size={24} />
                 <p className="text-xs">No active connections logged yet.</p>
               </div>
             ) : (
               <div className="flex-1 overflow-y-auto pr-1 space-y-3 min-h-0">
-                {activeVisitors.map((v, index) => {
+                {onlineVisitors.map((v, index) => {
                   const status = getVisitorStatus(v.lastActive);
                   const isSelected = selectedVisitor?.visitorId === v.visitorId;
 

@@ -248,7 +248,7 @@ export const OptionWheel: React.FC<OptionWheelProps> = ({ onSelectService }) => 
       <div className="relative flex flex-col lg:flex-row items-center justify-center gap-12 w-full max-w-5xl px-4 py-6">
         
         {/* The Interactive Wheel Graphic */}
-        <div className="relative w-[280px] h-[280px] sm:w-[400px] sm:h-[400px] shrink-0">
+        <div className="relative w-[230px] h-[230px] min-[360px]:w-[260px] min-[360px]:h-[260px] min-[390px]:w-[290px] min-[390px]:h-[290px] sm:w-[400px] sm:h-[400px] shrink-0">
           
           {/* Outer Ring & Glow Effects */}
           <div className="absolute inset-[-12px] bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 rounded-full blur-lg opacity-25 dark:opacity-30"></div>

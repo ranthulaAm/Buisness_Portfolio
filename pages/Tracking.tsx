@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import { toast } from "react-hot-toast";
+import React, { useState, useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
-import { Package, CheckCircle2, AlertCircle, Clock, DollarSign, Download, Home, MessageCircle, Edit2, Trash2, Eye, Copy, Loader2, Info, X, Send, ShieldAlert, Check, ImageIcon, Search, ArrowDown, Printer } from 'lucide-react';
+import { Package, CheckCircle2, AlertCircle, Clock, DollarSign, Download, Home, MessageCircle, Edit2, Trash2, Eye, Copy, Loader2, Info, X, Send, ShieldAlert, Check, ImageIcon, Search, ArrowDown, Printer, ChevronLeft } from 'lucide-react';
 import { listenToOrderById, updateOrder, cancelOrder, listenToOrdersByClientId } from '../services/storageService';
 import { getInvoiceConfig, deleteTestimonial } from '../services/dataService';
 import { downloadInvoice } from '../utils/invoiceGenerator';
 import { Order, OrderStatus, User } from '../types';
 import { handleSingleDownload, handleBulkDownload } from '../utils/downloadHelpers';
 import { PrintableInvoice } from '../components/PrintableInvoice';
-import { ConfirmModal } from '../components/ConfirmModal';
+import { ConfirmationDialog } from '../components/ConfirmationDialog';
 
 interface TrackingProps {
   user: User | null;
@@ -17,6 +18,45 @@ interface TrackingProps {
 export const Tracking: React.FC<TrackingProps> = ({ user }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const [showBackButton, setShowBackButton] = useState(true);
+  const lastScrollY = useRef(0);
+
+  useEffect(() => {
+    let ticking = false;
+
+    const handleScrollEvent = (currentScrollY: number) => {
+      if (currentScrollY < 20) {
+        setShowBackButton(true);
+        return;
+      }
+      
+      const diff = currentScrollY - lastScrollY.current;
+      if (diff > 8) {
+        // Scrolling down - hide back button (make it go downward)
+        setShowBackButton(false);
+      } else if (diff < -8) {
+        // Scrolling up - show back button
+        setShowBackButton(true);
+      }
+      lastScrollY.current = currentScrollY;
+    };
+
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          handleScrollEvent(window.scrollY);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
   const [trackingId, setTrackingId] = useState(searchParams.get('id') || '');
   const [order, setOrder] = useState<Order | null>(null);
   const [isDownloadingAll, setIsDownloadingAll] = useState(false);
@@ -88,7 +128,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
       setTimeout(() => setFeedbackSuccess(false), 5000);
     } catch (e) {
       console.error(e);
-      alert("Failed to submit feedback.");
+      toast("Failed to submit feedback.");
     } finally {
       setIsSubmittingAction(false);
     }
@@ -142,7 +182,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
   const copyToClipboard = (text: string, e: React.MouseEvent) => {
     e.stopPropagation();
     navigator.clipboard.writeText(text);
-    alert(`Order ID ${text} copied!`);
+    toast(`Order ID ${text} copied!`);
   };
 
   const onEditClick = (orderId: string, e: React.MouseEvent) => {
@@ -166,7 +206,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
       }).catch(console.error);
       closeLightbox();
     } catch (err) {
-      alert("Failed to approve draft.");
+      toast("Failed to approve draft.");
     } finally {
       setIsSubmittingAction(false);
     }
@@ -189,7 +229,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
       setRevisionNotes('');
       closeLightbox();
     } catch (err) {
-      alert("Failed to submit revision.");
+      toast("Failed to submit revision.");
     } finally {
       setIsSubmittingAction(false);
     }
@@ -201,7 +241,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
     try {
       await cancelOrder(order.id);
     } catch (err) {
-      alert("Failed to cancel order.");
+      toast("Failed to cancel order.");
     }
   };
 
@@ -244,7 +284,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
 
     return (
       <div className="min-h-screen pt-24 px-4 pb-12 max-w-7xl mx-auto print:p-0 print:pt-0 print:m-0 print:min-h-0 print:w-full relative">
-        <ConfirmModal 
+        <ConfirmationDialog 
             isOpen={showCancelConfirm}
             title="Cancel Order"
             message="Are you sure you want to cancel this order? This action cannot be undone."
@@ -257,10 +297,13 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
           <meta name="robots" content="noindex, nofollow" />
         </Helmet>
         <PrintableInvoice order={order} />
-        <div className="mb-8 print:hidden">
-          <button onClick={() => { setOrder(null); setSearchParams({}); }} className="inline-flex items-center gap-3 text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:text-slate-100 transition-all group bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 px-4 py-2 rounded-full shadow-sm">
-             <Home size={18} />
-             <span className="text-xs font-bold uppercase tracking-widest">Back to Projects</span>
+        <div className="print:hidden">
+          <button 
+            onClick={() => { setOrder(null); setSearchParams({}); }} 
+            className="fixed z-50 inline-flex items-center gap-1.5 text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 active:scale-[0.96] bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-purple-150 dark:border-slate-800 px-4 py-2.5 md:px-5 md:py-2.5 rounded-full shadow-lg font-bold text-xs uppercase tracking-wider transition-all duration-300 ease-in-out top-[4.5rem] left-4 md:top-8 md:left-28 opacity-100 translate-y-0 scale-100"
+          >
+             <ChevronLeft size={16} strokeWidth={3} className="text-purple-600 dark:text-purple-400" />
+             <span>Back to Projects</span>
           </button>
         </div>
 
@@ -558,12 +601,15 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
         <title>Project Tracking | Ranthula | Buisness portfolio</title>
         <meta name="description" content="Track your projects with Ranthul." />
       </Helmet>
-       <div className="mb-12">
-          <Link to="/" className="inline-flex items-center gap-3 text-gray-700 dark:text-slate-300 hover:text-gray-900 dark:text-slate-100 transition-all group bg-white dark:bg-slate-900 border border-zinc-300 px-5 py-2.5 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
-            <Home size={18} className="text-purple-600 animate-float" />
-            <span className="text-xs font-black uppercase tracking-widest">Back to Home</span>
-          </Link>
-       </div>
+        <div className="print:hidden">
+           <Link 
+             to="/" 
+             className="fixed z-50 inline-flex items-center gap-1.5 text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 active:scale-[0.96] bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-purple-150 dark:border-slate-800 px-4 py-2.5 md:px-5 md:py-2.5 rounded-full shadow-lg font-bold text-xs uppercase tracking-wider transition-all duration-300 ease-in-out top-[4.5rem] left-4 md:top-8 md:left-28 opacity-100 translate-y-0 scale-100"
+           >
+             <ChevronLeft size={16} strokeWidth={3} className="text-purple-600 dark:text-purple-400" />
+             <span>Back to Home</span>
+           </Link>
+        </div>
 
        <div className="mb-12 flex flex-col md:flex-row justify-between items-center gap-8">
           <div>

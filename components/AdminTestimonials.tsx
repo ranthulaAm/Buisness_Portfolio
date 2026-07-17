@@ -1,7 +1,8 @@
+import { toast } from "react-hot-toast";
 import React, { useState, useEffect } from 'react';
 import { Testimonial, getTestimonials, addTestimonial, updateTestimonial, deleteTestimonial } from '../services/dataService';
 import { Loader2, Plus, ArrowUp, ArrowDown, Trash2 } from 'lucide-react';
-import { ConfirmModal } from './ConfirmModal';
+import { ConfirmationDialog } from './ConfirmationDialog';
 
 export const AdminTestimonials: React.FC = () => {
     const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
@@ -39,10 +40,10 @@ export const AdminTestimonials: React.FC = () => {
                 updated[index].id = ref.id;
                 setTestimonials(updated);
             }
-            alert("Saved testimonial.");
+            toast("Saved testimonial.");
         } catch (e) {
             console.error(e);
-            alert("Error saving.");
+            toast("Error saving.");
         } finally {
             setLoading(false);
         }
@@ -87,7 +88,7 @@ export const AdminTestimonials: React.FC = () => {
 
     return (
         <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-6 relative">
-            <ConfirmModal 
+            <ConfirmationDialog 
                 isOpen={itemToDelete !== null}
                 title="Delete Testimonial"
                 message="Are you sure you want to delete this testimonial? This action cannot be undone."

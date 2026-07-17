@@ -36,8 +36,8 @@
               }
             },
             animation: {
-              'fade-in': 'fadeIn 1.5s ease-out forwards',
-              'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'fade-in': 'fadeIn 0.4s ease-out forwards',
+              'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
               'gradient': 'gradient 8s ease infinite',
             },
             keyframes: {
@@ -181,6 +181,17 @@
       }
       ::-webkit-scrollbar-thumb:hover {
         background: #a8a8a8;
+      }
+
+      /* Global Button Micro-interactions */
+      button {
+        transition: all 200ms ease-in-out !important;
+      }
+      button:not(:disabled):hover {
+        transform: translateY(-2px) !important;
+      }
+      button:not(:disabled):active {
+        transform: scale(0.95) !important;
       }
 
       /* Dark Mode Base */

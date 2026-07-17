@@ -1,3 +1,4 @@
+import { toast } from "react-hot-toast";
 import React, { useMemo, useState, useEffect } from 'react';
 import { Order } from '../types';
 import { User as UserIcon, Mail, Phone, Calendar, Package, Search, Edit2, Check, X, Loader2, UserCheck } from 'lucide-react';
@@ -121,7 +122,7 @@ export const AdminClients: React.FC<AdminClientsProps> = ({ orders }) => {
       setEditingEmail(null);
       setEditMobileValue('');
     } catch (e) {
-      alert("Failed to update mobile number");
+      toast("Failed to update mobile number");
     } finally {
       setIsUpdating(false);
     }

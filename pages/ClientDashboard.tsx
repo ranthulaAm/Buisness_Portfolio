@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { toast } from "react-hot-toast";
+import React, { useState, useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { User, Order, OrderStatus } from '../types';
 import { listenToOrders, updateOrder } from '../services/storageService';
 import { handleSingleDownload, handleBulkDownload } from '../utils/downloadHelpers';
-import { Package, Clock, MessageSquare, ArrowRight, User as UserIcon, Download, Loader2, Edit2, ArrowDown } from 'lucide-react';
+import { Package, Clock, MessageSquare, ArrowRight, User as UserIcon, Download, Loader2, Edit2, ArrowDown, ChevronLeft } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ClientProfile } from '../components/ClientProfile';
 import { downloadInvoice } from '../utils/invoiceGenerator';
@@ -15,6 +16,44 @@ interface ClientDashboardProps {
 export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user }) => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showBackButton, setShowBackButton] = useState(true);
+  const lastScrollY = useRef(0);
+
+  useEffect(() => {
+    let ticking = false;
+
+    const handleScrollEvent = (currentScrollY: number) => {
+      if (currentScrollY < 20) {
+        setShowBackButton(true);
+        return;
+      }
+      
+      const diff = currentScrollY - lastScrollY.current;
+      if (diff > 8) {
+        // Scrolling down - hide back button (make it go downward)
+        setShowBackButton(false);
+      } else if (diff < -8) {
+        // Scrolling up - show back button
+        setShowBackButton(true);
+      }
+      lastScrollY.current = currentScrollY;
+    };
+
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          handleScrollEvent(window.scrollY);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
   
   const [searchParams, setSearchParams] = useSearchParams();
   const tabFromUrl = searchParams.get('tab');
@@ -57,7 +96,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user }) => {
 
   const requestRevision = async (orderId: string, notes: string) => {
     if (!notes.trim()) {
-      alert("Please enter details for the revision.");
+      toast("Please enter details for the revision.");
       return;
     }
     const order = orders.find(o => o.id === orderId);
@@ -72,10 +111,10 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user }) => {
       import('../services/telegramService').then(({ sendRevisionRequestedNotification }) => {
           sendRevisionRequestedNotification(order, notes).catch(console.error);
       }).catch(console.error);
-      alert("Revision requested successfully! We will review it shortly.");
+      toast("Revision requested successfully! We will review it shortly.");
     } catch (error) {
       console.error(error);
-      alert("Failed to push revision request.");
+      toast("Failed to push revision request.");
     }
   };
 
@@ -92,9 +131,10 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user }) => {
            <div>
               <button 
                   onClick={() => navigate('/')} 
-                  className="flex items-center gap-2 text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:text-slate-100 transition-colors uppercase tracking-widest text-xs font-bold mb-6"
+                  className="fixed z-50 inline-flex items-center gap-1.5 text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 active:scale-[0.96] bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-purple-150 dark:border-slate-800 px-4 py-2.5 md:px-5 md:py-2.5 rounded-full shadow-lg font-bold text-xs uppercase tracking-wider transition-all duration-300 ease-in-out top-[4.5rem] left-4 md:top-8 md:left-28 opacity-100 translate-y-0 scale-100"
               >
-                 <ArrowRight size={14} className="rotate-180" /> Back to Home
+                 <ChevronLeft size={16} strokeWidth={3} className="text-purple-600 dark:text-purple-400" />
+                 <span>Back to Home</span>
               </button>
               <h1 className="text-5xl md:text-6xl font-display uppercase tracking-tighter text-gray-900 dark:text-slate-100 mb-4 mix-blend-difference">My Dashboard</h1>
               <p className="text-gray-500 dark:text-slate-400 text-lg font-medium">Track your projects and manage settings.</p>

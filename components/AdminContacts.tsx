@@ -1,3 +1,4 @@
+import { toast } from "react-hot-toast";
 import React, { useState, useEffect } from 'react';
 import { getContacts, deleteContact, updateContact, ContactMessage, getServicesConfig } from '../services/dataService';
 import { Loader2, Trash2, Mail, CheckCircle, PlusCircle, X, Paperclip } from 'lucide-react';
@@ -5,7 +6,7 @@ import { saveOrder, generateOrderId } from '../services/storageService';
 import { uploadFile } from '../services/fileUploadService';
 import { SERVICES } from '../constants';
 import { OrderStatus } from '../types';
-import { ConfirmModal } from './ConfirmModal';
+import { ConfirmationDialog } from './ConfirmationDialog';
 
 import { AdminFooterSettings } from './AdminFooterSettings';
 
@@ -96,11 +97,11 @@ export const AdminContacts: React.FC = () => {
         
         for (const file of files) {
             if (file.size > MAX_SIZE_MB * 1024 * 1024) {
-                alert(`File ${file.name} exceeds ${MAX_SIZE_MB}MB limit.`);
+                toast(`File ${file.name} exceeds ${MAX_SIZE_MB}MB limit.`);
                 return;
             }
             if (BLOCKED_TYPES.includes(file.type) || file.name.match(/\.(exe|bat|sh|cmd)$/i)) {
-                alert(`File ${file.name} has an unsupported file type.`);
+                toast(`File ${file.name} has an unsupported file type.`);
                 return;
             }
         }
@@ -145,11 +146,11 @@ export const AdminContacts: React.FC = () => {
                 await markAsRead(selectedContact.id, contacts.findIndex(c => c.id === selectedContact.id));
             }
 
-            alert("Order created successfully!");
+            toast("Order created successfully!");
             setOrderModalOpen(false);
         } catch (e) {
             console.error(e);
-            alert("Error creating order.");
+            toast("Error creating order.");
         } finally {
             setSubmittingOrder(false);
         }
@@ -160,7 +161,7 @@ export const AdminContacts: React.FC = () => {
             <AdminFooterSettings />
             
             <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-6 max-w-4xl mx-auto relative">
-                <ConfirmModal 
+                <ConfirmationDialog 
                 isOpen={contactToDelete !== null}
                 title="Delete Contact Message"
                 message="Are you sure you want to delete this message? This action is permanent."

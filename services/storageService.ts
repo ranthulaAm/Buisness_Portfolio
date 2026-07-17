@@ -50,6 +50,16 @@ export const cancelOrder = async (orderId: string): Promise<void> => {
   }
 };
 
+export const deleteOrder = async (orderId: string): Promise<void> => {
+  try {
+    const orderRef = doc(db, ORDERS_COLLECTION, orderId);
+    await deleteDoc(orderRef);
+  } catch (e) {
+    console.error("Error deleting order:", e);
+    throw e;
+  }
+};
+
 export const listenToOrders = (callback: (orders: Order[]) => void): Unsubscribe => {
   const q = query(collection(db, ORDERS_COLLECTION));
   return onSnapshot(q, (snapshot) => {

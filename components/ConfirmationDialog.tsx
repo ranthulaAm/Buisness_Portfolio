@@ -1,7 +1,7 @@
 import React from 'react';
 import { AlertCircle, Trash2, X } from 'lucide-react';
 
-interface ConfirmModalProps {
+interface ConfirmationDialogProps {
     isOpen: boolean;
     title: string;
     message: string;
@@ -12,18 +12,17 @@ interface ConfirmModalProps {
     type?: 'danger' | 'warning' | 'info';
 }
 
-export const ConfirmModal: React.FC<ConfirmModalProps> = ({
+export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
     isOpen,
     title,
     message,
-    confirmText = 'Confirm',
-    cancelText = 'Cancel',
+    confirmText = 'Yes',
+    cancelText = 'No',
     onConfirm,
     onCancel,
     type = 'danger'
 }) => {
     if (!isOpen) return null;
-
     return (
         <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
             <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={onCancel}></div>
