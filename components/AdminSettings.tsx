@@ -634,7 +634,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
                    <div className="space-y-4">
                        <div>
                            <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-gray-500 dark:text-slate-400">Service Title</label>
-                           <input type="text" defaultValue={editingService?.title} id="modal_service_title" className="w-full border border-gray-300 dark:border-slate-600 rounded-xl p-3 outline-none focus:border-purple-500" />
+                           <input type="text" defaultValue={editingService?.title} id="modal_service_title" className="w-full border border-gray-300 dark:border-slate-600 rounded-xl p-3 outline-none focus:border-purple-500 bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500" />
                        </div>
                        <div>
                            <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-gray-500 dark:text-slate-400">Description</label>
@@ -661,7 +661,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
                        </div>
                        <div>
                            <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-gray-500 dark:text-slate-400">Initial Price (LKR)</label>
-                           <input type="number" defaultValue={editingService?.price || 0} id="modal_service_price" className="w-full border border-gray-300 dark:border-slate-600 rounded-xl p-3 outline-none focus:border-purple-500" />
+                           <input type="number" defaultValue={editingService?.price || 0} id="modal_service_price" className="w-full border border-gray-300 dark:border-slate-600 rounded-xl p-3 outline-none focus:border-purple-500 bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500" />
                        </div>
                        <div>
                            <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-gray-500 dark:text-slate-400">Features (One per line)</label>

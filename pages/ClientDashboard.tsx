@@ -147,13 +147,13 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user }) => {
         <div className="flex flex-wrap gap-4 sm:gap-8 border-b border-gray-200 dark:border-slate-700 mb-8">
             <button 
                 onClick={() => handleTabChange('projects')}
-                className={`pb-4 px-2 font-bold uppercase tracking-widest text-xs transition-colors border-b-2 ${activeTab === 'projects' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:text-slate-100'}`}
+                className={`pb-4 px-2 font-bold uppercase tracking-widest text-xs transition-colors border-b-2 ${activeTab === 'projects' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100'}`}
             >
                 My Projects
             </button>
             <button 
                 onClick={() => handleTabChange('profile')}
-                className={`pb-4 px-2 font-bold uppercase tracking-widest text-xs transition-colors border-b-2 flex items-center gap-2 ${activeTab === 'profile' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:text-slate-100'}`}
+                className={`pb-4 px-2 font-bold uppercase tracking-widest text-xs transition-colors border-b-2 flex items-center gap-2 ${activeTab === 'profile' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100'}`}
             >
                 <UserIcon size={14} /> Profile & Settings
             </button>
@@ -168,26 +168,26 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user }) => {
                 <div className="flex-1 w-full space-y-6">
                   <div className="flex justify-between items-start">
                     <div className="space-y-3">
-                      <div className="w-24 h-6 bg-gray-200 rounded-full"></div>
-                      <div className="w-32 h-8 bg-gray-200 rounded-lg"></div>
-                      <div className="w-20 h-4 bg-gray-200 rounded"></div>
+                      <div className="w-24 h-6 bg-gray-200 dark:bg-slate-800 rounded-full"></div>
+                      <div className="w-32 h-8 bg-gray-200 dark:bg-slate-800 rounded-lg"></div>
+                      <div className="w-20 h-4 bg-gray-200 dark:bg-slate-800 rounded"></div>
                     </div>
-                    <div className="w-24 h-8 bg-gray-200 rounded-full"></div>
+                    <div className="w-24 h-8 bg-gray-200 dark:bg-slate-800 rounded-full"></div>
                   </div>
                   <div className="w-64 h-12 bg-gray-100 dark:bg-slate-800 rounded-2xl"></div>
                   <div className="flex gap-3">
-                    <div className="w-32 h-12 bg-gray-200 rounded-full"></div>
+                    <div className="w-32 h-12 bg-gray-200 dark:bg-slate-800 rounded-full"></div>
                     <div className="w-32 h-12 bg-gray-100 dark:bg-slate-800 rounded-full"></div>
                   </div>
                 </div>
-                <div className="w-full md:w-64 h-64 rounded-3xl bg-gray-200 shrink-0"></div>
+                <div className="w-full md:w-64 h-64 rounded-3xl bg-gray-200 dark:bg-slate-800 shrink-0"></div>
               </div>
             ))}
           </div>
         ) : orders.length === 0 ? (
           <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-gray-300 dark:border-slate-600 rounded-3xl p-16 text-center shadow-[0_8px_32px_rgba(0,0,0,0.12)] flex flex-col items-center">
              <div className="w-24 h-24 bg-gray-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-6">
-                <Package size={40} className="text-gray-300" />
+                <Package size={40} className="text-gray-300 dark:text-slate-600" />
              </div>
              <h3 className="text-2xl font-bold mb-3 text-gray-800 dark:text-slate-200">No Projects Yet</h3>
              <p className="text-gray-500 dark:text-slate-400 max-w-sm mb-8 text-lg">Looks like you don't have any active or past projects with us.</p>
@@ -254,7 +254,7 @@ const ProjectCard = ({ order, onRequestRevision }: { order: Order; onRequestRevi
           <div>
             <div className="text-[10px] text-purple-600 font-bold uppercase tracking-widest mb-2 bg-purple-50 dark:bg-purple-900/30 dark:text-purple-300 inline-block px-3 py-1 rounded-full">{order.serviceType}</div>
             <h3 className="text-2xl md:text-3xl font-display font-medium text-gray-900 dark:text-slate-100 mb-2 mt-1"><span className="text-gray-300 dark:text-slate-500 font-sans">#</span>{order.id.split('-')[1]}</h3>
-            <div className="text-sm text-gray-400 font-medium">{new Date(order.createdAt).toLocaleDateString()}</div>
+            <div className="text-sm text-gray-400 dark:text-slate-500 font-medium">{new Date(order.createdAt).toLocaleDateString()}</div>
           </div>
           <div className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border self-start ${isCompleted ? 'bg-green-50 text-green-600 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800' : isRevision ? 'bg-orange-50 text-orange-600 border-orange-200 animate-pulse dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800' : 'bg-purple-50 text-purple-600 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800'}`}>
             {order.status}
@@ -278,7 +278,7 @@ const ProjectCard = ({ order, onRequestRevision }: { order: Order; onRequestRevi
                         isCurrent ? 'border-purple-500 ring-4 ring-purple-100 dark:ring-purple-900' : 'border-gray-200 dark:border-slate-600'
                       }`} />
                       <span className={`absolute top-5 md:top-6 whitespace-nowrap text-[8px] md:text-[9px] uppercase tracking-widest font-bold ${
-                        isCurrent ? 'text-purple-600 dark:text-purple-400' : isPast ? 'text-gray-900 dark:text-slate-300' : 'text-gray-400'
+                        isCurrent ? 'text-purple-600 dark:text-purple-400' : isPast ? 'text-gray-900 dark:text-slate-300' : 'text-gray-400 dark:text-slate-500'
                       }`}>{step.label}</span>
                    </div>
                  );
@@ -298,7 +298,7 @@ const ProjectCard = ({ order, onRequestRevision }: { order: Order; onRequestRevi
           </InteractiveButton>
           
           {(order.status === OrderStatus.DRAFT_SENT || order.status === OrderStatus.COMPLETED) && (
-             <button onClick={() => setShowRevisionForm(!showRevisionForm)} className="border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-400 px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:border-gray-900 hover:text-gray-900 dark:text-slate-100 transition-colors flex items-center gap-2">
+             <button onClick={() => setShowRevisionForm(!showRevisionForm)} className="border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-400 px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:border-gray-900 hover:text-gray-900 dark:hover:text-slate-100 transition-colors flex items-center gap-2">
                 <MessageSquare size={14} /> Request Revision
              </button>
           )}
@@ -385,7 +385,7 @@ const ProjectCard = ({ order, onRequestRevision }: { order: Order; onRequestRevi
                <div>
                    <h4 className="font-bold text-gray-900 dark:text-slate-100 text-sm tracking-wide">Thank you for your feedback!</h4>
                    <div className="flex gap-1 text-lg my-1">
-                      {[1, 2, 3, 4, 5].map(s => <span key={s} className={s <= (order.rating || 0) ? 'text-yellow-400' : 'text-gray-300'}>★</span>)}
+                      {[1, 2, 3, 4, 5].map(s => <span key={s} className={s <= (order.rating || 0) ? 'text-yellow-400' : 'text-gray-300 dark:text-slate-600'}>★</span>)}
                    </div>
                </div>
                <div className="flex gap-2">
@@ -406,7 +406,7 @@ const ProjectCard = ({ order, onRequestRevision }: { order: Order; onRequestRevi
               className="w-full bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl p-4 text-sm text-gray-900 dark:text-slate-100 outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 min-h-[120px] mb-4 transition-all"
             />
             <div className="flex justify-end gap-3">
-               <button onClick={() => setShowRevisionForm(false)} className="text-xs text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:text-slate-100 uppercase font-bold p-3">Cancel</button>
+               <button onClick={() => setShowRevisionForm(false)} className="text-xs text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100 uppercase font-bold p-3">Cancel</button>
                <InteractiveButton 
                  onClick={() => { onRequestRevision(notes); setShowRevisionForm(false); }}
                  className="px-6 py-3"

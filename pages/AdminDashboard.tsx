@@ -802,12 +802,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                                             value={o?.status}
                                             onChange={(e) => handleQuickStatusChange(e, o)}
                                             className={`appearance-none outline-none cursor-pointer pr-8 pl-3 py-1 rounded-full text-xs font-medium border transition-colors ${
-                                                o?.status === OrderStatus.COMPLETED ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100' :
+                                                o?.status === OrderStatus.COMPLETED ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800/50 hover:bg-green-100 dark:hover:bg-green-900/50' :
                                                 o?.status === OrderStatus.REVISION ? 'bg-orange-100 text-orange-800 border-orange-200' :
-                                                o?.status === OrderStatus.IN_PROGRESS ? 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100' :
-                                                o?.status === OrderStatus.CANCELLED ? 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100' :
-                                                o?.status === OrderStatus.WAITING_PAYMENT ? 'bg-orange-50 text-orange-700 border-orange-200 hover:bg-orange-100' :
-                                                o?.status === OrderStatus.PENDING ? 'bg-red-50 text-red-700 border-red-200 ring-1 ring-red-500/20 hover:bg-red-100' :
+                                                o?.status === OrderStatus.IN_PROGRESS ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800/50 hover:bg-blue-100 dark:hover:bg-blue-900/50' :
+                                                o?.status === OrderStatus.CANCELLED ? 'bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800/50 hover:bg-red-100 dark:hover:bg-red-900/50' :
+                                                o?.status === OrderStatus.WAITING_PAYMENT ? 'bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-800/50 hover:bg-orange-100 dark:hover:bg-orange-900/50' :
+                                                o?.status === OrderStatus.PENDING ? 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800/50 ring-1 ring-red-500/20 hover:bg-red-100 dark:hover:bg-red-900/50' :
                                                 'bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 border-gray-200 dark:border-slate-700 hover:bg-gray-200'
                                             }`}
                                         >
@@ -823,7 +823,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                                 <td className="p-4 text-gray-500 dark:text-slate-400 text-xs">{o?.createdAt ? new Date(o.createdAt).toLocaleDateString() : 'N/A'}</td>
                                 <td className="p-4 text-right pr-6">
                                     <div className="flex items-center justify-end gap-2">
-                                        <button onClick={() => openOrder(o)} className="text-gray-400 hover:text-blue-600 transition-colors p-2 hover:bg-blue-50 rounded-full">
+                                        <button onClick={() => openOrder(o)} className="text-gray-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-2 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-full">
                                             <ChevronRight size={18} />
                                         </button>
                                     </div>
@@ -1026,7 +1026,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                                      console.error(e);
                                      toast("Failed to add testimonial.");
                                  }
-                              }} className="flex-1 bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border border-yellow-200 text-xs uppercase tracking-widest font-black py-2.5 rounded-xl transition-all shadow-sm">Publish</button>
+                              }} className="flex-1 bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 hover:bg-yellow-100 dark:hover:bg-yellow-900/50 border border-yellow-200 dark:border-yellow-800/50 text-xs uppercase tracking-widest font-black py-2.5 rounded-xl transition-all shadow-sm">Publish</button>
                               <button onClick={() => { updateOrder({...o, isFeedbackRead: true}); openOrder({...o, isFeedbackRead: true}); }} className="flex-1 bg-purple-600 text-white hover:bg-purple-700 text-xs uppercase tracking-widest font-black py-2.5 rounded-xl transition-all shadow-sm">View Details</button>
                           </div>
                       </div>
@@ -1440,7 +1440,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                              <h3 className="text-xs font-bold uppercase text-gray-400 tracking-wider mb-4">Final Assets</h3>
                              <label className="block w-full cursor-pointer group mb-4">
                                 <div className="w-full h-32 border-2 border-dashed border-gray-200 dark:border-slate-700 rounded-xl flex flex-col items-center justify-center gap-3 hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-800 hover:border-blue-300 transition-all bg-gray-50/30">
-                                    <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
+                                    <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center group-hover:bg-blue-100 dark:group-hover:bg-blue-800/40 transition-colors">
                                         <Upload size={20} className="text-blue-500" />
                                     </div>
                                     <span className="text-xs font-bold text-gray-600 dark:text-slate-400">Upload Final Files</span>
@@ -1449,7 +1449,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                              </label>
                              <div className="space-y-3">
                                 {Object.keys(uploadProgress).filter(k => k !== 'draft').map(fileName => (
-                                    <div key={fileName} className="bg-blue-50/50 border border-blue-100 p-3 rounded-lg animate-pulse">
+                                    <div key={fileName} className="bg-blue-50/50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/30 p-3 rounded-lg animate-pulse">
                                         <div className="flex justify-between items-center mb-2">
                                             <span className="text-[10px] font-bold text-blue-800 truncate flex-1">{fileName}</span>
                                             <span className="text-[10px] font-bold text-blue-600">{Math.round(uploadProgress[fileName])}%</span>
@@ -1467,7 +1467,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                                            </div>
                                            <span className="text-xs text-gray-700 dark:text-slate-300 font-medium truncate max-w-[150px]">{f.name}</span>
                                         </div>
-                                        <button onClick={() => removeFinalFile(i)} className="text-gray-300 hover:text-red-500 transition-colors p-1 rounded-full hover:bg-red-50"><X size={16}/></button>
+                                        <button onClick={() => removeFinalFile(i)} className="text-gray-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 transition-colors p-1 rounded-full hover:bg-red-50 dark:hover:bg-red-900/30"><X size={16}/></button>
                                     </div>
                                 )) : <div className="text-center text-xs text-gray-400 italic">No final files added.</div>}
                              </div>
@@ -1475,7 +1475,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
 
                           <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm">
                               <h3 className="text-xs font-bold uppercase text-gray-400 tracking-wider mb-4">Communication</h3>
-                              <button onClick={() => selectedOrder && sendWhatsAppNotification(selectedOrder, selectedOrder.status)} className="w-full bg-emerald-50 text-emerald-600 py-4 rounded-xl font-bold text-xs uppercase tracking-widest border border-emerald-100 hover:bg-emerald-100 transition-all flex items-center justify-center gap-3 shadow-sm hover:shadow-emerald-100">
+                              <button onClick={() => selectedOrder && sendWhatsAppNotification(selectedOrder, selectedOrder.status)} className="w-full bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 py-4 rounded-xl font-bold text-xs uppercase tracking-widest border border-emerald-100 dark:border-emerald-800/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-all flex items-center justify-center gap-3 shadow-sm hover:shadow-emerald-100/10">
                                   <MessageCircle size={18} /> WhatsApp Update
                               </button>
                           </div>
@@ -1483,7 +1483,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                               <h3 className="text-xs font-bold uppercase text-gray-400 tracking-wider mb-4 flex items-center gap-2">
                                 <Receipt size={14} /> Invoice & Billing
                               </h3>
-                              <button onClick={() => selectedOrder && downloadInvoice(selectedOrder)} className="w-full bg-blue-50 text-blue-700 py-4 rounded-xl font-bold text-xs uppercase tracking-widest border border-blue-100 hover:bg-blue-100 transition-all flex items-center justify-center gap-3 shadow-sm hover:shadow-blue-100">
+                              <button onClick={() => selectedOrder && downloadInvoice(selectedOrder)} className="w-full bg-blue-50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-400 py-4 rounded-xl font-bold text-xs uppercase tracking-widest border border-blue-100 dark:border-blue-800/30 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all flex items-center justify-center gap-3 shadow-sm hover:shadow-blue-100/10">
                                   <Download size={18} /> Download Invoice
                               </button>
                           </div>
@@ -1492,44 +1492,44 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                       {/* COLUMN 2 & 3: DETAILS */}
                       <div className="md:col-span-2 space-y-6">
                            {selectedOrder?.status === OrderStatus.REVISION && (
-                               <div className="bg-orange-50 border border-orange-200 p-4 rounded-xl flex items-start gap-4">
+                               <div className="bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800/30 p-4 rounded-xl flex items-start gap-4">
                                    <AlertCircle className="text-orange-500 shrink-0 mt-0.5" size={18} />
                                    <div>
-                                       <h4 className="text-orange-800 font-bold text-sm">Revision Requested</h4>
-                                       <p className="text-orange-700 text-sm mt-1">{selectedOrder.revisionNotes || "No notes provided."}</p>
+                                       <h4 className="text-orange-800 dark:text-orange-300 font-bold text-sm">Revision Requested</h4>
+                                       <p className="text-orange-700 dark:text-orange-400 text-sm mt-1">{selectedOrder.revisionNotes || "No notes provided."}</p>
                                    </div>
                                </div>
                            )}
 
                            {selectedOrder?.isDeletedByAdmin && (
-                               <div className="bg-red-50 border border-red-200 p-4 rounded-xl flex items-center gap-4">
-                                   <div className="bg-red-100 p-2 rounded-full"><Trash2 className="text-red-500" size={20} /></div>
+                               <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800/30 p-4 rounded-xl flex items-center gap-4">
+                                   <div className="bg-red-100 dark:bg-red-900/40 p-2 rounded-full"><Trash2 className="text-red-500" size={20} /></div>
                                    <div>
-                                       <h4 className="text-red-800 font-bold text-sm">Files Erased</h4>
-                                       <p className="text-red-700 text-xs mt-0.5">Admin has removed the assets for this project.</p>
+                                       <h4 className="text-red-800 dark:text-red-300 font-bold text-sm">Files Erased</h4>
+                                       <p className="text-red-700 dark:text-red-400 text-xs mt-0.5">Admin has removed the assets for this project.</p>
                                    </div>
                                </div>
                            )}
 
-                           {selectedOrder?.rating && (
-                               <div className="bg-yellow-50 border border-yellow-200 p-6 rounded-xl shadow-sm">
+                            {selectedOrder?.rating && (
+                               <div className="bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800/30 p-6 rounded-xl shadow-sm">
                                    <div className="flex justify-between items-start mb-4">
                                        <div>
-                                           <h4 className="text-yellow-800 font-bold text-sm mb-2">Client Feedback</h4>
+                                           <h4 className="text-yellow-800 dark:text-yellow-300 font-bold text-sm mb-2">Client Feedback</h4>
                                            <div className="flex gap-1">
                                                {[1, 2, 3, 4, 5].map((star) => (
-                                                 <span key={star} className={`text-xl ${selectedOrder.rating! >= star ? 'text-yellow-400' : 'text-yellow-200'}`}>
+                                                 <span key={star} className={`text-xl ${selectedOrder.rating! >= star ? 'text-yellow-400' : 'text-yellow-200 dark:text-yellow-900/40'}`}>
                                                      ★
                                                  </span>
                                                ))}
                                            </div>
                                        </div>
-                                       <button onClick={handleAddTestimonial} className="bg-white dark:bg-slate-900 border border-yellow-300 text-yellow-700 hover:bg-yellow-100 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors shadow-sm">
+                                       <button onClick={handleAddTestimonial} className="bg-white dark:bg-slate-900 border border-yellow-300 dark:border-yellow-800/50 text-yellow-700 dark:text-yellow-400 hover:bg-yellow-100 dark:hover:bg-yellow-950/40 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors shadow-sm">
                                            Add to Testimonials
                                        </button>
                                    </div>
                                    {selectedOrder.feedback && (
-                                       <p className="text-yellow-900 text-sm italic border-t border-yellow-200/50 pt-4 mt-2">"{selectedOrder.feedback}"</p>
+                                       <p className="text-yellow-900 dark:text-yellow-200/80 text-sm italic border-t border-yellow-200/50 dark:border-yellow-900/30 pt-4 mt-2">"{selectedOrder.feedback}"</p>
                                    )}
                                </div>
                            )}

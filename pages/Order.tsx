@@ -185,7 +185,7 @@ const PhotoshopColorPicker: React.FC<{ color: string; onChange: (hex: string) =>
           <div className="absolute w-full h-2 border-y border-white dark:border-slate-800 shadow-md pointer-events-none" style={{ top: `${(h / 360) * 100}%` }} />
         </div>
       </div>
-      <div className="bg-gray-55 p-4 rounded-2xl border border-gray-150 mb-5">
+      <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-2xl border border-gray-150 mb-5">
         <div className="flex items-center justify-between gap-6 mb-4">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-xl border-2 border-gray-200 dark:border-slate-700 shadow-inner" style={{ backgroundColor: color }}></div>
@@ -1093,7 +1093,7 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
                 <div className="space-y-8">
                   <div className="flex items-center justify-between border-b border-gray-100 dark:border-slate-700 pb-4">
                     <h3 className="text-3xl font-display text-gray-900 dark:text-slate-100 uppercase tracking-tight">Dimension & Layout</h3>
-                    <div className="text-[9px] font-black text-purple-600 bg-purple-50 px-3 py-1 rounded-full uppercase tracking-widest border border-purple-200">{selectedServiceTitle} Mode</div>
+                    <div className="text-[9px] font-black text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 px-3 py-1 rounded-full uppercase tracking-widest border border-purple-200 dark:border-purple-800">{selectedServiceTitle} Mode</div>
                   </div>
                   <div className="space-y-4">
                     <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2"><Maximize size={12} className="text-purple-600" /> Professional Presets</label>
@@ -1102,7 +1102,7 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
                         const Icon = p.icon;
                         const isSelected = formData.dimensions.width === p.width && formData.dimensions.height === p.height;
                         return (
-                          <button key={p.id} type="button" onClick={() => applyPreset(p.id)} className={`p-4 rounded-2xl text-left transition-all border group relative overflow-hidden ${isSelected ? 'bg-purple-50 border-purple-600' : 'bg-gray-50/50 border-gray-200 dark:border-slate-700 hover:border-gray-300 dark:border-slate-600'}`}>
+                          <button key={p.id} type="button" onClick={() => applyPreset(p.id)} className={`p-4 rounded-2xl text-left transition-all border group relative overflow-hidden ${isSelected ? 'bg-purple-50 dark:bg-purple-900/30 border-purple-600 dark:border-purple-500' : 'bg-gray-50/50 border-gray-200 dark:border-slate-700 hover:border-gray-300 dark:border-slate-600'}`}>
                             <div className="flex items-center justify-between mb-3"><Icon size={18} className={isSelected ? 'text-purple-600' : 'text-gray-400 group-hover:text-gray-600 dark:text-slate-400'} />{isSelected && <Check size={14} className="text-purple-600" />}</div>
                             <div className={`text-[11px] font-black uppercase tracking-wider mb-1 ${isSelected ? 'text-gray-950' : 'text-gray-650 group-hover:text-gray-800 dark:text-slate-200'}`}>{p.name}</div>
                             <div className="text-[10px] font-mono text-gray-400 group-hover:text-gray-500 dark:text-slate-400">{p.width}x{p.height}{p.unit} @ {p.ppi}ppi</div>
@@ -1113,7 +1113,7 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
                     </div>
                   </div>
 
-                  <div className="bg-slate-50 rounded-3xl p-8 border border-zinc-300 space-y-8 shadow-sm">
+                  <div className="bg-slate-50 dark:bg-slate-900/50 rounded-3xl p-8 border border-zinc-300 dark:border-slate-700 space-y-8 shadow-sm">
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                       <div className="space-y-2"><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Width</label><input type="number" value={formData.dimensions.width} onChange={(e) => handleDimensionChange('width', e.target.value)} className="w-full bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-5 py-4 text-gray-900 dark:text-slate-100 font-mono text-sm focus:border-purple-600 outline-none transition-all h-12" /></div>
                       <div className="space-y-2"><label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Height</label><input type="number" value={formData.dimensions.height} onChange={(e) => handleDimensionChange('height', e.target.value)} className="w-full bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-5 py-4 text-gray-900 dark:text-slate-100 font-mono text-sm focus:border-purple-600 outline-none transition-all h-12" /></div>
@@ -1129,7 +1129,7 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
                     </div>
                   </div>
 
-                  <div><label className="text-[10px] font-black text-gray-400 mb-3 block uppercase tracking-widest">Style Keywords</label><input name="keywords" value={formData.keywords} onChange={handleInputChange} placeholder="Modern, Bold, Minimalist, Luxury..." className="w-full bg-gray-55 border border-gray-200 dark:border-slate-700 rounded-2xl px-6 py-4 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 outline-none focus:border-purple-600 focus:bg-white dark:bg-slate-900 transition-all shadow-sm" /></div>
+                  <div><label className="text-[10px] font-black text-gray-400 mb-3 block uppercase tracking-widest">Style Keywords</label><input name="keywords" value={formData.keywords} onChange={handleInputChange} placeholder="Modern, Bold, Minimalist, Luxury..." className="w-full bg-slate-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl px-6 py-4 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 outline-none focus:border-purple-600 focus:bg-white dark:bg-slate-900 transition-all shadow-sm" /></div>
                 </div>
 
                 <div className="space-y-8 font-sans">
@@ -1247,7 +1247,7 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
               </div>
             </div>
 
-            <div className="mt-auto flex justify-end items-center gap-4 pt-10 border-t border-gray-100 dark:border-slate-700 sticky bottom-0 bg-transparent pb-4">
+            <div className="mt-auto flex justify-end items-center gap-4 pt-10 border-t border-gray-100 dark:border-slate-700 sticky bottom-0 bg-gray-50/95 dark:bg-slate-800/95 backdrop-blur-md pb-4">
                {step > 1 && (
                  <button 
                    type="button" 

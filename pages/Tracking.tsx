@@ -335,7 +335,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
 
              <div className="space-y-4">
                 {order.status === OrderStatus.WAITING_PAYMENT && (
-                   <div className="p-6 bg-orange-50 border border-orange-200 rounded-3xl flex flex-col items-center gap-2 text-center animate-fade-in mb-4 shadow-sm">
+                   <div className="p-6 bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800/30 rounded-3xl flex flex-col items-center gap-2 text-center animate-fade-in mb-4 shadow-sm">
                       <div className="flex items-center gap-2 text-orange-600 font-bold uppercase tracking-widest text-sm">
                         <DollarSign size={18} /> Payment Required
                       </div>
@@ -521,9 +521,9 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                           <span className="text-4xl font-black uppercase tracking-[0.5em] text-gray-950 rotate-45 mb-40">PREVIEW ONLY</span>
                           <span className="text-4xl font-black uppercase tracking-[0.5em] text-gray-950 rotate-45">PREVIEW ONLY</span>
                        </div>
-                       <div className="absolute top-6 left-1/2 -translate-x-1/2 bg-red-50 border border-red-150 px-4 py-2 rounded-full flex items-center gap-2 whitespace-nowrap z-20 shadow-sm">
-                          <ShieldAlert size={14} className="text-red-600" />
-                          <span className="text-[10px] font-black uppercase tracking-widest text-red-600">Screen Capture Disabled</span>
+                       <div className="absolute top-6 left-1/2 -translate-x-1/2 bg-red-50 dark:bg-red-950/40 border border-red-150 dark:border-red-900/40 px-4 py-2 rounded-full flex items-center gap-2 whitespace-nowrap z-20 shadow-sm">
+                          <ShieldAlert size={14} className="text-red-650 dark:text-red-400" />
+                          <span className="text-[10px] font-black uppercase tracking-widest text-red-650 dark:text-red-400">Screen Capture DisabledScreen Capture Disabled</span>
                        </div>
                      </div>
                    ) : (
@@ -563,11 +563,11 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                      </div>
                    ) : (
                      <div className="space-y-8 animate-fade-in">
-                        <div className="bg-purple-50 border border-purple-100 rounded-2xl p-6">
-                           <div className="flex items-center gap-3 text-purple-700 font-black uppercase tracking-widest text-[11px] mb-2">
+                        <div className="bg-purple-50 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-800/30 rounded-2xl p-6">
+                           <div className="flex items-center gap-3 text-purple-700 dark:text-purple-300 font-black uppercase tracking-widest text-[11px] mb-2">
                               <CheckCircle2 size={16} /> Latest Draft Status
                            </div>
-                           <p className="text-gray-650 text-[11px] font-medium leading-relaxed font-sans">
+                           <p className="text-gray-600 dark:text-purple-200/90 text-[11px] font-medium leading-relaxed font-sans">
                              Please review the artwork carefully. Check for spelling, layout, and colors.
                            </p>
                         </div>
@@ -633,9 +633,9 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
        </div>
 
        {error && (
-         <div className="mb-8 p-6 bg-red-50 border border-red-200 rounded-2xl flex flex-col items-center justify-center text-center">
-            <ShieldAlert className="text-red-500 mb-2" size={32} />
-            <p className="text-red-700 font-bold">{error}</p>
+         <div className="mb-8 p-6 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30 rounded-2xl flex flex-col items-center justify-center text-center">
+             <ShieldAlert className="text-red-500 dark:text-red-400 mb-2" size={32} />
+             <p className="text-red-700 dark:text-red-400 font-bold">{error}</p>
             {!user && (
                <button onClick={() => {
                   const params = new URLSearchParams(searchParams);
