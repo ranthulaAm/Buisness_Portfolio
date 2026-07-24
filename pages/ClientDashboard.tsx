@@ -311,57 +311,69 @@ const ProjectCard = ({ order, onRequestRevision }: { order: Order; onRequestRevi
                 } finally {
                    setIsDownloading(false);
                 }
-             }} className="border border-green-200 text-green-700 bg-green-50 px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-green-100 transition-colors flex items-center gap-2 disabled:opacity-50">
+             }} className="border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/30 px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-green-100 dark:hover:bg-green-900/50 transition-colors flex items-center gap-2 disabled:opacity-50">
                 {isDownloading ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />} {isDownloading ? 'Working...' : 'Download Invoice'}
              </button>
           )}
 
-          {isCompleted && order.finalFiles && order.finalFiles.length > 1 && (
+          </div>
+        
+        {isCompleted && order.finalFiles && order.finalFiles.length > 0 && (
+          <div className="mt-6 bg-purple-50/50 dark:bg-purple-900/10 border border-purple-100 dark:border-purple-800/30 rounded-3xl p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 shadow-sm">
+             <div className="flex items-center gap-4">
+                <div className="p-3.5 bg-purple-100 dark:bg-purple-900/40 rounded-xl text-purple-600 dark:text-purple-400 shrink-0">
+                   <Package size={24} />
+                </div>
+                <div>
+                   <h4 className="text-gray-900 dark:text-slate-100 font-bold text-sm tracking-wide">Final Delivery Package</h4>
+                   <p className="text-gray-500 dark:text-slate-400 text-xs font-mono font-medium mt-1 uppercase tracking-widest">{order.finalFiles.length} {order.finalFiles.length === 1 ? 'File' : 'Files'} <span className="mx-1.5 opacity-50">•</span> {(() => {
+                       let totalBytes = 0;
+                       order.finalFiles.forEach(f => {
+                         const base64Str = f.data.split(',')[1] || f.data;
+                         totalBytes += base64Str.length * 0.75;
+                       });
+                       if (totalBytes < 1024 * 1024) return `${(totalBytes / 1024).toFixed(1)} KB`;
+                       return `${(totalBytes / (1024 * 1024)).toFixed(1)} MB`;
+                   })()}</p>
+                </div>
+             </div>
+             
             <button
               onClick={async () => {
                 if (isDownloadingAll) return;
                 setIsDownloadingAll(true);
                 setDownloadProgress(0);
-                await handleBulkDownload(
-                  order.finalFiles.map(f => ({ url: f.data, name: f.name })),
-                  `Order_${order.id}_Files`,
-                  (prog) => setDownloadProgress(prog)
-                );
+                if (order.finalFiles.length === 1) {
+                  await handleSingleDownload(order.finalFiles[0].data, order.finalFiles[0].name);
+                } else {
+                  await handleBulkDownload(
+                    order.finalFiles.map(f => ({ url: f.data, name: f.name })),
+                    `Order_${order.id}_Files`,
+                    (prog) => setDownloadProgress(prog)
+                  );
+                }
                 setIsDownloadingAll(false);
               }}
               disabled={isDownloadingAll}
-              className="border-2 border-gray-900 text-white bg-gray-900 shadow-md px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-black transition-colors flex items-center gap-2"
+              className="w-full sm:w-auto bg-gray-900 dark:bg-white text-white dark:text-gray-900 shadow-xl dark:shadow-white/10 px-8 py-4 rounded-xl text-sm font-black uppercase tracking-widest hover:bg-black dark:hover:bg-gray-100 hover:shadow-2xl dark:hover:shadow-white/20 transition-all flex items-center justify-center gap-3 group shrink-0 border-2 border-transparent hover:border-gray-700 dark:hover:border-white"
             >
               {isDownloadingAll ? (
-                <><Loader2 size={14} className="animate-spin" /> Preparing {downloadProgress}/{order.finalFiles.length}...</>
+                <><Loader2 size={18} className="animate-spin" /> Preparing {order.finalFiles.length > 1 ? `${downloadProgress}/${order.finalFiles.length}` : 'File'}...</>
               ) : (
-                <><ArrowDown size={14} /> Download All Files</>
+                <><ArrowDown size={18} className="group-hover:-translate-y-0.5 transition-transform animate-bounce" /> {order.finalFiles.length > 1 ? 'Download Package' : 'Download File'}</>
               )}
             </button>
-          )}
-          {isCompleted && order.finalFiles && order.finalFiles.length > 0 && order.finalFiles.map((file, idx) => (
-             <button
-               key={`final-${idx}`}
-               onClick={(e) => {
-                 e.preventDefault();
-                 handleSingleDownload(file.data, file.name);
-               }}
-               className="border-2 border-blue-600 text-white bg-blue-600 shadow-md px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-blue-700 hover:border-blue-700 transition-colors flex items-center gap-2 group"
-             >
-                <Download size={14} className="group-hover:-translate-y-0.5 transition-transform animate-bounce" /> 
-                {order.finalFiles.length > 1 ? `Download ${file.name}` : 'Download Final Asset'}
-             </button>
-          ))}
-        </div>
+          </div>
+        )}
 
         {isCompleted && !order.rating && (
-           <div className="mt-8 bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-3xl border border-purple-100 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+           <div className="mt-8 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 p-6 rounded-3xl border border-purple-100 dark:border-purple-800/50 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                <div>
                    <h4 className="font-bold text-gray-900 dark:text-slate-100 text-sm tracking-wide">How was your experience?</h4>
                    <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">Please rate this project to help us improve.</p>
                </div>
                <div className="flex gap-2">
-                   <button onClick={() => navigate(`/tracking?id=${order.id}`)} className="bg-purple-600 text-white font-bold uppercase tracking-widest text-[10px] px-6 py-3 rounded-full shadow-sm hover:bg-purple-700 transition-colors">
+                   <button onClick={() => navigate(`/tracking?id=${order.id}`)} className="bg-purple-600 dark:bg-purple-500 text-white font-bold uppercase tracking-widest text-[10px] px-6 py-3 rounded-full shadow-sm hover:bg-purple-700 dark:hover:bg-purple-600 transition-colors">
                       Review Project
                    </button>
                </div>
@@ -377,7 +389,7 @@ const ProjectCard = ({ order, onRequestRevision }: { order: Order; onRequestRevi
                    </div>
                </div>
                <div className="flex gap-2">
-                   <button onClick={() => navigate(`/tracking?id=${order.id}`)} className="text-purple-600 font-bold uppercase tracking-widest text-[10px] px-6 py-3 rounded-full border border-purple-200 shadow-sm hover:bg-purple-50 transition-colors flex items-center gap-2">
+                   <button onClick={() => navigate(`/tracking?id=${order.id}`)} className="text-purple-600 dark:text-purple-400 font-bold uppercase tracking-widest text-[10px] px-6 py-3 rounded-full border border-purple-200 dark:border-purple-800 shadow-sm hover:bg-purple-50 dark:hover:bg-purple-900/30 transition-colors flex items-center gap-2">
                       <Edit2 size={14} /> Edit Review
                    </button>
                </div>

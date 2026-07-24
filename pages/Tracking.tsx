@@ -347,59 +347,57 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                 {order.status === OrderStatus.COMPLETED && (
                    <div className="space-y-4">
                       {order.finalFiles && order.finalFiles.length > 0 && (
-                         <div className="p-8 bg-green-50/50 border border-green-200 rounded-3xl animate-fade-in shadow-sm">
-                            <div className="flex items-center gap-3 text-green-700 font-black uppercase tracking-[0.2em] text-[10px] mb-6">
+                         <div className="p-4 sm:p-8 bg-green-50/50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/50 rounded-3xl animate-fade-in shadow-sm">
+                            <div className="flex items-center gap-3 text-green-700 dark:text-green-400 font-black uppercase tracking-[0.2em] text-[10px] mb-6">
                               <CheckCircle2 size={18} /> Final Assets Ready
                             </div>
-                            <div className="space-y-3">
-                              {order.finalFiles.length > 1 && (
-                                <button
-                                  onClick={async () => {
-                                    if (isDownloadingAll) return;
-                                    setIsDownloadingAll(true);
-                                    setDownloadProgress(0);
-                                    await handleBulkDownload(
-                                      order.finalFiles.map(f => ({ url: f.data, name: f.name })),
-                                      `Order_${order.id}_Files`,
-                                      (prog) => setDownloadProgress(prog)
-                                    );
-                                    setIsDownloadingAll(false);
-                                  }}
-                                  disabled={isDownloadingAll}
-                                  className="w-full flex items-center justify-center gap-2 p-4 bg-gray-900 hover:bg-black text-white rounded-2xl transition-all shadow-md mb-4"
-                                >
-                                  {isDownloadingAll ? (
-                                    <><Loader2 size={18} className="animate-spin" /> Preparing {downloadProgress}/{order.finalFiles.length}...</>
-                                  ) : (
-                                    <><ArrowDown size={18} /> Download All Files ({order.finalFiles.length})</>
-                                  )}
-                                </button>
-                              )}
-                              {order.finalFiles.map((f, i) => (
-                                 <button 
-                                   key={i} 
-                                   onClick={(e) => {
-                                     e.preventDefault();
-                                     handleSingleDownload(f.data, f.name);
-                                   }}
-                                   className="w-full flex items-center justify-between p-4 bg-blue-600 hover:bg-blue-700 text-white border border-blue-700 rounded-2xl group transition-all shadow-md group-hover:shadow-lg"
-                                 >
-                                    <div className="flex items-center gap-4">
-                                       <div className="p-2 bg-white/20 rounded-lg text-white group-hover:scale-110 transition-transform">
-                                          <ImageIcon size={16} />
-                                       </div>
-                                       <span className="text-xs font-bold text-white truncate max-w-[180px] text-left">{f.name}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 bg-white/20 px-3 py-1.5 rounded-lg text-white font-bold uppercase tracking-wider text-[10px]">
-                                       <Download size={14} className="group-hover:-translate-y-0.5 transition-transform animate-bounce" />
-                                       Download File
-                                    </div>
-                                 </button>
-                              ))}
-                            </div>
-                            
-                            <div className="mt-6 pt-6 border-t border-green-200/50 flex flex-col sm:flex-row gap-3 sm:gap-4">
-                              <button onClick={() => window.print()} className="flex-1 flex items-center justify-center gap-2 bg-white dark:bg-slate-900 hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-800 border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-300 font-bold uppercase tracking-widest text-[10px] py-4 rounded-xl transition-colors shadow-sm">
+                            <div className="flex flex-col gap-3">
+                              <div className="bg-white/60 dark:bg-slate-900/40 rounded-2xl p-5 mb-1 flex justify-between items-center border border-green-200/60 dark:border-green-800/50">
+                                <div className="flex items-center gap-4">
+                                   <div className="p-3.5 bg-purple-100 dark:bg-purple-900/40 rounded-xl text-purple-600 dark:text-purple-400 shrink-0">
+                                      <Package size={24} />
+                                   </div>
+                                   <div>
+                                      <h4 className="text-gray-900 dark:text-slate-100 font-bold text-sm tracking-wide">Delivery Package</h4>
+                                      <p className="text-gray-500 dark:text-slate-400 text-xs font-mono font-medium mt-1 uppercase tracking-widest">{order.finalFiles.length} {order.finalFiles.length === 1 ? 'File' : 'Files'} <span className="mx-1.5 opacity-50">•</span> {(() => {
+                                          let totalBytes = 0;
+                                          order.finalFiles.forEach(f => {
+                                            const base64Str = f.data.split(',')[1] || f.data;
+                                            totalBytes += base64Str.length * 0.75;
+                                          });
+                                          if (totalBytes < 1024 * 1024) return `${(totalBytes / 1024).toFixed(1)} KB`;
+                                          return `${(totalBytes / (1024 * 1024)).toFixed(1)} MB`;
+                                      })()}</p>
+                                   </div>
+                                </div>
+                              </div>
+                              <button
+                                onClick={async () => {
+                                  if (isDownloadingAll) return;
+                                  setIsDownloadingAll(true);
+                                  setDownloadProgress(0);
+                                  if (order.finalFiles.length === 1) {
+                                      await handleSingleDownload(order.finalFiles[0].data, order.finalFiles[0].name);
+                                  } else {
+                                      await handleBulkDownload(
+                                        order.finalFiles.map(f => ({ url: f.data, name: f.name })),
+                                        `Order_${order.id}_Files`,
+                                        (prog) => setDownloadProgress(prog)
+                                      );
+                                  }
+                                  setIsDownloadingAll(false);
+                                }}
+                                disabled={isDownloadingAll}
+                                className="w-full flex items-center justify-center gap-3 py-6 bg-gray-900 dark:bg-white hover:bg-black dark:hover:bg-gray-100 text-white dark:text-gray-900 rounded-2xl transition-all shadow-xl dark:shadow-white/10 hover:shadow-2xl dark:hover:shadow-white/20 font-black uppercase tracking-widest text-sm group border-2 border-transparent hover:border-gray-700 dark:hover:border-white"
+                              >
+                                {isDownloadingAll ? (
+                                  <><Loader2 size={20} className="animate-spin" /> Preparing {order.finalFiles.length > 1 ? `${downloadProgress}/${order.finalFiles.length}` : 'File'}...</>
+                                ) : (
+                                  <><ArrowDown size={20} className="group-hover:-translate-y-0.5 transition-transform animate-bounce" /> {order.finalFiles.length > 1 ? `Download All Files` : 'Download Final Asset'}</>
+                                )}
+                              </button>
+                            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                              <button onClick={() => window.print()} className="flex-1 flex items-center justify-center gap-2 bg-white dark:bg-slate-900 hover:bg-gray-50 dark:hover:bg-slate-800 border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-300 font-bold uppercase tracking-widest text-[10px] py-4 rounded-xl transition-colors shadow-sm">
                                  <Printer size={16} /> Print Invoice
                               </button>
                               <button disabled={isDownloadingInvoice} onClick={async () => {
@@ -409,10 +407,11 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                                  } finally {
                                     setIsDownloadingInvoice(false);
                                  }
-                              }} className="flex-1 flex items-center justify-center gap-2 bg-white dark:bg-slate-900 hover:bg-green-50 border border-green-600 text-green-700 font-bold uppercase tracking-widest text-[10px] py-4 rounded-xl transition-colors shadow-sm disabled:opacity-50">
+                              }} className="flex-1 flex items-center justify-center gap-2 bg-white dark:bg-slate-900 hover:bg-green-50 dark:hover:bg-green-900/40 border border-green-600 dark:border-green-500 text-green-700 dark:text-green-400 font-bold uppercase tracking-widest text-[10px] py-4 rounded-xl transition-colors shadow-sm disabled:opacity-50">
                                  {isDownloadingInvoice ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />} {isDownloadingInvoice ? 'Preparing...' : 'Download (PDF)'}
                               </button>
                             </div>
+                          </div>
                          </div>
                       )}
 
@@ -421,7 +420,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                            <h4 className="text-lg font-display text-gray-900 dark:text-slate-100 mb-4">{isEditingFeedback ? 'Edit your rating' : 'How was your experience?'}</h4>
                            <div className="flex justify-center gap-2 mb-6">
                              {[1, 2, 3, 4, 5].map((star) => (
-                               <button key={star} onClick={() => setRating(star)} className={`text-4xl transition-colors hover:scale-110 ${rating >= star ? 'text-yellow-400' : 'text-gray-300 hover:text-yellow-200'}`}>
+                               <button key={star} onClick={() => setRating(star)} className={`text-4xl transition-colors hover:scale-110 ${rating >= star ? 'text-yellow-400' : 'text-gray-300 dark:text-slate-600 hover:text-yellow-200 dark:hover:text-yellow-400/50'}`}>
                                  ★
                                </button>
                              ))}
@@ -461,8 +460,8 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                       )}
 
                       {(order.rating && !isEditingFeedback) && (
-                        <div className="p-6 bg-purple-50 border border-purple-100 rounded-2xl flex flex-col items-center gap-3 text-center shadow-sm mt-4 relative">
-                          <CheckCircle2 className="text-purple-600 mb-1" size={28} />
+                        <div className="p-6 bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800/50 rounded-2xl flex flex-col items-center gap-3 text-center shadow-sm mt-4 relative">
+                          <CheckCircle2 className="text-purple-600 dark:text-purple-400 mb-1" size={28} />
                           {feedbackSuccess ? (
                              <>
                                <span className="text-sm font-bold text-gray-900 dark:text-slate-100">Successfully updated!</span>
@@ -472,12 +471,12 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                              <>
                                <span className="text-sm font-bold text-gray-900 dark:text-slate-100">Thank you for your feedback!</span>
                                <div className="flex gap-1 text-lg my-1">
-                                  {[1, 2, 3, 4, 5].map(s => <span key={s} className={s <= (order.rating || 0) ? 'text-yellow-400' : 'text-gray-300'}>★</span>)}
+                                  {[1, 2, 3, 4, 5].map(s => <span key={s} className={s <= (order.rating || 0) ? 'text-yellow-400' : 'text-gray-300 dark:text-slate-600'}>★</span>)}
                                </div>
-                               {order.feedback && <p className="text-xs text-gray-600 dark:text-slate-400 italic">"{order.feedback}"</p>}
+                               {order.feedback && <p className="text-xs text-gray-600 dark:text-slate-300 italic">"{order.feedback}"</p>}
                                <button 
                                   onClick={() => setIsEditingFeedback(true)}
-                                  className="mt-2 text-xs font-bold text-purple-600 hover:text-purple-700 flex items-center gap-1 bg-white dark:bg-slate-900 px-3 py-1.5 rounded-full border border-purple-200 shadow-sm"
+                                  className="mt-2 text-xs font-bold text-purple-600 dark:text-purple-400 hover:text-purple-700 flex items-center gap-1 bg-white dark:bg-slate-800 px-4 py-2 rounded-full border border-purple-200 dark:border-slate-700 shadow-sm transition-colors"
                                >
                                   <Edit2 size={12} /> Edit Review
                                </button>
@@ -495,12 +494,12 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                 )}
 
                 {(order.status === OrderStatus.PENDING || order.status === OrderStatus.REVIEWING) && (
-                  <button onClick={handleCancel} className="w-full bg-red-50 hover:bg-red-100 border border-red-200 text-red-650 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all font-sans">
+                  <button onClick={handleCancel} className="w-full bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 border border-red-200 dark:border-red-800/50 text-red-650 dark:text-red-400 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all font-sans">
                     <Trash2 size={18} /> Cancel Order
                   </button>
                 )}
 
-                <button onClick={(e) => onHelpClick(order, e)} className="w-full bg-green-50 hover:bg-green-100 border border-green-200 text-green-700 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all font-sans shadow-sm">
+                <button onClick={(e) => onHelpClick(order, e)} className="w-full bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/40 border border-green-200 dark:border-green-800/50 text-green-700 dark:text-green-400 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-all font-sans shadow-sm">
                   <MessageCircle size={18} /> Contact Support
                 </button>
              </div>
@@ -664,7 +663,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
                           </div>
                        )}
-                       <div className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-purple-300 bg-purple-50 text-purple-700 shadow-sm">
+                       <div className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-purple-300 dark:border-purple-500/30 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 shadow-sm">
                          {o.status}
                        </div>
                    </div>
@@ -679,7 +678,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                  <div className="mb-2 flex flex-wrap items-center gap-2">
                     <h3 className="text-xl font-display font-black text-gray-900 dark:text-slate-100 group-hover:text-purple-600 transition-colors">{o.serviceType}</h3>
                     {isFilesDeleted && (
-                        <span className="px-2 py-0.5 bg-red-50 text-red-650 border border-red-150 text-[9px] font-bold uppercase rounded-md tracking-wider">
+                        <span className="px-2 py-0.5 bg-red-50 dark:bg-red-900/30 text-red-650 dark:text-red-400 border border-red-150 dark:border-red-800/50 text-[9px] font-bold uppercase rounded-md tracking-wider">
                             Files Deleted
                         </span>
                     )}
@@ -688,14 +687,14 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                  <p className="text-gray-550 text-sm line-clamp-2 mb-6 font-sans leading-relaxed">{o.requirements}</p>
              </div>
              
-             <div className="p-6 pt-4 border-t border-zinc-200 flex flex-wrap justify-between items-center gap-y-3 relative z-50 bg-gray-50/70 pointer-events-auto">
+             <div className="p-6 pt-4 border-t border-zinc-200 dark:border-slate-700 flex flex-wrap justify-between items-center gap-y-3 relative z-50 bg-gray-50/70 dark:bg-slate-800/70 pointer-events-auto">
                 <div className="flex flex-col">
                     <span className="text-[10px] text-gray-400 font-bold uppercase">Created</span>
                     <span className="text-xs text-gray-700 dark:text-slate-300 font-mono font-bold">{new Date(o.createdAt).toLocaleDateString()}</span>
                 </div>
                 
                 <div className="flex items-center gap-2 bg-transparent">
-                   <button onClick={(e) => onHelpClick(o, e)} className="flex items-center gap-2 px-3.5 py-2.5 rounded-full bg-white dark:bg-slate-900 hover:bg-green-50 text-green-700 transition-all border border-zinc-300 hover:border-green-350 shadow-sm">
+                   <button onClick={(e) => onHelpClick(o, e)} className="flex items-center gap-2 px-3.5 py-2.5 rounded-full bg-white dark:bg-slate-900 hover:bg-green-50 dark:hover:bg-green-900/40 text-green-700 transition-all border border-zinc-300 dark:border-slate-700 hover:border-green-350 dark:hover:border-green-800/50 shadow-sm">
                        <MessageCircle size={15} />
                        <span className="text-[9px] font-black uppercase tracking-wider">Help</span>
                    </button>
