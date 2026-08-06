@@ -58,7 +58,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const tabFromUrl = searchParams.get('tab');
 
-  const [activeTab, setActiveTab] = useState<'projects' | 'profile'>(
+  const [activeTab, setActiveTab] = useState<'projects' | 'history' | 'profile'>(
     (tabFromUrl as any) || 'projects'
   );
 
@@ -66,11 +66,11 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user }) => {
     if (tabFromUrl) {
       setActiveTab(tabFromUrl as any);
     } else {
-      setActiveTab('orders');
+      setActiveTab('projects');
     }
   }, [tabFromUrl]);
 
-  const handleTabChange = (tab: 'projects' | 'profile') => {
+  const handleTabChange = (tab: 'projects' | 'history' | 'profile') => {
     setActiveTab(tab);
     setSearchParams({ tab });
   };
@@ -129,13 +129,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user }) => {
       <div className="max-w-5xl mx-auto relative z-10">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
            <div>
-              <button 
-                  onClick={() => navigate('/')} 
-                  className="fixed z-50 inline-flex items-center gap-1.5 text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 active:scale-[0.96] bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-purple-150 dark:border-slate-800 px-4 py-2.5 md:px-5 md:py-2.5 rounded-full shadow-lg font-bold text-xs uppercase tracking-wider transition-all duration-300 ease-in-out top-[4.5rem] left-4 md:top-8 md:left-28 opacity-100 translate-y-0 scale-100"
-              >
-                 <ChevronLeft size={16} strokeWidth={3} className="text-purple-600 dark:text-purple-400" />
-                 <span>Back to Home</span>
-              </button>
+              
               <h1 className="text-5xl md:text-6xl font-display uppercase tracking-tighter text-gray-900 dark:text-slate-100 mb-4 mix-blend-difference">My Dashboard</h1>
               <p className="text-gray-500 dark:text-slate-400 text-lg font-medium">Track your projects and manage settings.</p>
            </div>
@@ -147,9 +141,15 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user }) => {
         <div className="flex flex-wrap gap-4 sm:gap-8 border-b border-gray-200 dark:border-slate-700 mb-8">
             <button 
                 onClick={() => handleTabChange('projects')}
-                className={`pb-4 px-2 font-bold uppercase tracking-widest text-xs transition-colors border-b-2 ${activeTab === 'projects' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100'}`}
+                className={`pb-4 px-2 font-bold uppercase tracking-widest text-xs transition-colors border-b-2 flex items-center gap-2 ${activeTab === 'projects' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100'}`}
             >
-                My Projects
+                <Package size={14} /> My Projects
+            </button>
+            <button 
+                onClick={() => handleTabChange('history')}
+                className={`pb-4 px-2 font-bold uppercase tracking-widest text-xs transition-colors border-b-2 flex items-center gap-2 ${activeTab === 'history' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100'}`}
+            >
+                <Clock size={14} /> Order History
             </button>
             <button 
                 onClick={() => handleTabChange('profile')}
@@ -184,22 +184,40 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user }) => {
               </div>
             ))}
           </div>
-        ) : orders.length === 0 ? (
-          <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-gray-300 dark:border-slate-600 rounded-3xl p-16 text-center shadow-[0_8px_32px_rgba(0,0,0,0.12)] flex flex-col items-center">
-             <div className="w-24 h-24 bg-gray-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-6">
-                <Package size={40} className="text-gray-300 dark:text-slate-600" />
-             </div>
-             <h3 className="text-2xl font-bold mb-3 text-gray-800 dark:text-slate-200">No Projects Yet</h3>
-             <p className="text-gray-500 dark:text-slate-400 max-w-sm mb-8 text-lg">Looks like you don't have any active or past projects with us.</p>
-             <InteractiveButton onClick={() => navigate('/order')}>Start a Project</InteractiveButton>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {orders.map(order => (
-              <ProjectCard key={order.id} order={order} onRequestRevision={(notes) => requestRevision(order.id, notes)} />
-            ))}
-          </div>
-        )}
+        ) : activeTab === 'projects' ? (
+          orders.filter(o => o.status !== OrderStatus.COMPLETED && o.status !== OrderStatus.CANCELLED).length === 0 ? (
+            <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-gray-300 dark:border-slate-600 rounded-3xl p-16 text-center shadow-[0_8px_32px_rgba(0,0,0,0.12)] flex flex-col items-center">
+               <div className="w-24 h-24 bg-gray-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-6">
+                  <Package size={40} className="text-gray-300 dark:text-slate-600" />
+               </div>
+               <h3 className="text-2xl font-bold mb-3 text-gray-800 dark:text-slate-200">No Active Projects</h3>
+               <p className="text-gray-500 dark:text-slate-400 max-w-sm mb-8 text-lg">Looks like you don't have any active projects with us.</p>
+               <InteractiveButton onClick={() => navigate('/order')}>Start a Project</InteractiveButton>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {orders.filter(o => o.status !== OrderStatus.COMPLETED && o.status !== OrderStatus.CANCELLED).map(order => (
+                <ProjectCard key={order.id} order={order} onRequestRevision={(notes) => requestRevision(order.id, notes)} />
+              ))}
+            </div>
+          )
+        ) : activeTab === 'history' ? (
+          orders.filter(o => o.status === OrderStatus.COMPLETED || o.status === OrderStatus.CANCELLED).length === 0 ? (
+            <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-gray-300 dark:border-slate-600 rounded-3xl p-16 text-center shadow-[0_8px_32px_rgba(0,0,0,0.12)] flex flex-col items-center">
+               <div className="w-24 h-24 bg-gray-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-6">
+                  <Clock size={40} className="text-gray-300 dark:text-slate-600" />
+               </div>
+               <h3 className="text-2xl font-bold mb-3 text-gray-800 dark:text-slate-200">No Past Projects</h3>
+               <p className="text-gray-500 dark:text-slate-400 max-w-sm mb-8 text-lg">Your completed and cancelled projects will appear here.</p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {orders.filter(o => o.status === OrderStatus.COMPLETED || o.status === OrderStatus.CANCELLED).map(order => (
+                <ProjectCard key={order.id} order={order} onRequestRevision={(notes) => requestRevision(order.id, notes)} />
+              ))}
+            </div>
+          )
+        ) : null}
       </div>
     </div>
   );
@@ -256,7 +274,15 @@ const ProjectCard = ({ order, onRequestRevision }: { order: Order; onRequestRevi
             <h3 className="text-2xl md:text-3xl font-display font-medium text-gray-900 dark:text-slate-100 mb-2 mt-1"><span className="text-gray-300 dark:text-slate-500 font-sans">#</span>{order.id.split('-')[1]}</h3>
             <div className="text-sm text-gray-400 dark:text-slate-500 font-medium">{new Date(order.createdAt).toLocaleDateString()}</div>
           </div>
-          <div className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border self-start ${isCompleted ? 'bg-green-50 text-green-600 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800' : isRevision ? 'bg-orange-50 text-orange-600 border-orange-200 animate-pulse dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800' : 'bg-purple-50 text-purple-600 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800'}`}>
+                    <div className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border self-start ${
+            order.status === OrderStatus.COMPLETED 
+              ? 'bg-green-50 text-green-600 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800' 
+              : order.status === OrderStatus.CANCELLED 
+                ? 'bg-red-50 text-red-600 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800' 
+                : isRevision 
+                  ? 'bg-orange-50 text-orange-600 border-orange-200 animate-pulse dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800' 
+                  : 'bg-purple-50 text-purple-600 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800'
+          }`}>
             {order.status}
           </div>
         </div>

@@ -122,15 +122,7 @@ export const AdminGuard: React.FC<AdminGuardProps> = ({ children, user }) => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-55 text-gray-900 dark:text-slate-100 relative z-50 px-4">
         <div className="relative bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 p-8 md:p-12 rounded-3xl w-full max-w-md text-center shadow-[0_15px_50px_rgba(0,0,0,0.08)]">
-          <button 
-            type="button"
-            onClick={handleBack}
-            className="absolute top-6 left-6 inline-flex items-center gap-1 text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 active:scale-[0.96] bg-purple-50 dark:bg-slate-800 border border-purple-200 dark:border-slate-700 px-3.5 py-1.5 rounded-full shadow-sm font-bold text-[10px] uppercase tracking-wider transition-all duration-300 ease-in-out"
-            title="Back to Home"
-          >
-            <ChevronLeft size={16} strokeWidth={3} />
-            <span>Back</span>
-          </button>
+          
 
           <div className="mx-auto bg-purple-50 border border-purple-100 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 text-purple-600 shadow-sm">
              <Lock size={24} className="animate-pulse" />
@@ -205,15 +197,7 @@ export const AdminGuard: React.FC<AdminGuardProps> = ({ children, user }) => {
       <div className="min-h-screen flex items-center justify-center bg-gray-55 text-gray-900 dark:text-slate-100 relative z-50 px-4">
         <form onSubmit={handleLogin} className="relative bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-600 p-8 md:p-12 rounded-3xl w-full max-w-sm text-center shadow-[0_15px_50px_rgba(0,0,0,0.08)] animate-fade-in">
           
-          <button 
-            type="button"
-            onClick={handleBack}
-            className="absolute top-6 left-6 inline-flex items-center gap-1 text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 active:scale-[0.96] bg-purple-50 dark:bg-slate-800 border border-purple-200 dark:border-slate-700 px-3.5 py-1.5 rounded-full shadow-sm font-bold text-[10px] uppercase tracking-wider transition-all duration-300 ease-in-out"
-            title="Back to Home"
-          >
-            <ChevronLeft size={16} strokeWidth={3} />
-            <span>Back</span>
-          </button>
+          
 
           <div className="mx-auto bg-purple-50 border border-purple-100 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 text-purple-600 shadow-sm">
              <Key size={24} />

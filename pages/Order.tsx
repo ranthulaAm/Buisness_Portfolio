@@ -983,13 +983,7 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
       <OfferBanner />
       <div className="pt-24 pb-12 px-4 max-w-7xl mx-auto w-full">
         <div className="print:hidden">
-        <Link 
-          to="/" 
-          className="fixed z-50 inline-flex items-center gap-1.5 text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 active:scale-[0.96] bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-purple-150 dark:border-slate-800 px-4 py-2.5 md:px-5 md:py-2.5 rounded-full shadow-lg font-bold text-xs uppercase tracking-wider transition-all duration-300 ease-in-out top-[4.5rem] left-4 md:top-8 md:left-28 opacity-100 translate-y-0 scale-100"
-        >
-          <ChevronLeft size={16} strokeWidth={3} className="text-purple-600 dark:text-purple-400" />
-          <span>Back to Home</span>
-        </Link>
+        
       </div>
       <div className="mb-10 text-center"><h1 className="text-5xl md:text-7xl font-display text-gray-900 dark:text-slate-100 mb-4 uppercase tracking-tighter leading-none">{editOrderId ? 'Edit Project' : selectedServiceTitle}</h1><p className="text-gray-500 dark:text-slate-400 font-light text-lg">{editOrderId ? 'Update your requirements' : 'Just 4 simple steps to bring your idea to life.'}</p></div>
 

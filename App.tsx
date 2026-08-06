@@ -13,6 +13,7 @@ import { Tracking } from './pages/Tracking';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { ClientDashboard } from './pages/ClientDashboard';
 import { SharedProjectView } from './pages/SharedProjectView';
+import { ClientUpload } from './pages/ClientUpload';
 import { User } from './types';
 import { saveUserProfile } from './services/storageService';
 import { auth } from './services/firebase';
@@ -51,11 +52,17 @@ const AppContent: React.FC = () => {
   useEffect(() => {
      const params = new URLSearchParams(location.search);
      if (params.get('auth') === 'login' && !isAuthModalOpen) {
-         setIsAuthModalOpen(true);
+         if (user) {
+             params.delete('auth');
+             const newSearch = params.toString();
+             navigate(`${location.pathname}${newSearch ? `?${newSearch}` : ''}`, { replace: true });
+         } else {
+             setIsAuthModalOpen(true);
+         }
      } else if (!params.get('auth') && isAuthModalOpen) {
          setIsAuthModalOpen(false);
      }
-  }, [location.search]);
+  }, [location.search, isAuthModalOpen, user, navigate, location.pathname]);
 
   const openAuthModal = () => {
       const params = new URLSearchParams(location.search);
@@ -66,7 +73,8 @@ const AppContent: React.FC = () => {
   const closeAuthModal = () => {
       const params = new URLSearchParams(location.search);
       params.delete('auth');
-      navigate(`${location.pathname}?${params.toString()}`, { replace: false });
+      const newSearch = params.toString();
+      navigate(`${location.pathname}${newSearch ? `?${newSearch}` : ''}`, { replace: true });
   };
 
   // Intro State
@@ -175,6 +183,10 @@ const AppContent: React.FC = () => {
               <Route 
                 path="/share/:shareId" 
                 element={<SharedProjectView />} 
+              />
+              <Route 
+                path="/upload" 
+                element={<ClientUpload user={user} />} 
               />
               <Route 
                 path="/admin" 

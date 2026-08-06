@@ -26,6 +26,7 @@ import { AdminShares } from '../components/AdminShares';
 import { AdminClients } from '../components/AdminClients';
 import { ClientActivityChart } from '../components/ClientActivityChart';
 import { AdminSecurity } from '../components/AdminSecurity';
+import { AdminClientUploads } from '../components/AdminClientUploads';
 import { ConfirmationDialog } from '../components/ConfirmationDialog';
 import { Package, Search, MessageSquare, MessageCircle, Layout as LayoutIcon, LogOut, ChevronRight, ChevronLeft, Save, User as UserIcon, X, AlertCircle, Download, Music, Copy, Check, Upload, ImageIcon, FileBox, RefreshCw, DollarSign, ChevronUp, ChevronDown, Loader2, Trash2, Bell, BarChart2, List, Settings, Briefcase, GraduationCap, Award, Mail, Plus, Star, ArrowLeft, Receipt, Shield } from 'lucide-react';
 import {
@@ -752,6 +753,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
           >
             <FileBox size={16} /> Shared Files
           </button>
+          <button 
+            className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'uploads' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:text-slate-300'}`}
+            onClick={() => handleTabChange('uploads')}
+          >
+            <Upload size={16} /> Client Uploads
+          </button>
         </div>
 
         {activeTab === 'clients' ? (
@@ -1058,6 +1065,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
           <AdminEmail />
         ) : activeTab === 'shares' ? (
           <AdminShares />
+        ) : activeTab === 'uploads' ? (
+          <AdminClientUploads />
         ) : activeTab === 'security' ? (
           <AdminSecurity />
         ) : null}
