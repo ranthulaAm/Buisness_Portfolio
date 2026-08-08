@@ -49,7 +49,7 @@ export const AdminClients: React.FC<AdminClientsProps> = ({ orders }) => {
 
     // 2. Process all orders to aggregate stats and include any client emails not in registeredUsers
     orders.forEach(o => {
-      const email = o.email || o.clientEmail || '';
+      const email = o.email || (o as any).clientEmail || '';
       if (!email) return;
       const emailKey = email.toLowerCase();
 

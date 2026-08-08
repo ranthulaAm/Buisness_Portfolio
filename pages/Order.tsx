@@ -526,7 +526,7 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
             ...prev,
             name: orderToEdit.clientName,
             email: orderToEdit.email,
-            mobile: orderToEdit.mobile,
+            mobile: Array.isArray(orderToEdit.mobile) ? orderToEdit.mobile : (orderToEdit.mobile ? [orderToEdit.mobile] : []),
             serviceType: orderToEdit.serviceId || 's_social', 
             industry: orderToEdit.industry,
             requirements: orderToEdit.requirements,

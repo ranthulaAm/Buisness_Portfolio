@@ -27,6 +27,22 @@ export const sendPaymentAwaitedNotification = async (order: Order): Promise<void
   await sendTelegramMessage(message);
 };
 
+export const sendClientUploadNotification = async (uploadData: {
+  clientName: string;
+  email: string;
+  whatsapp: string;
+  eventName: string;
+  filesCount: number;
+}): Promise<void> => {
+  const message = `📤 New Client Upload\n` +
+    `👤 Client: ${uploadData.clientName}\n` +
+    `📧 Email: ${uploadData.email}\n` +
+    `💬 WhatsApp/Mobile: ${uploadData.whatsapp}\n` +
+    `🎉 Event/Project: ${uploadData.eventName}\n` +
+    `📁 Files: ${uploadData.filesCount} file(s) uploaded.`;
+  await sendTelegramMessage(message);
+};
+
 const sendTelegramMessage = async (message: string): Promise<void> => {
   const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
   try {

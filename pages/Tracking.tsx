@@ -2,7 +2,7 @@ import { toast } from "react-hot-toast";
 import React, { useState, useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
-import { Package, CheckCircle2, AlertCircle, Clock, DollarSign, Download, Home, MessageCircle, Edit2, Trash2, Eye, Copy, Loader2, Info, X, Send, ShieldAlert, Check, ImageIcon, Search, ArrowDown, Printer, ChevronLeft } from 'lucide-react';
+import { Package, CheckCircle2, AlertCircle, Clock, DollarSign, Download, Home, MessageCircle, Edit2, Trash2, Eye, Copy, Loader2, Info, X, Send, ShieldAlert, Check, ImageIcon, Search, ArrowDown, Printer, ChevronLeft, ZoomIn, ZoomOut, Move, RotateCcw, ChevronRight, Shield } from 'lucide-react';
 import { listenToOrderById, updateOrder, cancelOrder, listenToOrdersByClientId } from '../services/storageService';
 import { getInvoiceConfig, deleteTestimonial } from '../services/dataService';
 import { downloadInvoice } from '../utils/invoiceGenerator';
@@ -10,6 +10,174 @@ import { Order, OrderStatus, User } from '../types';
 import { handleSingleDownload, handleBulkDownload } from '../utils/downloadHelpers';
 import { PrintableInvoice } from '../components/PrintableInvoice';
 import { ConfirmationDialog } from '../components/ConfirmationDialog';
+
+interface ZoomableDraftViewerProps {
+  src: string;
+}
+
+export function ZoomableDraftViewer({ src }: ZoomableDraftViewerProps) {
+  const [scale, setScale] = useState(1);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const dragStart = useRef({ x: 0, y: 0 });
+
+  // Touch gesture state for pinch-to-zoom
+  const touchStartDist = useRef<number | null>(null);
+  const touchStartScale = useRef<number>(1);
+  const lastTap = useRef<number>(0);
+
+  // Reset zoom and pan when image source changes
+  useEffect(() => {
+    setScale(1);
+    setPosition({ x: 0, y: 0 });
+  }, [src]);
+
+  const onStart = (clientX: number, clientY: number) => {
+    if (scale === 1) return;
+    setIsDragging(true);
+    dragStart.current = { x: clientX - position.x, y: clientY - position.y };
+  };
+
+  const onMove = (clientX: number, clientY: number) => {
+    if (!isDragging) return;
+    
+    let newX = clientX - dragStart.current.x;
+    let newY = clientY - dragStart.current.y;
+
+    if (containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const maxDragX = (rect.width * (scale - 1)) / 2;
+      const maxDragY = (rect.height * (scale - 1)) / 2;
+      
+      newX = Math.max(-maxDragX, Math.min(maxDragX, newX));
+      newY = Math.max(-maxDragY, Math.min(maxDragY, newY));
+    }
+
+    setPosition({ x: newX, y: newY });
+  };
+
+  const onEnd = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    onStart(e.clientX, e.clientY);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    onMove(e.clientX, e.clientY);
+  };
+
+  const handleMouseUpOrLeave = () => {
+    onEnd();
+  };
+
+  // Support double-click to toggle zoom on desktop
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (scale > 1) {
+      setScale(1);
+      setPosition({ x: 0, y: 0 });
+    } else {
+      setScale(2.5);
+      setPosition({ x: 0, y: 0 });
+    }
+  };
+
+  // Support multitouch pinching & double-tap to zoom on mobile
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length === 1) {
+      const now = Date.now();
+      if (now - lastTap.current < 300) {
+        // Double tap toggle
+        e.preventDefault();
+        if (scale > 1) {
+          setScale(1);
+          setPosition({ x: 0, y: 0 });
+        } else {
+          setScale(2.5);
+          setPosition({ x: 0, y: 0 });
+        }
+      } else {
+        onStart(e.touches[0].clientX, e.touches[0].clientY);
+      }
+      lastTap.current = now;
+    } else if (e.touches.length === 2) {
+      // Pinch gesture start
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      touchStartDist.current = dist;
+      touchStartScale.current = scale;
+      setIsDragging(false);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (e.touches.length === 1 && !touchStartDist.current) {
+      onMove(e.touches[0].clientX, e.touches[0].clientY);
+    } else if (e.touches.length === 2 && touchStartDist.current) {
+      e.preventDefault();
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      const factor = dist / touchStartDist.current;
+      const nextScale = Math.max(1, Math.min(touchStartScale.current * factor, 4));
+      setScale(nextScale);
+      
+      if (nextScale === 1) {
+        setPosition({ x: 0, y: 0 });
+      }
+    }
+  };
+
+  const handleTouchEnd = () => {
+    touchStartDist.current = null;
+    onEnd();
+  };
+
+  return (
+    <div className="relative w-full h-full overflow-hidden select-none" onDoubleClick={handleDoubleClick}>
+      <div 
+        ref={containerRef}
+        className={`relative w-full h-full overflow-hidden flex items-center justify-center bg-zinc-950 ${scale > 1 ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'}`}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUpOrLeave}
+        onMouseLeave={handleMouseUpOrLeave}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        <div 
+          style={{
+            transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+            transition: isDragging ? 'none' : 'transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+          }}
+          className="w-full h-full flex items-center justify-center"
+        >
+          <img 
+            src={src} 
+            loading="lazy" 
+            className="max-w-full max-h-full object-contain pointer-events-none select-none transition-transform duration-200" 
+            alt="Draft Preview" 
+          />
+        </div>
+
+        {/* Floating instructions when zoomed */}
+        {scale > 1 && (
+          <div className="absolute bottom-4 right-4 bg-black/80 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-2 pointer-events-none text-white text-[10px] font-bold tracking-wider uppercase">
+            <Move size={12} className="text-purple-400" /> Drag to Pan
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 interface TrackingProps {
   user: User | null;
@@ -68,6 +236,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
   
   // Modal States
   const [showDraftLightbox, setShowDraftLightbox] = useState(false);
+  const [activeDraftIndex, setActiveDraftIndex] = useState(0);
   const [isRevisionMode, setIsRevisionMode] = useState(false);
   const [revisionNotes, setRevisionNotes] = useState('');
   const [isSubmittingAction, setIsSubmittingAction] = useState(false);
@@ -79,17 +248,30 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
   useEffect(() => {
      if (lightboxParam === 'true' && !showDraftLightbox) {
          setShowDraftLightbox(true);
+         setActiveDraftIndex(0);
      } else if (lightboxParam !== 'true' && showDraftLightbox) {
          setShowDraftLightbox(false);
          setIsRevisionMode(false);
      }
   }, [lightboxParam]);
 
+  // Back button param sync for Cancel confirmation dialog
+  const cancelConfirmParam = searchParams.get('cancel_confirm');
+  useEffect(() => {
+     if (cancelConfirmParam === 'true' && !showCancelConfirm) {
+         setShowCancelConfirm(true);
+     } else if (cancelConfirmParam !== 'true' && showCancelConfirm) {
+         setShowCancelConfirm(false);
+     }
+  }, [cancelConfirmParam]);
+
   const openLightbox = () => {
+      setActiveDraftIndex(0);
       setSearchParams(prev => { prev.set('lightbox', 'true'); return prev; }, { replace: false });
   };
 
   const closeLightbox = () => {
+      setActiveDraftIndex(0);
       setSearchParams(prev => { prev.delete('lightbox'); return prev; }, { replace: false });
   };
 
@@ -237,7 +419,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
 
   const confirmCancel = async () => {
     if (!order) return;
-    setShowCancelConfirm(false);
+    setSearchParams(prev => { prev.delete('cancel_confirm'); return prev; }, { replace: false });
     try {
       await cancelOrder(order.id);
     } catch (err) {
@@ -246,7 +428,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
   };
 
   const handleCancel = () => {
-    setShowCancelConfirm(true);
+    setSearchParams(prev => { prev.set('cancel_confirm', 'true'); return prev; }, { replace: false });
   };
 
   const STATUS_FLOW = [
@@ -280,7 +462,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
   if (order) {
     const isFilesDeleted = order.isDeletedByAdmin === true;
     const activeIndex = getCurrentStepIndex(order.status);
-    const hasDraft = !!order.draftImg;
+    const hasDraft = !!order.draftImg || (!!order.draftImgs && order.draftImgs.length > 0);
 
     return (
       <div className="min-h-screen pt-24 px-4 pb-12 max-w-7xl mx-auto print:p-0 print:pt-0 print:m-0 print:min-h-0 print:w-full relative">
@@ -290,7 +472,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
             message="Are you sure you want to cancel this order? This action cannot be undone."
             confirmText="Yes, Cancel Order"
             onConfirm={confirmCancel}
-            onCancel={() => setShowCancelConfirm(false)}
+            onCancel={() => setSearchParams(prev => { prev.delete('cancel_confirm'); return prev; }, { replace: false })}
         />
         <Helmet>
           <title>Order #{order.id} | Tracking</title>
@@ -501,88 +683,188 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
         </div>
 
         {/* Draft Lightbox Modal - FIXED SCROLLING */}
-        {showDraftLightbox && (
-          <div className="fixed inset-0 z-[200] flex items-start justify-center p-4 overflow-y-auto">
-             <div className="fixed inset-0 bg-black/95 backdrop-blur-xl" onClick={() => !isRevisionMode && closeLightbox()}></div>
-             
-             <div className="relative w-full max-w-lg bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-[3rem] overflow-hidden shadow-2xl animate-fade-in my-8">
-                <div className="relative aspect-[3/4] bg-gray-100 dark:bg-slate-800 flex items-center justify-center border-b border-gray-200 dark:border-slate-700">
-                   {order.draftImg ? (
-                     <div className="relative w-full h-full">
-                       <img src={order.draftImg} loading="lazy" className="w-full h-full object-contain pointer-events-none select-none" alt="Draft Preview" />
-                       {/* Watermark/Warning UI */}
-                       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none select-none opacity-20 overflow-hidden">
-                          <span className="text-4xl font-black uppercase tracking-[0.5em] text-gray-950 rotate-45 mb-40">PREVIEW ONLY</span>
-                          <span className="text-4xl font-black uppercase tracking-[0.5em] text-gray-950 rotate-45">PREVIEW ONLY</span>
-                       </div>
-                       <div className="absolute top-6 left-1/2 -translate-x-1/2 bg-red-50 dark:bg-red-950/40 border border-red-150 dark:border-red-900/40 px-4 py-2 rounded-full flex items-center gap-2 whitespace-nowrap z-20 shadow-sm">
-                          <ShieldAlert size={14} className="text-red-650 dark:text-red-400" />
-                          <span className="text-[10px] font-black uppercase tracking-widest text-red-650 dark:text-red-400">Screen Capture DisabledScreen Capture Disabled</span>
-                       </div>
-                     </div>
-                   ) : (
-                     <div className="text-gray-400 italic text-sm">No preview available.</div>
-                   )}
-                   <button onClick={closeLightbox} className="absolute top-6 right-6 bg-white/80 dark:bg-slate-900/80 hover:bg-gray-100 dark:hover:bg-slate-800 p-3 rounded-full text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100 transition-all border border-gray-200 dark:border-slate-700 z-50 shadow-sm">
-                     <X size={20} />
-                   </button>
-                </div>
+        {showDraftLightbox && (() => {
+          const drafts = order.draftImgs || (order.draftImg ? [order.draftImg] : []);
+          const hasMultipleDrafts = drafts.length > 1;
+          const activeDraft = drafts[activeDraftIndex] || order.draftImg || '';
+          
+          return (
+            <div className="fixed inset-0 z-[200] flex items-center justify-center p-0 overflow-hidden animate-fade-in">
+               <div className="fixed inset-0 bg-black/90 backdrop-blur-xl" onClick={() => !isRevisionMode && closeLightbox()}></div>
+               
+               <div className="relative w-full h-full bg-white dark:bg-slate-900 border-0 rounded-none overflow-y-auto md:overflow-hidden shadow-2xl flex flex-col animate-slide-up">
+                  
+                  {/* Header */}
+                  <div className="px-6 py-4 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between shrink-0">
+                    <div>
+                      <h4 className="text-lg font-bold text-gray-900 dark:text-slate-100 font-sans">{order.serviceType}</h4>
+                      <p className="text-[10px] text-gray-400 font-mono uppercase tracking-wider mt-0.5">{order.id}</p>
+                    </div>
+                    <button onClick={closeLightbox} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-500 hover:text-gray-900 dark:hover:text-slate-100 transition-colors border border-gray-200/50 dark:border-slate-800">
+                      <X size={18} />
+                    </button>
+                  </div>
 
-                <div className="p-8 md:p-10 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-700">
-                   <h4 className="text-2xl font-display text-gray-900 dark:text-slate-100 mb-2">{order.serviceType}</h4>
-                   <p className="text-gray-400 font-mono text-xs uppercase tracking-widest mb-8">{order.id}</p>
+                  {/* Main Content Area */}
+                  <div className="flex-grow flex flex-col md:flex-row overflow-visible md:overflow-hidden">
+                    
+                    {/* Left Column: Preview Viewbox & Thumbnails */}
+                    <div className="w-full md:w-[60%] lg:w-[65%] flex-grow md:flex-grow-0 md:h-full bg-zinc-950 flex flex-col overflow-hidden border-b md:border-b-0 md:border-r border-gray-150 dark:border-slate-800">
+                      
+                      {/* Viewbox */}
+                      <div className="relative h-[380px] md:h-0 md:flex-grow w-full flex items-center justify-center bg-zinc-950 overflow-hidden">
+                        {activeDraft ? (
+                          <div className="relative w-full h-full">
+                            {/* Zoom Engine */}
+                            <ZoomableDraftViewer src={activeDraft} />
 
-                   {isRevisionMode ? (
-                     <div className="space-y-6 animate-fade-in">
-                        <div className="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-4">
-                           <label className="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-2 block">Your Feedback</label>
-                           <textarea 
-                             value={revisionNotes}
-                             onChange={(e) => setRevisionNotes(e.target.value)}
-                             placeholder="What would you like us to change? Please be specific about colors, layout, or text."
-                             className="w-full bg-transparent border-none text-gray-900 dark:text-slate-100 text-sm outline-none placeholder:text-gray-400 min-h-[120px] resize-none"
-                             autoFocus
-                           />
-                        </div>
-                        <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
-                           <button onClick={() => setIsRevisionMode(false)} className="flex-1 py-4 text-gray-400 font-bold uppercase text-[10px] tracking-widest hover:text-gray-900 dark:text-slate-100 transition-colors">Cancel</button>
-                           <button 
-                             onClick={handleSubmitRevision} 
-                             disabled={!revisionNotes.trim() || isSubmittingAction}
-                             className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-4 rounded-xl font-black uppercase text-[10px] tracking-widest transition-all disabled:opacity-50 shadow-sm"
-                           >
-                             {isSubmittingAction ? 'Submitting...' : 'Send Revision'}
-                           </button>
-                        </div>
-                     </div>
-                   ) : (
-                     <div className="space-y-8 animate-fade-in">
-                        <div className="bg-purple-50 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-800/30 rounded-2xl p-6">
-                           <div className="flex items-center gap-3 text-purple-700 dark:text-purple-300 font-black uppercase tracking-widest text-[11px] mb-2">
-                              <CheckCircle2 size={16} /> Latest Draft Status
-                           </div>
-                           <p className="text-gray-600 dark:text-purple-200/90 text-[11px] font-medium leading-relaxed font-sans">
-                             Please review the artwork carefully. Check for spelling, layout, and colors.
-                           </p>
-                        </div>
+                            {/* Secure Preview Warning Indicator */}
+                            <div className="absolute top-4 left-4 bg-black/75 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-2 pointer-events-none text-white text-[9px] font-black tracking-widest uppercase z-10 border border-white/10">
+                              <Shield size={12} className="text-red-400 animate-pulse" />
+                              <span>Watermarked Preview</span>
+                            </div>
 
-                        <div className="space-y-4">
-                           <button onClick={() => setIsRevisionMode(true)} className="w-full py-4 border border-gray-200 dark:border-slate-700 rounded-xl text-gray-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-widest hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-800 transition-all flex items-center justify-center gap-3 font-sans shadow-sm">
-                              <Clock size={16} /> Request Revision
-                           </button>
-                           <button onClick={handleApprove} disabled={isSubmittingAction} className="w-full bg-purple-600 hover:bg-purple-700 text-white py-5 rounded-xl font-bold uppercase text-[10px] tracking-[0.2em] transition-all flex items-center justify-center gap-3 shadow-md font-sans">
-                              <Check size={18} /> Approve & Proceed
-                           </button>
+                            {/* Mobile / Responsive Floating Version Indicator */}
+                            {hasMultipleDrafts && (
+                              <div className="absolute top-4 right-4 bg-black/75 backdrop-blur-md px-3 py-1.5 rounded-full pointer-events-none text-white text-[9px] font-bold tracking-wider z-10 border border-white/10">
+                                Draft {activeDraftIndex + 1} of {drafts.length}
+                              </div>
+                            )}
+
+                            {/* Left/Right controls (Overlay for multiple drafts) */}
+                            {hasMultipleDrafts && (
+                              <>
+                                <button 
+                                  onClick={() => setActiveDraftIndex(prev => (prev - 1 + drafts.length) % drafts.length)}
+                                  className="absolute left-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 hover:bg-black/85 backdrop-blur-md text-white flex items-center justify-center transition-all z-20 border border-white/10 shadow-lg active:scale-95"
+                                  title="Previous Draft"
+                                >
+                                  <ChevronLeft size={20} />
+                                </button>
+                                <button 
+                                  onClick={() => setActiveDraftIndex(prev => (prev + 1) % drafts.length)}
+                                  className="absolute right-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 hover:bg-black/85 backdrop-blur-md text-white flex items-center justify-center transition-all z-20 border border-white/10 shadow-lg active:scale-95"
+                                  title="Next Draft"
+                                >
+                                  <ChevronRight size={20} />
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="text-gray-400 italic text-sm">No preview available.</div>
+                        )}
+                      </div>
+
+                      {/* Mobile Dot Indicators */}
+                      {hasMultipleDrafts && (
+                        <div className="md:hidden flex justify-center gap-1.5 py-3 bg-zinc-950/40 border-b border-gray-150 dark:border-slate-800">
+                          {drafts.map((_, idx) => (
+                            <button
+                              key={idx}
+                              onClick={() => setActiveDraftIndex(idx)}
+                              className={`w-1.5 h-1.5 rounded-full transition-all ${activeDraftIndex === idx ? 'bg-purple-500 w-3' : 'bg-gray-400/55'}`}
+                            />
+                          ))}
                         </div>
-                        <p className="text-[9px] text-center text-gray-400 uppercase font-semibold tracking-widest px-4 leading-relaxed font-sans">
-                          By approving, you confirm that the artwork is final. You will be asked to complete payment.
-                        </p>
-                     </div>
-                   )}
-                </div>
-             </div>
-          </div>
-        )}
+                      )}
+
+                      {/* Desktop Version Thumbnails strip */}
+                      {hasMultipleDrafts && (
+                        <div className="hidden md:block px-6 py-4 border-t border-gray-150 dark:border-slate-800 bg-zinc-950 text-white shrink-0">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-[10px] font-black uppercase tracking-wider text-purple-400">
+                              Version History
+                            </span>
+                            <span className="text-[10px] font-mono text-zinc-400">
+                              Draft {activeDraftIndex + 1} of {drafts.length}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
+                            {drafts.map((draftUrl, idx) => (
+                              <button 
+                                key={idx}
+                                onClick={() => setActiveDraftIndex(idx)}
+                                className={`relative w-12 h-12 rounded-lg overflow-hidden border-2 transition-all shrink-0 ${activeDraftIndex === idx ? 'border-purple-500 scale-105 shadow-md' : 'border-transparent opacity-50 hover:opacity-100'}`}
+                              >
+                                <img src={draftUrl} className="w-full h-full object-cover" alt={`Thumb ${idx + 1}`} />
+                                <div className="absolute inset-0 bg-black/30 flex items-center justify-center text-[9px] text-white font-bold font-mono">
+                                  #{idx + 1}
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Right Column: Actions, guidelines and inputs */}
+                    <div className="w-full md:w-[40%] lg:w-[35%] md:h-full flex flex-col bg-white dark:bg-slate-900 overflow-visible md:overflow-y-auto">
+                      <div className="p-5 md:p-8 flex-grow flex flex-col justify-between gap-5">
+                        {isRevisionMode ? (
+                          <div className="space-y-4 animate-fade-in flex-grow flex flex-col">
+                            <div className="bg-gray-50 dark:bg-slate-850/50 border border-gray-200 dark:border-slate-800 rounded-2xl p-4 flex-grow flex flex-col min-h-[120px] md:min-h-[160px]">
+                              <label className="text-[10px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-widest mb-1.5 block shrink-0">
+                                Revision Notes for Draft #{activeDraftIndex + 1}
+                              </label>
+                              <textarea 
+                                value={revisionNotes}
+                                onChange={(e) => setRevisionNotes(e.target.value)}
+                                placeholder="Please specify changes for this version: colors, layout, details, etc."
+                                className="w-full bg-transparent border-none text-gray-900 dark:text-slate-100 text-sm outline-none placeholder:text-gray-400 flex-grow resize-none"
+                                autoFocus
+                              />
+                            </div>
+                            <div className="flex flex-row gap-2 shrink-0">
+                              <button onClick={() => setIsRevisionMode(false)} className="flex-1 py-3 text-gray-500 hover:text-gray-900 dark:text-slate-350 dark:hover:text-white font-bold uppercase text-[10px] tracking-widest transition-colors">
+                                Cancel
+                              </button>
+                              <button 
+                                onClick={handleSubmitRevision} 
+                                disabled={!revisionNotes.trim() || isSubmittingAction}
+                                className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-black uppercase text-[10px] tracking-widest transition-all disabled:opacity-50 shadow-sm"
+                              >
+                                {isSubmittingAction ? 'Submitting...' : 'Send'}
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="space-y-4 md:space-y-6 animate-fade-in flex-grow flex flex-col justify-between">
+                            <div className="hidden md:block space-y-4">
+                              <div className="bg-purple-50 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-800/30 rounded-2xl p-4">
+                                <div className="flex items-center gap-2.5 text-purple-700 dark:text-purple-300 font-black uppercase tracking-widest text-[10px] mb-1.5">
+                                  <CheckCircle2 size={14} /> Draft Revision & Approval
+                                </div>
+                                <p className="text-gray-600 dark:text-purple-200/90 text-[11px] leading-relaxed font-medium">
+                                  Carefully examine layout, spelling, and colors on Draft #{activeDraftIndex + 1}. Request revisions if changes are needed, or click Approve to proceed.
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="space-y-4 shrink-0">
+                              <div className="grid grid-cols-2 md:grid-cols-1 gap-3">
+                                <button onClick={() => setIsRevisionMode(true)} className="w-full py-3.5 border border-gray-200 dark:border-slate-800 rounded-xl text-gray-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-widest hover:bg-gray-50 dark:hover:bg-slate-800 transition-all flex items-center justify-center gap-2 shadow-sm">
+                                  <Clock size={14} /> Revision
+                                </button>
+                                <button onClick={handleApprove} disabled={isSubmittingAction} className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3.5 rounded-xl font-bold uppercase text-[10px] tracking-widest transition-all flex items-center justify-center gap-2 shadow-md">
+                                  <Check size={16} /> Approve
+                                </button>
+                              </div>
+                              
+                              <p className="text-[9px] text-center text-gray-400 uppercase font-semibold tracking-widest px-4 leading-relaxed">
+                                Approving commits this version as final and initiates delivery.
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                  </div>
+               </div>
+            </div>
+          );
+        })()}
       </div>
     );
   }

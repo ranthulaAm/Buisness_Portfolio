@@ -28,7 +28,7 @@ import { ClientActivityChart } from '../components/ClientActivityChart';
 import { AdminSecurity } from '../components/AdminSecurity';
 import { AdminClientUploads } from '../components/AdminClientUploads';
 import { ConfirmationDialog } from '../components/ConfirmationDialog';
-import { Package, Search, MessageSquare, MessageCircle, Layout as LayoutIcon, LogOut, ChevronRight, ChevronLeft, Save, User as UserIcon, X, AlertCircle, Download, Music, Copy, Check, Upload, ImageIcon, FileBox, RefreshCw, DollarSign, ChevronUp, ChevronDown, Loader2, Trash2, Bell, BarChart2, List, Settings, Briefcase, GraduationCap, Award, Mail, Plus, Star, ArrowLeft, Receipt, Shield } from 'lucide-react';
+import { Package, Search, MessageSquare, MessageCircle, Layout as LayoutIcon, LogOut, ChevronRight, ChevronLeft, Save, User as UserIcon, X, AlertCircle, Download, Music, Copy, Check, Upload, ImageIcon, FileBox, RefreshCw, DollarSign, ChevronUp, ChevronDown, Loader2, Trash2, Bell, BarChart2, List, Settings, Briefcase, GraduationCap, Award, Mail, Plus, Star, ArrowLeft, Receipt, Shield, ShieldAlert } from 'lucide-react';
 import {
   BarChart,
   Bar,
@@ -45,6 +45,50 @@ import {
   Line,
 } from 'recharts';
 
+const addWatermark = async (file: File, text: string): Promise<File> => {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(img.src);
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        resolve(file);
+        return;
+      }
+      ctx.drawImage(img, 0, 0);
+      
+      const size = Math.max(30, Math.floor(canvas.width / 15));
+      ctx.font = `bold ${size}px sans-serif`;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
+      ctx.lineWidth = Math.max(2, Math.floor(size / 15));
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.rotate(-Math.PI / 4);
+      
+      ctx.fillText(text, 0, 0);
+      ctx.strokeText(text, 0, 0);
+      
+      canvas.toBlob((blob) => {
+        if (blob) {
+          resolve(new File([blob], file.name, { type: file.type }));
+        } else {
+          resolve(file);
+        }
+      }, file.type);
+    };
+    img.onerror = () => {
+      resolve(file);
+    };
+  });
+};
+
 interface AdminDashboardProps {
   user?: User | null;
 }
@@ -54,7 +98,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const tabFromUrl = searchParams.get('tab');
   
-  const [activeTab, setActiveTab] = useState<'orders' | 'clients' | 'reviews' | 'charts' | 'settings' | 'portfolio' | 'skills' | 'experience' | 'education' | 'contacts' | 'testimonials' | 'invoice' | 'email' | 'security' | 'shares'>(
+  const [activeTab, setActiveTab] = useState<'orders' | 'clients' | 'reviews' | 'charts' | 'settings' | 'portfolio' | 'skills' | 'experience' | 'education' | 'contacts' | 'testimonials' | 'invoice' | 'email' | 'security' | 'shares' | 'uploads'>(
     (tabFromUrl as any) || 'orders'
   );
 
@@ -66,7 +110,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
     }
   }, [tabFromUrl]);
 
-  const handleTabChange = (tab: 'orders' | 'clients' | 'reviews' | 'charts' | 'settings' | 'portfolio' | 'skills' | 'experience' | 'education' | 'contacts' | 'testimonials' | 'invoice' | 'email' | 'security' | 'shares') => {
+  const handleTabChange = (tab: 'orders' | 'clients' | 'reviews' | 'charts' | 'settings' | 'portfolio' | 'skills' | 'experience' | 'education' | 'contacts' | 'testimonials' | 'invoice' | 'email' | 'security' | 'shares' | 'uploads') => {
     setActiveTab(tab);
     setSearchParams({ tab });
   };
@@ -98,6 +142,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
   
   // Deliverable States
   const [draftImage, setDraftImage] = useState<string | null>(null);
+  const [draftImages, setDraftImages] = useState<string[]>([]);
   const [finalFiles, setFinalFiles] = useState<{ name: string; type: string; data: string }[]>([]);
 
   const orderIdFromUrl = searchParams.get('order');
@@ -151,6 +196,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
     setEditStatus(order.status);
     setEditEta(order.estimatedCompletion);
     setDraftImage(order.draftImg || null);
+    setDraftImages(order.draftImgs || (order.draftImg ? [order.draftImg] : []));
     setFinalFiles(order.finalFiles || []);
     setUploadProgress({});
     if (updateUrl) {
@@ -177,6 +223,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
   const closeOrder = (updateUrl = true) => {
     setSelectedOrder(null);
     setDraftImage(null);
+    setDraftImages([]);
     setFinalFiles([]);
     setUploadProgress({});
     if (updateUrl) {
@@ -185,18 +232,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
   };
 
   const handleDraftUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && selectedOrder) {
-      const MAX_SIZE_MB = 1000;
-      const BLOCKED_TYPES = ["application/x-msdownload", "application/x-sh", "application/x-bat", "application/x-executable"];
-      
+    const files = e.target.files;
+    if (!files || files.length === 0 || !selectedOrder) return;
+    
+    const fileList = Array.from(files);
+    const MAX_SIZE_MB = 1000;
+    const BLOCKED_TYPES = ["application/x-msdownload", "application/x-sh", "application/x-bat", "application/x-executable"];
+    
+    let uploadedCount = 0;
+    for (let i = 0; i < fileList.length; i++) {
+      const file = fileList[i];
       if (file.size > MAX_SIZE_MB * 1024 * 1024) {
         toast(`File ${file.name} exceeds ${MAX_SIZE_MB}MB limit.`);
-        return;
+        continue;
       }
       if (BLOCKED_TYPES.includes(file.type) || file.name.match(/\.(exe|bat|sh|cmd)$/i)) {
         toast(`File ${file.name} has an unsupported file type.`);
-        return;
+        continue;
       }
 
       try {
@@ -210,33 +262,54 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                   console.warn("Compression/Watermark failed", e);
               }
           }
-          const path = `${selectedOrder.clientId}/uploads/${selectedOrder.id}/drafts/${Date.now()}_${fileToUpload.name || 'image'}`;
+          const path = `${selectedOrder.clientId}/uploads/${selectedOrder.id}/drafts/${Date.now()}_${i}_${fileToUpload.name || 'image'}`;
+          const progressKey = `draft_${i}_${file.name}`;
+          
           const url = await uploadFileWithProgress(fileToUpload, path, (p) => {
-            setUploadProgress(prev => ({ ...prev, draft: p }));
+            setUploadProgress(prev => ({ ...prev, [progressKey]: p }));
           });
-          setDraftImage(url);
-          // Auto update status suggestion
-          if (editStatus !== OrderStatus.DRAFT_SENT) {
-             setEditStatus(OrderStatus.DRAFT_SENT);
-          }
+          
+          setDraftImages(prev => {
+            const next = [...prev, url];
+            setDraftImage(next[0] || null); // Keep for backwards compatibility
+            return next;
+          });
+          uploadedCount++;
       } catch (err) {
           console.error("Draft upload failed", err);
-          toast("Failed to upload draft.");
+          toast(`Failed to upload draft ${file.name}`);
       } finally {
+          const progressKey = `draft_${i}_${file.name}`;
           setUploadProgress(prev => {
             const n = { ...prev };
-            delete n.draft;
+            delete n[progressKey];
             return n;
           });
       }
     }
+
+    if (uploadedCount > 0) {
+      if (editStatus !== OrderStatus.DRAFT_SENT) {
+         setEditStatus(OrderStatus.DRAFT_SENT);
+      }
+      toast(`Successfully uploaded ${uploadedCount} draft(s)`);
+    }
   };
 
-  const removeDraft = async () => {
-      if (draftImage) {
-          await deleteFileFromUrl(draftImage);
+  const removeDraft = async (index: number) => {
+      const url = draftImages[index];
+      if (url) {
+          try {
+              await deleteFileFromUrl(url);
+          } catch (e) {
+              console.warn("Failed to delete draft from storage", e);
+          }
       }
-      setDraftImage(null);
+      setDraftImages(prev => {
+        const next = prev.filter((_, idx) => idx !== index);
+        setDraftImage(next[0] || null); // Keep for backwards compatibility
+        return next;
+      });
   };
 
   const handleFinalFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -320,7 +393,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
       ...selectedOrder,
       status: editStatus,
       estimatedCompletion: editEta || "",
-      draftImg: draftImage || null,
+      draftImg: draftImages[0] || null,
+      draftImgs: draftImages,
       finalFiles: finalFiles || [],
     };
     await updateOrder(updatedOrder);
@@ -413,7 +487,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
   const exportToCsv = () => {
     let csvStr = "ID,Client,Email,Service,Status,Price,Date\n";
     filteredOrders.forEach(o => {
-      csvStr += `${o.id},"${o.clientName || o.clientEmail || ''}","${o.email || o.clientEmail || ''}","${o.serviceType}",${o.status},${o.price || 0},${new Date(o.createdAt).toLocaleDateString()}\n`;
+      csvStr += `${o.id},"${o.clientName || (o as any).clientEmail || ''}","${o.email || (o as any).clientEmail || ''}","${o.serviceType}",${o.status},${o.price || 0},${new Date(o.createdAt).toLocaleDateString()}\n`;
     });
     const blob = new Blob([csvStr], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
@@ -430,7 +504,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
     
     const tableData = filteredOrders.map(o => [
       o.id.substring(0, 8) + '...',
-      o.clientName || o.clientEmail || 'Client',
+      o.clientName || (o as any).clientEmail || 'Client',
       o.serviceType || 'Custom',
       o.status,
       `LKR ${(o.price || 0).toLocaleString()}`,
@@ -561,19 +635,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#eab308'];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-slate-100 pb-12">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-slate-100 flex flex-col h-screen overflow-hidden">
       <Helmet>
         <title>Admin Dashboard | Ranthula | Buisness portfolio</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
       {/* Navigation */}
-      <div className="bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700 sticky top-0 z-30 px-4 md:px-8 py-4 flex justify-between items-center shadow-sm">
-         <div className="flex items-center gap-3">
-             <span className="font-bold text-lg tracking-tight pl-2">Admin Dashboard</span>
-             <span className="bg-green-100 text-green-800 text-[10px] font-bold px-2 py-0.5 rounded border border-green-200">CLOUD MODE</span>
+      <div className="bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700 z-30 px-4 md:px-8 py-3 flex justify-between items-center shadow-sm shrink-0">
+         <div className="flex items-center gap-3 md:pl-4">
+             <span className="font-bold text-lg tracking-tight">Admin Control Center</span>
+             <span className="bg-green-100 text-green-800 text-[10px] font-bold px-2 py-0.5 rounded border border-green-200 hidden sm:inline-block">CLOUD MODE</span>
+             {alertsCount > 0 && (
+                <div className="flex items-center gap-1.5 bg-red-100 text-red-700 px-3 py-1 rounded-full border border-red-200 text-xs font-bold animate-pulse shadow-sm cursor-pointer hover:bg-red-200 transition-colors" title="New orders or revisions need your attention" onClick={() => { handleTabChange('orders'); setFilterStatus(OrderStatus.PENDING); }}>
+                  <Bell size={12} className="animate-bounce" /> {alertsCount}
+                </div>
+             )}
+         </div>
+         <div className="flex items-center gap-4">
              <button 
                onClick={() => handleTabChange('security')}
-               className={`flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded border shadow-sm transition-all cursor-pointer hover:scale-105 active:scale-95 ${
+               className={`hidden sm:flex items-center gap-1.5 text-[10px] font-bold px-3 py-1.5 rounded-full border shadow-sm transition-all cursor-pointer hover:scale-105 active:scale-95 ${
                  activeTab === 'security'
                    ? 'bg-purple-600 border-purple-500 text-white ring-2 ring-purple-400/50 shadow-[0_0_12px_rgba(168,85,247,0.4)]'
                    : 'bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-800/50 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800'
@@ -586,20 +667,101 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                </span>
                {activeUsers} ACTIVE
              </button>
-             {alertsCount > 0 && (
-                <div className="flex items-center gap-1.5 bg-red-100 text-red-700 px-3 py-1 rounded-full border border-red-200 text-xs font-bold animate-pulse shadow-sm cursor-pointer hover:bg-red-200 transition-colors" title="New orders or revisions need your attention" onClick={() => setFilterStatus(OrderStatus.PENDING)}>
-                  <Bell size={12} className="animate-bounce" /> {alertsCount}
-                </div>
-             )}
-         </div>
-         <div className="flex items-center gap-4">
              <button onClick={handleLogout} className="text-xs font-bold text-gray-500 dark:text-slate-400 hover:text-red-600 flex items-center gap-2 bg-gray-100 dark:bg-slate-800 hover:bg-red-50 px-3 py-2 rounded-lg transition-colors cursor-pointer">
-                <LogOut size={14} /> Log Out
+                <LogOut size={14} /> <span className="hidden sm:inline">Log Out</span>
              </button>
          </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 md:px-8 pt-8">
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar */}
+        <aside className="w-64 bg-white dark:bg-slate-900 border-r border-gray-200 dark:border-slate-700 flex-shrink-0 overflow-y-auto hidden lg:block">
+           <div className="py-4 space-y-6">
+              
+              <div>
+                 <div className="px-6 text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest mb-3">Management</div>
+                 <nav className="space-y-0.5 px-3">
+                   <button onClick={() => handleTabChange('orders')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'orders' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
+                     <List size={18} className={activeTab === 'orders' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-slate-500'} /> Orders
+                     {orders.filter(o => o.status === OrderStatus.PENDING).length > 0 && (
+                       <span className="ml-auto bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">{orders.filter(o => o.status === OrderStatus.PENDING).length}</span>
+                     )}
+                   </button>
+                   <button onClick={() => handleTabChange('clients')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'clients' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
+                     <UserIcon size={18} className={activeTab === 'clients' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-slate-500'} /> Clients
+                   </button>
+                   <button onClick={() => handleTabChange('charts')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'charts' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
+                     <BarChart2 size={18} className={activeTab === 'charts' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-slate-500'} /> Analytics
+                   </button>
+                   <button onClick={() => handleTabChange('uploads')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'uploads' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
+                     <Upload size={18} className={activeTab === 'uploads' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-slate-500'} /> Client Uploads
+                   </button>
+                   <button onClick={() => handleTabChange('shares')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'shares' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
+                     <FileBox size={18} className={activeTab === 'shares' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-slate-500'} /> Shared Files
+                   </button>
+                 </nav>
+              </div>
+
+              <div>
+                 <div className="px-6 text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest mb-3">Portfolio Content</div>
+                 <nav className="space-y-0.5 px-3">
+                   <button onClick={() => handleTabChange('portfolio')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'portfolio' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
+                     <ImageIcon size={18} className={activeTab === 'portfolio' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-slate-500'} /> Portfolio Projects
+                   </button>
+                   <button onClick={() => handleTabChange('skills')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'skills' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
+                     <Award size={18} className={activeTab === 'skills' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-slate-500'} /> Skills & Services
+                   </button>
+                   <button onClick={() => handleTabChange('experience')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'experience' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
+                     <Briefcase size={18} className={activeTab === 'experience' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-slate-500'} /> Experience
+                   </button>
+                   <button onClick={() => handleTabChange('education')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'education' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
+                     <GraduationCap size={18} className={activeTab === 'education' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-slate-500'} /> Education
+                   </button>
+                 </nav>
+              </div>
+
+              <div>
+                 <div className="px-6 text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest mb-3">Communication</div>
+                 <nav className="space-y-0.5 px-3">
+                   <button onClick={() => handleTabChange('contacts')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'contacts' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
+                     <Mail size={18} className={activeTab === 'contacts' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-slate-500'} /> Contact Messages
+                     {contacts.filter(c => !c.isRead).length > 0 && (
+                       <span className="ml-auto bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">{contacts.filter(c => !c.isRead).length}</span>
+                     )}
+                   </button>
+                   <button onClick={() => handleTabChange('reviews')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'reviews' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
+                     <Star size={18} className={activeTab === 'reviews' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-slate-500'} /> Client Reviews
+                     {orders.filter(o => o.rating && !o.isFeedbackRead).length > 0 && (
+                       <span className="ml-auto bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">{orders.filter(o => o.rating && !o.isFeedbackRead).length}</span>
+                     )}
+                   </button>
+                 </nav>
+              </div>
+
+              <div>
+                 <div className="px-6 text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest mb-3">System & Tools</div>
+                 <nav className="space-y-0.5 px-3">
+                   <button onClick={() => handleTabChange('settings')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'settings' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
+                     <Settings size={18} className={activeTab === 'settings' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-slate-500'} /> Settings & Admin
+                   </button>
+                   <button onClick={() => handleTabChange('invoice')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'invoice' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
+                     <Receipt size={18} className={activeTab === 'invoice' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-slate-500'} /> Invoice Templates
+                   </button>
+                   <button onClick={() => handleTabChange('email')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'email' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
+                     <Mail size={18} className={activeTab === 'email' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-slate-500'} /> Email Templates
+                   </button>
+                   <button onClick={() => handleTabChange('security')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'security' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
+                     <ShieldAlert size={18} className={activeTab === 'security' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-slate-500'} /> Security & Access
+                   </button>
+                 </nav>
+              </div>
+
+           </div>
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-gray-50 dark:bg-slate-800 relative w-full">
+
         <div className="flex flex-col xl:flex-row justify-between xl:items-end mb-4 gap-4">
             <div>
               <h2 className="text-3xl font-bold text-gray-900 dark:text-slate-100 mb-1">Projects</h2>
@@ -659,109 +821,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
             </div>
         </div>
 
-        <div className="flex gap-4 border-b border-gray-200 dark:border-slate-700 mb-6 px-4 overflow-x-auto whitespace-nowrap">
-          <button 
-            className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 relative ${activeTab === 'orders' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:text-slate-300'}`}
-            onClick={() => handleTabChange('orders')}
-          >
-            <List size={16} /> Orders
-            {orders.filter(o => o.status === OrderStatus.PENDING).length > 0 && (
-              <span className="min-w-4 h-4 px-1.5 bg-red-500 text-white text-[10px] font-bold rounded-full absolute -top-1 -right-2 flex items-center justify-center">
-                {orders.filter(o => o.status === OrderStatus.PENDING).length}
-              </span>
-            )}
-          </button>
-          <button 
-            className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'clients' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:text-slate-300'}`}
-            onClick={() => handleTabChange('clients')}
-          >
-            <UserIcon size={16} /> Clients
-          </button>
-          <button 
-            className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'charts' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:text-slate-300'}`}
-            onClick={() => handleTabChange('charts')}
-          >
-            <BarChart2 size={16} /> Analytics
-          </button>
-          <button 
-            className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'portfolio' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:text-slate-300'}`}
-            onClick={() => handleTabChange('portfolio')}
-          >
-            <ImageIcon size={16} /> Portfolio
-          </button>
-          <button 
-            className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'skills' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:text-slate-300'}`}
-            onClick={() => handleTabChange('skills')}
-          >
-            <Award size={16} /> Skills
-          </button>
-          <button 
-            className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'experience' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:text-slate-300'}`}
-            onClick={() => handleTabChange('experience')}
-          >
-            <Briefcase size={16} /> Experience
-          </button>
-          <button 
-             className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'education' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:text-slate-300'}`}
-             onClick={() => handleTabChange('education')}
-           >
-             <GraduationCap size={16} /> Education
-           </button>
-          <button 
-            className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 relative ${activeTab === 'contacts' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:text-slate-300'}`}
-            onClick={() => handleTabChange('contacts')}
-          >
-            <Mail size={16} /> Contacts
-            {contacts.filter(c => !c.isRead).length > 0 && (
-              <span className="min-w-4 h-4 px-1.5 bg-red-500 text-white text-[10px] font-bold rounded-full absolute -top-1 -right-2 flex items-center justify-center">
-                {contacts.filter(c => !c.isRead).length}
-              </span>
-            )}
-          </button>
-          <button 
-            className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 relative ${activeTab === 'reviews' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:text-slate-300'}`}
-            onClick={() => handleTabChange('reviews')}
-          >
-            <Star size={16} /> Reviews & Testimonials
-            {orders.filter(o => o.rating && !o.isFeedbackRead).length > 0 && (
-              <span className="min-w-4 h-4 px-1.5 bg-red-500 text-white text-[10px] font-bold rounded-full absolute -top-1 -right-2 flex items-center justify-center">
-                {orders.filter(o => o.rating && !o.isFeedbackRead).length}
-              </span>
-            )}
-          </button>
-          <button 
-            className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'settings' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:text-slate-300'}`}
-            onClick={() => handleTabChange('settings')}
-          >
-            <Settings size={16} /> Settings & Prices
-          </button>
-          <button 
-            className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'invoice' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:text-slate-300'}`}
-            onClick={() => handleTabChange('invoice')}
-          >
-            <Receipt size={16} /> Invoice Template
-          </button>
-          <button 
-            className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'email' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:text-slate-300'}`}
-            onClick={() => handleTabChange('email')}
-          >
-            <Mail size={16} /> Email Template
-          </button>
-          <button 
-            className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'shares' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:text-slate-300'}`}
-            onClick={() => handleTabChange('shares')}
-          >
-            <FileBox size={16} /> Shared Files
-          </button>
-          <button 
-            className={`pb-3 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 ${activeTab === 'uploads' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:text-slate-300'}`}
-            onClick={() => handleTabChange('uploads')}
-          >
-            <Upload size={16} /> Client Uploads
-          </button>
-        </div>
+        
 
-        {activeTab === 'clients' ? (
+          {/* Mobile Tabs */}
+          <div className="lg:hidden flex gap-4 border-b border-gray-200 dark:border-slate-700 mb-6 pb-2 overflow-x-auto whitespace-nowrap scrollbar-hide">
+             {['orders', 'clients', 'charts', 'uploads', 'shares', 'portfolio', 'skills', 'experience', 'education', 'contacts', 'reviews', 'settings', 'invoice', 'email', 'security'].map(tab => (
+                 <button 
+                    key={tab}
+                    onClick={() => handleTabChange(tab as any)}
+                    className={`pb-2 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 capitalize ${activeTab === tab ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:text-slate-300'}`}
+                 >
+                    {tab.replace('-', ' ')}
+                 </button>
+             ))}
+          </div>
+
+          {activeTab === 'clients' ? (
            <AdminClients orders={orders} />
         ) : activeTab === 'orders' ? (
           <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm overflow-hidden">
@@ -863,7 +938,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                <div onClick={() => setAnalyticsModal('clients')} className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-5 flex flex-col justify-center items-center text-center cursor-pointer hover:border-purple-500 transition-colors">
                   <UserIcon size={24} className="text-purple-500 mb-2" />
                   <h3 className="text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-1">Unique Clients</h3>
-                  <div className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-1">{new Set(filteredOrders.map(o => o.email || o.clientEmail).filter(Boolean)).size}</div>
+                  <div className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-1">{new Set(filteredOrders.map(o => o.email || (o as any).clientEmail).filter(Boolean)).size}</div>
                </div>
                <div onClick={() => setAnalyticsModal('active_orders')} className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-5 flex flex-col justify-center items-center text-center relative overflow-hidden cursor-pointer hover:border-red-500 transition-colors">
                   <div className="absolute -right-4 -top-4 w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center animate-pulse">
@@ -890,7 +965,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                    </select>
                  </div>
                  <div className="h-[300px] w-full">
-                   <ResponsiveContainer width="100%" height="100%">
+                   <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                      <LineChart data={getTimeframeData()}>
                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#6B7280', fontSize: 12}} dy={10} />
@@ -936,7 +1011,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
               <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-6">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 mb-6">Orders by Status</h3>
                 <div className="h-[300px] w-full">
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                     <PieChart>
                       <Pie
                         data={getStatusData()}
@@ -1070,7 +1145,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
         ) : activeTab === 'security' ? (
           <AdminSecurity />
         ) : null}
-      </div>
 
       
       
@@ -1208,7 +1282,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                         {(() => {
                            const clientsMap = new Map<string, { name: string, email: string, mobiles: Set<string>, joined: string, count: number, categories: Record<string, number> }>();
                            filteredOrders.forEach(o => {
-                              const email = o.email || o.clientEmail || '';
+                              const email = o.email || (o as any).clientEmail || '';
                               if (!email) return;
                               const existing = clientsMap.get(email) || { 
                                  name: o.clientName || 'Unknown', 
@@ -1320,7 +1394,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                               <td className="p-3 text-sm font-mono text-blue-600 dark:text-blue-400">#{o.id.split('-')[1] || o.id.substring(0, 8)}</td>
                               <td className="p-3 text-sm">
                                  <div className="font-medium text-gray-900 dark:text-slate-100">{o.clientName || 'Client'}</div>
-                                 <div className="text-xs text-gray-500">{o.clientEmail}</div>
+                                 <div className="text-xs text-gray-500">{o.email || (o as any).clientEmail}</div>
                               </td>
                               <td className="p-3 text-sm text-gray-700 dark:text-slate-300">{o.serviceType || 'Custom'}</td>
                               <td className="p-3">
@@ -1416,33 +1490,55 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                           </div>
 
                           <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm">
-                             <h3 className="text-xs font-bold uppercase text-gray-400 tracking-wider mb-4">Deliverables</h3>
-                             <label className="block w-full cursor-pointer group">
-                                <div className="w-full h-32 border-2 border-dashed border-gray-200 dark:border-slate-700 rounded-lg flex flex-col items-center justify-center gap-2 hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-800 hover:border-blue-300 transition-colors relative overflow-hidden">
-                                   {uploadProgress.draft !== undefined ? (
-                                      <div className="flex flex-col items-center gap-2 w-full px-4">
-                                          <div className="w-full bg-gray-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
-                                              <div className="bg-blue-600 h-full transition-all duration-300" style={{ width: `${uploadProgress.draft}%` }}></div>
-                                          </div>
-                                          <span className="text-[10px] font-bold text-blue-600">{Math.round(uploadProgress.draft)}%</span>
-                                      </div>
-                                   ) : draftImage ? (
-                                     <div className="relative w-full h-full">
-                                         <img src={draftImage} className="w-full h-full object-cover opacity-50" alt="Draft" />
-                                         <button onClick={(e) => { e.preventDefault(); removeDraft(); }} className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full z-20 hover:bg-red-600"><X size={12} /></button>
+                             <h3 className="text-xs font-bold uppercase text-gray-400 tracking-wider mb-4">Deliverables (Draft Proofs)</h3>
+                             
+                             {/* Existing Drafts List */}
+                             {draftImages.length > 0 && (
+                               <div className="grid grid-cols-3 gap-3 mb-4">
+                                 {draftImages.map((imgUrl, idx) => (
+                                   <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 dark:border-slate-700 bg-gray-50/50 group">
+                                     <img src={imgUrl} className="w-full h-full object-cover" alt={`Draft ${idx + 1}`} />
+                                     <div className="absolute top-1 left-1 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded text-[8px] text-white font-bold uppercase tracking-wider">
+                                       #{idx + 1}
                                      </div>
-                                   ) : (
-                                     <Upload className="text-gray-300 group-hover:text-blue-500" />
-                                   )}
-                                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                      <span className="text-xs font-bold text-gray-500 dark:text-slate-400 bg-white/80 dark:bg-slate-900/80 px-2 py-1 rounded shadow-sm">
-                                        {draftImage ? 'Change Preview' : uploadProgress.draft ? 'Uploading...' : 'Upload Preview'}
-                                      </span>
+                                     <button 
+                                       onClick={(e) => { e.preventDefault(); removeDraft(idx); }} 
+                                       className="absolute inset-0 bg-red-600/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 z-20 animate-fade-in"
+                                       title="Delete Draft"
+                                     >
+                                       <Trash2 size={16} />
+                                     </button>
                                    </div>
+                                 ))}
+                               </div>
+                             )}
+
+                             {/* Uploading Progress */}
+                             {Object.keys(uploadProgress).filter(k => k.startsWith('draft_')).map(progressKey => {
+                               const fileName = progressKey.replace(/^draft_\d+_/, '');
+                               return (
+                                  <div key={progressKey} className="bg-blue-50/50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/30 p-2.5 rounded-lg mb-3">
+                                      <div className="flex justify-between items-center mb-1">
+                                          <span className="text-[10px] font-bold text-blue-800 truncate flex-1">{fileName}</span>
+                                          <span className="text-[10px] font-bold text-blue-600">{Math.round(uploadProgress[progressKey])}%</span>
+                                      </div>
+                                      <div className="w-full bg-blue-100 rounded-full h-1 overflow-hidden">
+                                          <div className="bg-blue-600 h-full transition-all duration-300" style={{ width: `${uploadProgress[progressKey]}%` }}></div>
+                                      </div>
+                                  </div>
+                               );
+                             })}
+
+                             <label className="block w-full cursor-pointer group">
+                                <div className="w-full h-28 border-2 border-dashed border-gray-200 dark:border-slate-700 rounded-lg flex flex-col items-center justify-center gap-2 hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-800 hover:border-blue-300 transition-colors relative overflow-hidden bg-gray-50/30">
+                                   <Upload className="text-gray-300 group-hover:text-blue-500" size={20} />
+                                   <span className="text-xs font-bold text-gray-500 dark:text-slate-400">
+                                     Upload Draft Preview(s)
+                                   </span>
                                 </div>
-                                <input type="file" onChange={handleDraftUpload} className="hidden" accept="image/*" />
+                                <input type="file" onChange={handleDraftUpload} className="hidden" accept="image/*" multiple />
                              </label>
-                             <div className="text-[10px] text-gray-400 mt-2 text-center">Uploading sets status to 'Draft Sent'</div>
+                             <div className="text-[10px] text-gray-400 mt-2 text-center">Uploading draft(s) automatically sets status to 'Draft Sent'</div>
                           </div>
 
                           <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm">
@@ -1558,7 +1654,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                                               if (isDownloadingAll) return;
                                               setIsDownloadingAll(true);
                                               setDownloadProgress(0);
-                                              const clientName = selectedOrder.clientName || selectedOrder.clientEmail?.split('@')[0] || 'Client';
+                                              const clientName = selectedOrder.clientName || (selectedOrder as any).clientEmail?.split('@')[0] || 'Client';
                                               const allFiles = [
                                                 ...selectedOrder.files.map(f => ({ url: f.data, name: f.name })),
                                                 ...(selectedOrder.voiceClips || []).map(v => ({ url: v.data, name: v.name }))
@@ -1704,6 +1800,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
         onCancel={() => setIsDeleteModalOpen(false)}
         type="danger"
       />
+    </main>
+      </div>
     </div>
   );
 };

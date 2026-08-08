@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { User, Order, OrderStatus } from '../types';
 import { listenToOrders, updateOrder } from '../services/storageService';
 import { handleSingleDownload, handleBulkDownload } from '../utils/downloadHelpers';
-import { Package, Clock, MessageSquare, ArrowRight, User as UserIcon, Download, Loader2, Edit2, ArrowDown, ChevronLeft } from 'lucide-react';
+import { Package, Clock, MessageSquare, ArrowRight, User as UserIcon, Download, Loader2, Edit2, ArrowDown, ChevronLeft, Search, X } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ClientProfile } from '../components/ClientProfile';
 import { downloadInvoice } from '../utils/invoiceGenerator';
@@ -17,6 +17,8 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user }) => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [showBackButton, setShowBackButton] = useState(true);
+  const [historySearchQuery, setHistorySearchQuery] = useState('');
+  const [projectSearchQuery, setProjectSearchQuery] = useState('');
   const lastScrollY = useRef(0);
 
   useEffect(() => {
@@ -153,6 +155,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user }) => {
             </button>
             <button 
                 onClick={() => handleTabChange('profile')}
+                style={{ display: 'none' }}
                 className={`pb-4 px-2 font-bold uppercase tracking-widest text-xs transition-colors border-b-2 flex items-center gap-2 ${activeTab === 'profile' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100'}`}
             >
                 <UserIcon size={14} /> Profile & Settings
@@ -185,38 +188,142 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user }) => {
             ))}
           </div>
         ) : activeTab === 'projects' ? (
-          orders.filter(o => o.status !== OrderStatus.COMPLETED && o.status !== OrderStatus.CANCELLED).length === 0 ? (
-            <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-gray-300 dark:border-slate-600 rounded-3xl p-16 text-center shadow-[0_8px_32px_rgba(0,0,0,0.12)] flex flex-col items-center">
-               <div className="w-24 h-24 bg-gray-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-6">
-                  <Package size={40} className="text-gray-300 dark:text-slate-600" />
-               </div>
-               <h3 className="text-2xl font-bold mb-3 text-gray-800 dark:text-slate-200">No Active Projects</h3>
-               <p className="text-gray-500 dark:text-slate-400 max-w-sm mb-8 text-lg">Looks like you don't have any active projects with us.</p>
-               <InteractiveButton onClick={() => navigate('/order')}>Start a Project</InteractiveButton>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {orders.filter(o => o.status !== OrderStatus.COMPLETED && o.status !== OrderStatus.CANCELLED).map(order => (
-                <ProjectCard key={order.id} order={order} onRequestRevision={(notes) => requestRevision(order.id, notes)} />
-              ))}
-            </div>
-          )
+          (() => {
+            const activeOrders = orders.filter(o => o.status !== OrderStatus.COMPLETED && o.status !== OrderStatus.CANCELLED);
+            if (activeOrders.length === 0) {
+              return (
+                <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-gray-300 dark:border-slate-600 rounded-3xl p-16 text-center shadow-[0_8px_32px_rgba(0,0,0,0.12)] flex flex-col items-center">
+                   <div className="w-24 h-24 bg-gray-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-6">
+                      <Package size={40} className="text-gray-300 dark:text-slate-600" />
+                   </div>
+                   <h3 className="text-2xl font-bold mb-3 text-gray-800 dark:text-slate-200">No Active Projects</h3>
+                   <p className="text-gray-500 dark:text-slate-400 max-w-sm mb-8 text-lg">Looks like you don't have any active projects with us.</p>
+                   <InteractiveButton onClick={() => navigate('/order')}>Start a Project</InteractiveButton>
+                </div>
+              );
+            }
+
+            const filteredActiveOrders = activeOrders.filter(order => {
+              const query = projectSearchQuery.toLowerCase().trim();
+              if (!query) return true;
+              
+              const matchesId = order.id.toLowerCase().includes(query);
+              const eventTitle = order.customFields?.['Event Title'] || '';
+              const matchesEvent = typeof eventTitle === 'string' && eventTitle.toLowerCase().includes(query);
+              const matchesService = order.serviceType.toLowerCase().includes(query);
+              
+              return matchesId || matchesEvent || matchesService;
+            });
+
+            return (
+              <div className="space-y-6">
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 dark:text-slate-500">
+                    <Search size={18} />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Search active projects by ID, Event Title, or Service Type..."
+                    value={projectSearchQuery}
+                    onChange={(e) => setProjectSearchQuery(e.target.value)}
+                    className="w-full pl-11 pr-10 py-4 bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border border-gray-300 dark:border-slate-700/60 rounded-2xl text-gray-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all shadow-sm placeholder-gray-400 dark:placeholder-slate-500 font-medium text-sm"
+                  />
+                  {projectSearchQuery && (
+                    <button
+                      onClick={() => setProjectSearchQuery('')}
+                      className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors"
+                    >
+                      <X size={18} />
+                    </button>
+                  )}
+                </div>
+
+                {filteredActiveOrders.length === 0 ? (
+                  <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-gray-300 dark:border-slate-600 rounded-3xl p-12 text-center shadow-[0_8px_32px_rgba(0,0,0,0.12)] flex flex-col items-center">
+                     <div className="w-16 h-16 bg-gray-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
+                        <Search size={28} className="text-gray-300 dark:text-slate-600" />
+                     </div>
+                     <h3 className="text-xl font-bold mb-2 text-gray-800 dark:text-slate-200">No matching projects</h3>
+                     <p className="text-gray-500 dark:text-slate-400 max-w-sm text-sm">We couldn't find any active projects matching "{projectSearchQuery}".</p>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {filteredActiveOrders.map(order => (
+                      <ProjectCard key={order.id} order={order} onRequestRevision={(notes) => requestRevision(order.id, notes)} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })()
         ) : activeTab === 'history' ? (
-          orders.filter(o => o.status === OrderStatus.COMPLETED || o.status === OrderStatus.CANCELLED).length === 0 ? (
-            <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-gray-300 dark:border-slate-600 rounded-3xl p-16 text-center shadow-[0_8px_32px_rgba(0,0,0,0.12)] flex flex-col items-center">
-               <div className="w-24 h-24 bg-gray-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-6">
-                  <Clock size={40} className="text-gray-300 dark:text-slate-600" />
-               </div>
-               <h3 className="text-2xl font-bold mb-3 text-gray-800 dark:text-slate-200">No Past Projects</h3>
-               <p className="text-gray-500 dark:text-slate-400 max-w-sm mb-8 text-lg">Your completed and cancelled projects will appear here.</p>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {orders.filter(o => o.status === OrderStatus.COMPLETED || o.status === OrderStatus.CANCELLED).map(order => (
-                <ProjectCard key={order.id} order={order} onRequestRevision={(notes) => requestRevision(order.id, notes)} />
-              ))}
-            </div>
-          )
+          (() => {
+            const pastOrders = orders.filter(o => o.status === OrderStatus.COMPLETED || o.status === OrderStatus.CANCELLED);
+            if (pastOrders.length === 0) {
+              return (
+                <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-gray-300 dark:border-slate-600 rounded-3xl p-16 text-center shadow-[0_8px_32px_rgba(0,0,0,0.12)] flex flex-col items-center">
+                   <div className="w-24 h-24 bg-gray-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-6">
+                      <Clock size={40} className="text-gray-300 dark:text-slate-600" />
+                   </div>
+                   <h3 className="text-2xl font-bold mb-3 text-gray-800 dark:text-slate-200">No Past Projects</h3>
+                   <p className="text-gray-500 dark:text-slate-400 max-w-sm mb-8 text-lg">Your completed and cancelled projects will appear here.</p>
+                </div>
+              );
+            }
+
+            const filteredPastOrders = pastOrders.filter(order => {
+              const query = historySearchQuery.toLowerCase().trim();
+              if (!query) return true;
+              
+              const matchesId = order.id.toLowerCase().includes(query);
+              const eventTitle = order.customFields?.['Event Title'] || '';
+              const matchesEvent = typeof eventTitle === 'string' && eventTitle.toLowerCase().includes(query);
+              const matchesService = order.serviceType.toLowerCase().includes(query);
+              
+              return matchesId || matchesEvent || matchesService;
+            });
+
+            return (
+              <div className="space-y-6">
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 dark:text-slate-500">
+                    <Search size={18} />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Search past orders by ID, Event Title, or Service Type..."
+                    value={historySearchQuery}
+                    onChange={(e) => setHistorySearchQuery(e.target.value)}
+                    className="w-full pl-11 pr-10 py-4 bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border border-gray-300 dark:border-slate-700/60 rounded-2xl text-gray-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all shadow-sm placeholder-gray-400 dark:placeholder-slate-500 font-medium text-sm"
+                  />
+                  {historySearchQuery && (
+                    <button
+                      onClick={() => setHistorySearchQuery('')}
+                      className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors"
+                    >
+                      <X size={18} />
+                    </button>
+                  )}
+                </div>
+
+                {filteredPastOrders.length === 0 ? (
+                  <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-gray-300 dark:border-slate-600 rounded-3xl p-12 text-center shadow-[0_8px_32px_rgba(0,0,0,0.12)] flex flex-col items-center">
+                     <div className="w-16 h-16 bg-gray-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
+                        <Search size={28} className="text-gray-300 dark:text-slate-600" />
+                     </div>
+                     <h3 className="text-xl font-bold mb-2 text-gray-800 dark:text-slate-200">No matching orders</h3>
+                     <p className="text-gray-500 dark:text-slate-400 max-w-sm text-sm">We couldn't find any completed or cancelled orders matching "{historySearchQuery}".</p>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {filteredPastOrders.map(order => (
+                      <ProjectCard key={order.id} order={order} onRequestRevision={(notes) => requestRevision(order.id, notes)} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })()
         ) : null}
       </div>
     </div>

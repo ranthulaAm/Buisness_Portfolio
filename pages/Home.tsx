@@ -599,13 +599,13 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
                     loop 
                     muted 
                     playsInline
-                    className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100" 
+                    className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110 opacity-100" 
                   />
                 ) : (
                   <MediaRenderer 
                     src={item.img} 
                     alt={item.title} 
-                    className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100" 
+                    className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110 opacity-100" 
                   />
                 )}
                 

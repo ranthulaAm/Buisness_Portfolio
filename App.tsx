@@ -14,6 +14,7 @@ import { AdminDashboard } from './pages/AdminDashboard';
 import { ClientDashboard } from './pages/ClientDashboard';
 import { SharedProjectView } from './pages/SharedProjectView';
 import { ClientUpload } from './pages/ClientUpload';
+import { DemoDashboard } from './pages/DemoDashboard';
 import { User } from './types';
 import { saveUserProfile } from './services/storageService';
 import { auth } from './services/firebase';
@@ -78,15 +79,7 @@ const AppContent: React.FC = () => {
   };
 
   // Intro State
-  const [showIntro, setShowIntro] = useState(() => {
-     // If user is accessing a deep link (like /tracking or /dashboard), skip the intro entirely.
-     if (location.pathname !== '/') return false;
-     
-     // Skip if already seen in this session
-     if (sessionStorage.getItem('hasSeenIntro')) return false;
-
-     return true;
-  });
+  const [showIntro, setShowIntro] = useState(false);
 
   // Firebase Auth Listener
   useEffect(() => {
@@ -199,6 +192,10 @@ const AppContent: React.FC = () => {
               <Route 
                 path="/dashboard" 
                 element={<ClientDashboard user={user} />} 
+              />
+              <Route 
+                path="/demo" 
+                element={<DemoDashboard />} 
               />
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>

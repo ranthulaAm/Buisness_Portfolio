@@ -53,6 +53,7 @@ export interface Order {
   voiceClips: { name: string; type: string; data: string }[];
   
   draftImg?: string; 
+  draftImgs?: string[];
   draftMessage?: string;
   finalUrl?: string; 
   finalFiles?: { name: string; type: string; data: string }[]; 

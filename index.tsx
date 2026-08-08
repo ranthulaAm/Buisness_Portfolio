@@ -1,5 +1,30 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+
+// Suppress Vite/HMR WebSocket connection closed/failed errors & unhandled rejections
+if (typeof window !== 'undefined') {
+  window.addEventListener('unhandledrejection', (event) => {
+    if (event.reason && (
+      event.reason.message === 'WebSocket closed without opened.' ||
+      (typeof event.reason.message === 'string' && event.reason.message.includes('WebSocket')) ||
+      (typeof event.reason === 'string' && event.reason.includes('WebSocket')) ||
+      (event.reason.stack && event.reason.stack.includes('vite'))
+    )) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  }, true);
+  window.addEventListener('error', (event) => {
+    if (event.message && (
+      event.message.includes('WebSocket') ||
+      event.message.includes('vite')
+    )) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  }, true);
+}
+
 import App from './App';
 import { SERVICES, PORTFOLIO_ITEMS } from './constants';
 import { HelmetProvider } from 'react-helmet-async';

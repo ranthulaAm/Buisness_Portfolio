@@ -2,6 +2,29 @@
 <html lang="en" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      // Suppress Vite/HMR WebSocket connection closed/failed errors & unhandled rejections
+      window.addEventListener('unhandledrejection', function(event) {
+        if (event.reason && (
+          event.reason.message === 'WebSocket closed without opened.' ||
+          (typeof event.reason.message === 'string' && event.reason.message.includes('WebSocket')) ||
+          (typeof event.reason === 'string' && event.reason.includes('WebSocket')) ||
+          (event.reason.stack && event.reason.stack.includes('vite'))
+        )) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      }, true);
+      window.addEventListener('error', function(event) {
+        if (event.message && (
+          event.message.includes('WebSocket') ||
+          event.message.includes('vite')
+        )) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      }, true);
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#000000" />
     <title>Ranthula | Buisness portfolio</title>
@@ -199,6 +222,14 @@
         background-color: #0f172a; /* slate-900 */
         color: #f8fafc; /* slate-50 */
       }
+
+      /* Prevent images and videos from getting dim, dark, or losing color/contrast in dark mode */
+      html.dark img, 
+      html.dark video,
+      html.dark iframe,
+      html.dark canvas {
+        filter: brightness(1) contrast(1) !important;
+      }
     </style>
   <script type="importmap">
 {
@@ -218,11 +249,9 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
 </head>
   <body class="antialiased">
     <div id="root"></div>
-    <script type="module" src="index.tsx"></script>
-  <script type="module" src="/index.tsx"></script>
-</body>
+    <script type="module" src="/index.tsx"></script>
+  </body>
 </html>

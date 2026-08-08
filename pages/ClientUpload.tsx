@@ -5,6 +5,7 @@ import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../services/firebase';
 import toast from 'react-hot-toast';
 import { User } from '../types';
+import { sendClientUploadNotification } from '../services/telegramService';
 
 export const ClientUpload: React.FC<{ user?: User | null }> = ({ user }) => {
   const [formData, setFormData] = useState({
@@ -125,6 +126,19 @@ export const ClientUpload: React.FC<{ user?: User | null }> = ({ user }) => {
         status: 'new',
         createdAt: new Date().toISOString(),
       });
+
+      // Send telegram notification to admins
+      try {
+        await sendClientUploadNotification({
+          clientName: formData.clientName,
+          email: formData.email,
+          whatsapp: formData.whatsapp,
+          eventName: formData.eventName,
+          filesCount: uploadedFiles.length
+        });
+      } catch (notifyError) {
+        console.error("Failed to send admin notification:", notifyError);
+      }
 
       setIsSuccess(true);
       toast.success('Files uploaded successfully!');

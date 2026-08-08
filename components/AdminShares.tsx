@@ -413,7 +413,7 @@ export const AdminShares: React.FC = () => {
           isOpen={!!deleteConfirm}
           title="Delete Shared Project?"
           message={`Are you sure you want to delete the shared project "${deleteConfirm.clientName}"? This will permanently delete all uploaded files and break the share link.`}
-          confirmLabel="Delete Everything"
+          confirmText="Delete Everything"
           onConfirm={handleDelete}
           onCancel={() => setDeleteConfirm(null)}
         />
