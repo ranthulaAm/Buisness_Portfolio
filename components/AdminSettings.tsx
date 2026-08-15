@@ -2,8 +2,8 @@ import { toast } from "react-hot-toast";
 import React, { useState, useEffect } from 'react';
 import { getPortfolioItems, getServicesConfig, addPortfolioItem, updatePortfolioItem, deletePortfolioItem, updateServiceConfig, deleteServiceConfig, PortfolioItem, ServiceItem, updateAdminPassword, getAdminEmails, updateAdminEmails, getDiscountsConfig, updateDiscountsConfig, getDisplayConfig, updateDisplayConfig, DisplayConfig, getLuckyWheelConfig, updateLuckyWheelConfig } from '../services/dataService';
 import { SERVICES as DEFAULT_SERVICES, PORTFOLIO_ITEMS as DEFAULT_PORTFOLIO } from '../constants';
-import { Save, Loader2, Plus, Trash2, Key, UserPlus, ShieldCheck, Mail, Eye, EyeOff, Tag, Edit3, Upload } from 'lucide-react';
-import { User, WheelSegment } from '../types';
+import { Save, Loader2, Plus, Trash2, Key, UserPlus, ShieldCheck, Mail, Eye, EyeOff, Tag, Edit3, Upload, ArrowUp, ArrowDown } from 'lucide-react';
+import { User, WheelSegment, ServiceFieldConfig } from '../types';
 import { uploadFileWithProgress } from '../services/fileUploadService';
 import { MediaRenderer } from './MediaRenderer';
 
@@ -17,6 +17,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
     const [serviceConfigs, setServiceConfigs] = useState<Record<string, ServiceItem>>({});
     const [showServiceModal, setShowServiceModal] = useState(false);
     const [editingService, setEditingService] = useState<any>(null);
+    const [tempFields, setTempFields] = useState<ServiceFieldConfig[]>([]);
     const [uploadingServiceImage, setUploadingServiceImage] = useState(false);
     const [serviceImageProgress, setServiceImageProgress] = useState(0);
     const [serviceToDelete, setServiceToDelete] = useState<string | null>(null);
@@ -87,6 +88,60 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
         }
     };
 
+    const openServiceModal = (service: ServiceItem | null) => {
+        setEditingService(service);
+        const fields = service?.customFields ? JSON.parse(JSON.stringify(service.customFields)) : [];
+        fields.forEach((f: any) => {
+            if (f.type === 'select' && f.options) {
+                f._rawOptionsString = f.options.join(', ');
+            }
+        });
+        setTempFields(fields);
+        setShowServiceModal(true);
+    };
+
+    const handleAddTempField = () => {
+        const newField: ServiceFieldConfig = {
+            id: 'field_' + Date.now(),
+            label: 'New Field',
+            type: 'text',
+            required: false,
+            placeholder: '',
+            options: []
+        };
+        setTempFields([...tempFields, newField]);
+    };
+
+    const handleTempFieldChange = (index: number, key: keyof ServiceFieldConfig, value: any) => {
+        const updated = [...tempFields];
+        updated[index] = { ...updated[index], [key]: value };
+        setTempFields(updated);
+    };
+
+    const handleOptionsTextChange = (index: number, val: string) => {
+        const updated = [...tempFields];
+        const field = { ...updated[index] } as any;
+        field._rawOptionsString = val;
+        field.options = val.split(',').map(s => s.trim()).filter(Boolean);
+        updated[index] = field;
+        setTempFields(updated);
+    };
+
+    const handleMoveTempField = (index: number, direction: 'up' | 'down') => {
+        if (direction === 'up' && index === 0) return;
+        if (direction === 'down' && index === tempFields.length - 1) return;
+        const targetIndex = direction === 'up' ? index - 1 : index + 1;
+        const updated = [...tempFields];
+        const temp = updated[index];
+        updated[index] = updated[targetIndex];
+        updated[targetIndex] = temp;
+        setTempFields(updated);
+    };
+
+    const handleDeleteTempField = (index: number) => {
+        setTempFields(tempFields.filter((_, i) => i !== index));
+    };
+
     const handleSavePrices = async () => {
         setLoading(true);
         try {
@@ -99,7 +154,8 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
                     title: s.title,
                     description: s.description,
                     image: s.image,
-                    features: s.features || []
+                    features: s.features || [],
+                    customFields: s.customFields || []
                 };
                 if (s.isCustom) {
                     payload.isCustom = true;
@@ -539,7 +595,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
                 <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 mb-6 flex justify-between items-center">
                     Services Configuration
                     <div className="flex gap-3">
-                        <button onClick={() => { setEditingService(null); setShowServiceModal(true); }} className="bg-purple-600 text-white hover:bg-purple-700 px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors">
+                        <button onClick={() => openServiceModal(null)} className="bg-purple-600 text-white hover:bg-purple-700 px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors">
                             <Plus size={16} /> New Service
                         </button>
                         <button onClick={handleSavePrices} disabled={loading} className="bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors disabled:opacity-50">
@@ -600,7 +656,7 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
                                     </div>
                                     
                                     <div className="flex justify-end gap-2 mt-2">
-                                        <button onClick={() => { setEditingService(s); setShowServiceModal(true); }} className="p-2 text-purple-600 hover:text-purple-800 transition-colors bg-purple-50 dark:bg-purple-900/30 rounded-lg">
+                                        <button onClick={() => openServiceModal(s)} className="p-2 text-purple-600 hover:text-purple-800 transition-colors bg-purple-50 dark:bg-purple-900/30 rounded-lg">
                                            <Edit3 size={16} />
                                         </button>
                                         {s.isCustom && (
@@ -667,6 +723,144 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
                            <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-gray-500 dark:text-slate-400">Features (One per line)</label>
                            <textarea defaultValue={editingService?.features?.join('\n') || ''} id="modal_service_features" placeholder="Feature 1&#10;Feature 2" className="w-full border border-gray-300 dark:border-slate-600 rounded-xl p-3 outline-none focus:border-purple-500 min-h-[100px] whitespace-pre" />
                        </div>
+                       
+                       <div className="pt-4 border-t border-gray-100 dark:border-slate-800">
+                           <div className="flex justify-between items-center mb-4">
+                               <label className="block text-xs font-bold text-gray-900 dark:text-slate-100 uppercase tracking-widest">Order Info Fields</label>
+                               <button
+                                   type="button"
+                                   onClick={handleAddTempField}
+                                   className="text-xs bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/40 dark:hover:bg-purple-900/40 text-purple-600 dark:text-purple-400 font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1 transition-all border border-purple-200/40 dark:border-purple-800/40"
+                               >
+                                   <Plus size={14} /> Add Field
+                               </button>
+                           </div>
+                           <p className="text-[11px] text-gray-400 mb-4">Configure the questions/inputs clients must answer when purchasing this service.</p>
+                           
+                           {tempFields.length === 0 ? (
+                               <div className="border border-dashed border-gray-200 dark:border-slate-800 rounded-2xl p-6 text-center text-gray-400 text-xs">
+                                   No custom fields configured. The order form will use default industry and requirements fields.
+                               </div>
+                           ) : (
+                               <div className="space-y-4 max-h-[300px] overflow-y-auto pr-1">
+                                   {tempFields.map((field, index) => (
+                                       <div key={index} className="border border-gray-100 dark:border-slate-800 rounded-xl p-3 bg-gray-50/50 dark:bg-slate-900/40">
+                                           <div className="flex justify-between items-center mb-2">
+                                               <span className="text-[10px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider">Field #{index + 1}</span>
+                                               <div className="flex items-center gap-1">
+                                                   <button 
+                                                       type="button" 
+                                                       onClick={() => handleMoveTempField(index, 'up')} 
+                                                       disabled={index === 0} 
+                                                       className="p-1 text-gray-400 hover:text-purple-600 disabled:opacity-30"
+                                                   >
+                                                       <ArrowUp size={12} />
+                                                   </button>
+                                                   <button 
+                                                       type="button" 
+                                                       onClick={() => handleMoveTempField(index, 'down')} 
+                                                       disabled={index === tempFields.length - 1} 
+                                                       className="p-1 text-gray-400 hover:text-purple-600 disabled:opacity-30"
+                                                   >
+                                                       <ArrowDown size={12} />
+                                                   </button>
+                                                   <button 
+                                                       type="button" 
+                                                       onClick={() => handleDeleteTempField(index)} 
+                                                       className="p-1 text-gray-400 hover:text-red-500 rounded ml-1"
+                                                   >
+                                                       <Trash2 size={12} />
+                                                   </button>
+                                               </div>
+                                           </div>
+                                           
+                                           <div className="grid grid-cols-2 gap-2 mb-2">
+                                               <div>
+                                                   <label className="block text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">Field ID</label>
+                                                   <input 
+                                                       type="text" 
+                                                       value={field.id} 
+                                                       onChange={e => handleTempFieldChange(index, 'id', e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                                                       placeholder="e.g. logo_link" 
+                                                       className="w-full text-xs border border-gray-200 dark:border-slate-700 rounded-lg p-1.5 outline-none focus:border-purple-500 bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100"
+                                                   />
+                                               </div>
+                                               <div>
+                                                   <label className="block text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">Field Label</label>
+                                                   <input 
+                                                       type="text" 
+                                                       value={field.label} 
+                                                       onChange={e => handleTempFieldChange(index, 'label', e.target.value)}
+                                                       placeholder="e.g. Brand Name" 
+                                                       className="w-full text-xs border border-gray-200 dark:border-slate-700 rounded-lg p-1.5 outline-none focus:border-purple-500 bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100"
+                                                   />
+                                               </div>
+                                           </div>
+                                           
+                                           <div className="grid grid-cols-2 gap-2 mb-2">
+                                               <div>
+                                                   <label className="block text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">Type</label>
+                                                   <select 
+                                                       value={field.type} 
+                                                       onChange={e => {
+                                                            const newType = e.target.value;
+                                                            const updated = [...tempFields];
+                                                            const f = { ...updated[index], type: newType } as any;
+                                                            if (newType === 'select' && !f._rawOptionsString) {
+                                                                f._rawOptionsString = f.options?.join(', ') || '';
+                                                            }
+                                                            updated[index] = f;
+                                                            setTempFields(updated);
+                                                        }}
+                                                       className="w-full text-xs border border-gray-200 dark:border-slate-700 rounded-lg p-1.5 outline-none focus:border-purple-500 bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100"
+                                                   >
+                                                       <option value="text">Short Text</option>
+                                                       <option value="textarea">Long Text</option>
+                                                       <option value="number">Number</option>
+                                                       <option value="select">Dropdown</option>
+                                                       <option value="checkbox">Checkbox</option>
+                                                   </select>
+                                               </div>
+                                               <div className="flex items-center gap-1 mt-4">
+                                                   <input 
+                                                       type="checkbox" 
+                                                       id={`req_${field.id}`}
+                                                       checked={field.required} 
+                                                       onChange={e => handleTempFieldChange(index, 'required', e.target.checked)}
+                                                       className="rounded border-gray-300 dark:border-slate-600 text-purple-600 focus:ring-purple-500 w-3.5 h-3.5 cursor-pointer"
+                                                   />
+                                                   <label htmlFor={`req_${field.id}`} className="text-xs text-gray-600 dark:text-slate-400 select-none cursor-pointer">Required</label>
+                                               </div>
+                                           </div>
+
+                                           <div className="mb-1">
+                                               <label className="block text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">Placeholder</label>
+                                               <input 
+                                                   type="text" 
+                                                   value={field.placeholder || ''} 
+                                                   onChange={e => handleTempFieldChange(index, 'placeholder', e.target.value)}
+                                                   placeholder="Helpful hint for client" 
+                                                   className="w-full text-xs border border-gray-200 dark:border-slate-700 rounded-lg p-1.5 outline-none focus:border-purple-500 bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100"
+                                               />
+                                           </div>
+
+                                           {field.type === 'select' && (
+                                               <div className="mt-2 pt-2 border-t border-gray-100 dark:border-slate-800">
+                                                   <label className="block text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">Options (Comma-separated)</label>
+                                                   <input 
+                                                       type="text" 
+                                                       value={(field as any)._rawOptionsString !== undefined ? (field as any)._rawOptionsString : (field.options?.join(', ') || '')} 
+                                                       onChange={e => handleOptionsTextChange(index, e.target.value)}
+                                                       placeholder="e.g. Option 1, Option 2, Option 3" 
+                                                       className="w-full text-xs border border-gray-200 dark:border-slate-700 rounded-lg p-1.5 outline-none focus:border-purple-500 bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100"
+                                                   />
+                                               </div>
+                                           )}
+                                       </div>
+                                   ))}
+                               </div>
+                           )}
+                       </div>
                    </div>
                    <div className="flex gap-4 mt-8">
                        <button onClick={() => setShowServiceModal(false)} className="flex-1 py-3 text-gray-500 dark:text-slate-400 font-bold uppercase tracking-widest text-xs hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-800 rounded-xl transition-colors">Cancel</button>
@@ -692,7 +886,12 @@ export const AdminSettings: React.FC<AdminSettingsProps> = ({ user }) => {
                                       isCustom: editingService ? editingService.isCustom : true,
                                       hidden: editingService?.hidden || false,
                                       discountPercentage: editingService?.discountPercentage || 0,
-                                      features: f.split('\n').map(x => x.trim()).filter(Boolean)
+                                      features: f.split('\n').map(x => x.trim()).filter(Boolean),
+                                      customFields: tempFields.map(f => {
+                                           const copy = { ...f };
+                                           delete (copy as any)._rawOptionsString;
+                                           return copy;
+                                       })
                                   }
                               }));
                               setShowServiceModal(false);

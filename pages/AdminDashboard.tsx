@@ -28,7 +28,7 @@ import { ClientActivityChart } from '../components/ClientActivityChart';
 import { AdminSecurity } from '../components/AdminSecurity';
 import { AdminClientUploads } from '../components/AdminClientUploads';
 import { ConfirmationDialog } from '../components/ConfirmationDialog';
-import { Package, Search, MessageSquare, MessageCircle, Layout as LayoutIcon, LogOut, ChevronRight, ChevronLeft, Save, User as UserIcon, X, AlertCircle, Download, Music, Copy, Check, Upload, ImageIcon, FileBox, RefreshCw, DollarSign, ChevronUp, ChevronDown, Loader2, Trash2, Bell, BarChart2, List, Settings, Briefcase, GraduationCap, Award, Mail, Plus, Star, ArrowLeft, Receipt, Shield, ShieldAlert } from 'lucide-react';
+import { Package, Search, MessageSquare, MessageCircle, Layout as LayoutIcon, LogOut, ChevronRight, ChevronLeft, Save, User as UserIcon, X, AlertCircle, Download, Music, Copy, Check, Upload, ImageIcon, FileBox, RefreshCw, DollarSign, ChevronUp, ChevronDown, Loader2, Trash2, Bell, BarChart2, List, Settings, Briefcase, GraduationCap, Award, Mail, Plus, Star, ArrowLeft, Receipt, Shield, ShieldAlert, FileText } from 'lucide-react';
 import {
   BarChart,
   Bar,
@@ -1422,64 +1422,65 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
       {selectedOrder && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
               <div className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onClick={() => closeOrder(true)}></div>
-              <div className="relative bg-white dark:bg-slate-900 rounded-2xl w-full max-w-5xl h-[90vh] shadow-2xl flex flex-col animate-fade-in border border-gray-200 dark:border-slate-700 overflow-hidden">
-                  <div className="px-8 py-6 border-b border-gray-100 dark:border-slate-700 flex justify-between items-start bg-white dark:bg-slate-900 z-10 shrink-0">
-                      <div className="flex items-start gap-4">
-                          <button onClick={() => closeOrder(true)} className="p-1.5 mt-1 text-gray-400 hover:text-gray-900 dark:text-slate-100 bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 dark:bg-slate-800 rounded-full transition-colors hidden sm:block">
-                              <ChevronLeft size={20} strokeWidth={3} className="text-purple-600 dark:text-purple-400" />
+              <div className="relative bg-white dark:bg-slate-900 rounded-2xl w-full max-w-6xl h-[90vh] shadow-2xl flex flex-col animate-fade-in border border-gray-200/60 dark:border-slate-800 overflow-hidden">
+                  <div className="px-8 py-6 border-b border-gray-100 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900 z-10 shrink-0">
+                      <div className="flex items-center gap-5">
+                          <button onClick={() => closeOrder(true)} className="p-2 text-gray-400 hover:text-gray-900 dark:text-slate-100 bg-gray-50/50 dark:bg-slate-800/50 border border-gray-100 dark:border-slate-700 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-full transition-all hidden sm:block shadow-sm hover:shadow">
+                              <ChevronLeft size={20} strokeWidth={2.5} />
                           </button>
                           <div>
                               <div className="flex items-center gap-3">
-                                 <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100">{selectedOrder?.serviceType}</h2>
+                                 <h2 className="text-xl md:text-2xl font-black text-gray-900 dark:text-slate-100 tracking-tight">{selectedOrder?.serviceType}</h2>
                                  {selectedOrder?.status === OrderStatus.COMPLETED && (
-                                    <div className="bg-green-100 text-green-800 text-[10px] uppercase font-bold px-2 py-1 rounded border border-green-200 flex items-center gap-1">
-                                        <Check size={12} /> Approved by Client
+                                    <div className="bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 text-[10px] uppercase font-bold px-2 py-1 rounded-md border border-emerald-200/50 dark:border-emerald-500/20 flex items-center gap-1">
+                                        <Check size={12} strokeWidth={3} /> Approved by Client
                                     </div>
                                  )}
                               </div>
-                              <div className="flex items-center gap-3 mt-1 text-sm text-gray-500 dark:text-slate-400">
-                                 <span className="font-mono bg-gray-100 dark:bg-slate-800 px-2 py-0.5 rounded text-gray-700 dark:text-slate-300 uppercase">{selectedOrder?.id}</span>
-                                 <span>•</span>
-                                 <span className="flex items-center gap-1"><UserIcon size={14} /> {selectedOrder?.clientName}</span>
+                              <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-500 dark:text-slate-400 font-medium">
+                                 <span className="font-mono bg-gray-100 dark:bg-slate-800 px-2 py-0.5 rounded text-gray-600 dark:text-slate-300 uppercase tracking-wider">{selectedOrder?.id}</span>
+                                 <span className="text-gray-300 dark:text-slate-600">•</span>
+                                 <span className="flex items-center gap-1.5"><UserIcon size={14} className="text-gray-400"/> {selectedOrder?.clientName}</span>
                               </div>
                           </div>
                       </div>
                       <div className="flex items-center gap-2">
                         <button 
                           onClick={() => closeOrder(true)} 
-                          className="inline-flex items-center gap-1.5 text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-all active:scale-[0.96] bg-gray-100 dark:bg-slate-800 border border-purple-200 dark:border-slate-700 px-5 py-3 rounded-full shadow-sm hover:shadow font-bold text-xs uppercase tracking-widest sm:hidden"
+                          className="inline-flex items-center gap-1.5 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-all active:scale-[0.96] bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 px-5 py-3 rounded-full shadow-sm hover:shadow font-bold text-xs uppercase tracking-widest sm:hidden"
                         >
-                            <ChevronLeft size={18} strokeWidth={3} className="text-purple-600 dark:text-purple-400" />
+                            <ChevronLeft size={18} strokeWidth={2.5} />
                             <span>Back</span>
                         </button>
-                        <button onClick={() => closeOrder(true)} className="text-gray-400 hover:text-gray-900 dark:text-slate-100 bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 dark:bg-slate-800 p-2 rounded-full transition-colors hidden sm:block">
+                        <button onClick={() => closeOrder(true)} className="text-gray-400 hover:text-gray-900 dark:text-slate-100 bg-gray-50 dark:bg-slate-800 border border-transparent hover:border-gray-200 dark:hover:border-slate-700 p-2 rounded-full transition-all hidden sm:block shadow-sm">
                             <X size={20} />
                         </button>
                       </div>
                   </div>
 
-                  <div className="flex-1 overflow-y-auto p-8 grid grid-cols-1 md:grid-cols-3 gap-8 bg-gray-50/50">
+                  <div className="flex-1 overflow-y-auto p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 bg-gray-50/50 dark:bg-slate-950/50">
                       
                       {/* COLUMN 1: CONTROLS */}
-                      <div className="md:col-span-1 space-y-6">
-                          <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm">
-                              <h3 className="text-xs font-bold uppercase text-gray-400 tracking-wider mb-4">Project Controls</h3>
-                              <div className="mb-4">
-                                <label className="text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1.5 block">Status</label>
+                      <div className="lg:col-span-4 space-y-6">
+                          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm shadow-gray-200/50 dark:shadow-none">
+                              <h3 className="text-sm font-bold uppercase text-gray-600 dark:text-slate-300 tracking-wider mb-5 flex items-center gap-2"><Settings size={16}/> Project Controls</h3>
+                              <div className="mb-5">
+                                <label className="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-slate-400 mb-2 block">Status</label>
                                 <select 
                                   value={editStatus} 
                                   onChange={e => setEditStatus(e.target.value as OrderStatus)}
-                                  className="w-full bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-slate-100 outline-none focus:border-blue-500 focus:bg-white dark:bg-slate-900"
+                                  className="w-full bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-sm transition-all appearance-none cursor-pointer"
                                 >
                                     {Object.values(OrderStatus).map(s => <option key={s} value={s}>{s}</option>)}
                                 </select>
                               </div>
                               <div className="mb-6">
-                                <label className="text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1.5 block">Estimated Completion</label>
+                                <label className="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-slate-400 mb-2 block">Estimated Completion</label>
                                 <input 
                                   value={editEta}
                                   onChange={e => setEditEta(e.target.value)}
-                                  className="w-full bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-slate-100 outline-none focus:border-blue-500 focus:bg-white dark:bg-slate-900"
+                                  className="w-full bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-sm transition-all placeholder:text-gray-400"
+                                  placeholder="e.g. 2-3 Days"
                                 />
                               </div>
                               {selectedOrder?.status === OrderStatus.WAITING_PAYMENT && (
@@ -1489,8 +1490,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                               )}
                           </div>
 
-                          <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm">
-                             <h3 className="text-xs font-bold uppercase text-gray-400 tracking-wider mb-4">Deliverables (Draft Proofs)</h3>
+                          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm shadow-gray-200/50 dark:shadow-none">
+                             <h3 className="text-sm font-bold uppercase text-gray-600 dark:text-slate-300 tracking-wider mb-5 flex items-center gap-2"><ImageIcon size={16}/> Deliverables (Drafts)</h3>
                              
                              {/* Existing Drafts List */}
                              {draftImages.length > 0 && (
@@ -1530,25 +1531,27 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                              })}
 
                              <label className="block w-full cursor-pointer group">
-                                <div className="w-full h-28 border-2 border-dashed border-gray-200 dark:border-slate-700 rounded-lg flex flex-col items-center justify-center gap-2 hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-800 hover:border-blue-300 transition-colors relative overflow-hidden bg-gray-50/30">
-                                   <Upload className="text-gray-300 group-hover:text-blue-500" size={20} />
-                                   <span className="text-xs font-bold text-gray-500 dark:text-slate-400">
-                                     Upload Draft Preview(s)
+                                <div className="w-full h-28 border-2 border-dashed border-gray-200 dark:border-slate-700 rounded-xl flex flex-col items-center justify-center gap-2 hover:bg-blue-50 dark:hover:bg-slate-800 hover:border-blue-400 transition-all relative overflow-hidden bg-gray-50/50 dark:bg-slate-800/30">
+                                   <div className="w-8 h-8 rounded-full bg-white dark:bg-slate-700 shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform">
+                                     <Upload className="text-gray-400 group-hover:text-blue-500 transition-colors" size={16} />
+                                   </div>
+                                   <span className="text-xs font-bold text-gray-600 dark:text-slate-300 uppercase tracking-widest mt-1">
+                                     Upload Drafts
                                    </span>
                                 </div>
                                 <input type="file" onChange={handleDraftUpload} className="hidden" accept="image/*" multiple />
                              </label>
-                             <div className="text-[10px] text-gray-400 mt-2 text-center">Uploading draft(s) automatically sets status to 'Draft Sent'</div>
+                             <div className="text-[11px] font-bold text-gray-500 dark:text-slate-400 mt-3 text-center uppercase tracking-wider">Uploading automatically sets status to 'Draft Sent'</div>
                           </div>
 
-                          <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm">
-                             <h3 className="text-xs font-bold uppercase text-gray-400 tracking-wider mb-4">Final Assets</h3>
-                             <label className="block w-full cursor-pointer group mb-4">
-                                <div className="w-full h-32 border-2 border-dashed border-gray-200 dark:border-slate-700 rounded-xl flex flex-col items-center justify-center gap-3 hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-800 hover:border-blue-300 transition-all bg-gray-50/30">
-                                    <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center group-hover:bg-blue-100 dark:group-hover:bg-blue-800/40 transition-colors">
-                                        <Upload size={20} className="text-blue-500" />
+                           <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm shadow-gray-200/50 dark:shadow-none">
+                              <h3 className="text-sm font-bold uppercase text-gray-600 dark:text-slate-300 tracking-wider mb-5 flex items-center gap-2"><FileBox size={16}/> Final Assets</h3>
+                             <label className="block w-full cursor-pointer group mb-5">
+                                <div className="w-full h-32 border-2 border-dashed border-gray-200 dark:border-slate-700 rounded-xl flex flex-col items-center justify-center gap-3 hover:bg-blue-50 dark:hover:bg-slate-800 hover:border-blue-400 transition-all bg-gray-50/50 dark:bg-slate-800/30">
+                                    <div className="w-10 h-10 rounded-full bg-white dark:bg-slate-700 shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform">
+                                        <Upload size={18} className="text-gray-400 group-hover:text-blue-500 transition-colors" />
                                     </div>
-                                    <span className="text-xs font-bold text-gray-600 dark:text-slate-400">Upload Final Files</span>
+                                    <span className="text-xs font-bold text-gray-600 dark:text-slate-300 uppercase tracking-widest">Upload Final Files</span>
                                 </div>
                                 <input type="file" onChange={handleFinalFileUpload} className="hidden" multiple />
                              </label>
@@ -1570,7 +1573,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                                            <div className="p-2 bg-gray-50 dark:bg-slate-800 rounded-lg group-hover:bg-gray-100 dark:hover:bg-slate-700 dark:bg-slate-800 transition-colors">
                                               <FileBox size={16} className="text-gray-400" />
                                            </div>
-                                           <span className="text-xs text-gray-700 dark:text-slate-300 font-medium truncate max-w-[150px]">{f.name}</span>
+                                           <span className="text-[15px] text-gray-900 dark:text-slate-100 font-bold truncate max-w-[150px]">{f.name}</span>
                                         </div>
                                         <button onClick={() => removeFinalFile(i)} className="text-gray-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 transition-colors p-1 rounded-full hover:bg-red-50 dark:hover:bg-red-900/30"><X size={16}/></button>
                                     </div>
@@ -1578,15 +1581,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                              </div>
                           </div>
 
-                          <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm">
-                              <h3 className="text-xs font-bold uppercase text-gray-400 tracking-wider mb-4">Communication</h3>
+                           <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm shadow-gray-200/50 dark:shadow-none">
+                              <h3 className="text-sm font-bold uppercase text-gray-600 dark:text-slate-300 tracking-wider mb-5 flex items-center gap-2"><MessageCircle size={16}/> Communication</h3>
                               <button onClick={() => selectedOrder && sendWhatsAppNotification(selectedOrder, selectedOrder.status)} className="w-full bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 py-4 rounded-xl font-bold text-xs uppercase tracking-widest border border-emerald-100 dark:border-emerald-800/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-all flex items-center justify-center gap-3 shadow-sm hover:shadow-emerald-100/10">
                                   <MessageCircle size={18} /> WhatsApp Update
                               </button>
                           </div>
-                          <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm mt-6">
-                              <h3 className="text-xs font-bold uppercase text-gray-400 tracking-wider mb-4 flex items-center gap-2">
-                                <Receipt size={14} /> Invoice & Billing
+                           <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm shadow-gray-200/50 dark:shadow-none">
+                              <h3 className="text-sm font-bold uppercase text-gray-600 dark:text-slate-300 tracking-wider mb-5 flex items-center gap-2">
+                                <Receipt size={16} /> Invoice & Billing
                               </h3>
                               <button onClick={() => selectedOrder && downloadInvoice(selectedOrder)} className="w-full bg-blue-50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-400 py-4 rounded-xl font-bold text-xs uppercase tracking-widest border border-blue-100 dark:border-blue-800/30 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all flex items-center justify-center gap-3 shadow-sm hover:shadow-blue-100/10">
                                   <Download size={18} /> Download Invoice
@@ -1595,9 +1598,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                       </div>
 
                       {/* COLUMN 2 & 3: DETAILS */}
-                      <div className="md:col-span-2 space-y-6">
+                      <div className="lg:col-span-8 space-y-6 pb-6">
                            {selectedOrder?.status === OrderStatus.REVISION && (
-                               <div className="bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800/30 p-4 rounded-xl flex items-start gap-4">
+                               <div className="bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-800/30 p-5 rounded-2xl flex items-start gap-4 shadow-sm">
                                    <AlertCircle className="text-orange-500 shrink-0 mt-0.5" size={18} />
                                    <div>
                                        <h4 className="text-orange-800 dark:text-orange-300 font-bold text-sm">Revision Requested</h4>
@@ -1616,8 +1619,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                                </div>
                            )}
 
-                            {selectedOrder?.rating && (
-                               <div className="bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800/30 p-6 rounded-xl shadow-sm">
+                           {selectedOrder?.rating && (
+                               <div className="bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-950/20 dark:to-orange-950/20 border border-yellow-200/60 dark:border-yellow-800/30 p-6 rounded-2xl shadow-sm">
                                    <div className="flex justify-between items-start mb-4">
                                        <div>
                                            <h4 className="text-yellow-800 dark:text-yellow-300 font-bold text-sm mb-2">Client Feedback</h4>
@@ -1639,13 +1642,58 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                                </div>
                            )}
 
-                           <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm">
-                              <h3 className="text-sm font-bold text-gray-900 dark:text-slate-100 mb-4 pb-2 border-b border-gray-100 dark:border-slate-700 flex items-center gap-2">
-                                <Download size={16} className="text-gray-400" /> Client Assets
+                           {selectedOrder?.requirements && (
+                               <div className="bg-white dark:bg-slate-900 p-7 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm shadow-gray-200/50 dark:shadow-none">
+                                   <h3 className="text-sm font-bold text-gray-900 dark:text-slate-100 mb-5 pb-3 border-b border-gray-100 dark:border-slate-800 flex items-center gap-2">
+                                     <FileText size={18} className="text-gray-400" /> Project Brief & Requirements
+                                   </h3>
+                                   <div className="bg-gray-50/50 dark:bg-slate-800/50 p-5 rounded-xl text-gray-900 dark:text-slate-100 font-medium leading-relaxed whitespace-pre-wrap text-[15px] border border-gray-100 dark:border-slate-800/50">
+                                      {selectedOrder.requirements}
+                                   </div>
+                               </div>
+                           )}
+
+                           {selectedOrder?.customFields && Object.keys(selectedOrder.customFields).length > 0 && (
+                               <div className="bg-white dark:bg-slate-900 p-7 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm shadow-gray-200/50 dark:shadow-none">
+                                   <h3 className="text-sm font-bold text-gray-900 dark:text-slate-100 mb-5 pb-3 border-b border-gray-100 dark:border-slate-800 flex items-center gap-2">
+                                     <List size={18} className="text-gray-400" /> Order Details
+                                   </h3>
+                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                     {Object.entries(selectedOrder.customFields).map(([key, value]) => {
+                                        if (value === undefined || value === null || value === '') return null;
+                                        return (
+                                          <div key={key} className="bg-gray-50/50 dark:bg-slate-800/50 p-4 rounded-xl border border-gray-100 dark:border-slate-800/50">
+                                            <span className="text-[11px] font-bold text-gray-600 dark:text-slate-400 uppercase tracking-widest block mb-1.5">{key}</span>
+                                            <div className="text-[15px] font-semibold text-gray-900 dark:text-slate-100 break-words">
+                                              {Array.isArray(value) ? (
+                                                <ul className="list-disc list-inside space-y-1">
+                                                  {value.map((item: any, i: number) => {
+                                                    if (typeof item === 'string') return <li key={i}>{item}</li>;
+                                                    if (item.platform && item.handle) return <li key={i}><span className="font-semibold">{item.platform}:</span> {item.handle}</li>;
+                                                    if (item.title) return <li key={i}><span className="italic">{item.title}</span> {item.author ? `by ${item.author}` : ''}</li>;
+                                                    return <li key={i}>{JSON.stringify(item)}</li>;
+                                                  })}
+                                                </ul>
+                                              ) : typeof value === 'boolean' ? (
+                                                value ? "Yes" : "No"
+                                              ) : (
+                                                value.toString()
+                                              )}
+                                            </div>
+                                          </div>
+                                        );
+                                     })}
+                                   </div>
+                               </div>
+                           )}
+
+                           <div className="bg-white dark:bg-slate-900 p-7 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm shadow-gray-200/50 dark:shadow-none">
+                              <h3 className="text-sm font-bold text-gray-900 dark:text-slate-100 mb-5 pb-3 border-b border-gray-100 dark:border-slate-800 flex items-center gap-2">
+                                <Download size={18} className="text-gray-400" /> Client Assets
                               </h3>
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                  <div>
-                                   <span className="text-gray-400 block text-xs uppercase tracking-wider mb-3">Uploaded Files</span>
+                                   <span className="text-gray-600 dark:text-slate-400 font-bold block text-xs uppercase tracking-wider mb-3">Uploaded Files</span>
                                    {selectedOrder?.files && selectedOrder.files.length > 0 ? (
                                      <div className="space-y-2">
                                        {selectedOrder.files.length > 1 && (
@@ -1694,14 +1742,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                                    )}
                                  </div>
                                  <div>
-                                   <span className="text-gray-400 block text-xs uppercase tracking-wider mb-3">Voice Briefs</span>
+                                   <span className="text-gray-600 dark:text-slate-400 font-bold block text-xs uppercase tracking-wider mb-3">Voice Briefs</span>
                                    {selectedOrder?.voiceClips && selectedOrder.voiceClips.length > 0 ? (
                                      <div className="space-y-2">
                                        {selectedOrder.voiceClips.map((v, i) => (
                                           <div key={i} className="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-3">
                                              <div className="flex items-center gap-2 mb-2">
                                                 <Music size={14} className="text-purple-500" />
-                                                <span className="text-xs font-bold text-gray-700 dark:text-slate-300">{v.name}</span>
+                                                <span className="text-sm font-bold text-gray-900 dark:text-slate-100">{v.name}</span>
                                              </div>
                                              <audio controls src={v.data} className="w-full h-8" />
                                           </div>
@@ -1713,68 +1761,40 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                                  </div>
                               </div>
                            </div>
-                           <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm">
-                               <div className="flex justify-between items-center mb-4 pb-2 border-b border-gray-100 dark:border-slate-700">
-                                  <h3 className="text-sm font-bold text-gray-900 dark:text-slate-100 flex items-center gap-2"><LayoutIcon size={16} className="text-gray-400" /> Specifications</h3>
-                                  <button onClick={() => selectedOrder && exportPalette(selectedOrder.colorPalette)} className="text-[10px] font-bold text-gray-500 dark:text-slate-400 hover:text-blue-600 flex items-center gap-1 uppercase tracking-wider">
-                                    <Download size={12} /> Export Palette
-                                  </button>
-                               </div>
-                               <div className="grid grid-cols-2 gap-6 text-sm">
-                                   {selectedOrder?.dimensions && (
-                                       <div>
-                                           <span className="text-gray-400 block text-xs uppercase tracking-wider mb-1">Dimensions</span>
-                                           <span className="font-mono text-gray-800 dark:text-slate-200 bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded inline-block uppercase">{selectedOrder.dimensions.width}x{selectedOrder.dimensions.height}{selectedOrder.dimensions.unit} ({selectedOrder.dimensions.ppi}ppi)</span>
-                                       </div>
-                                   )}
-                                   <div>
-                                        <div className="flex justify-between items-center mb-1">
-                                           <span className="text-gray-400 block text-xs uppercase tracking-wider">Palette</span>
-                                           <button onClick={() => selectedOrder && copyPalette(selectedOrder.colorPalette)} className="text-gray-400 hover:text-gray-600 dark:text-slate-400"><Copy size={10} /></button>
-                                        </div>
-                                        <div className="flex gap-1.5 mt-1 flex-wrap">
-                                            {selectedOrder?.colorPalette.map(c => <div key={c} className="w-8 h-8 rounded-full border border-gray-200 dark:border-slate-700 shadow-sm" style={{backgroundColor: c}}></div>)}
-                                        </div>
+
+                           {(selectedOrder?.dimensions || (selectedOrder?.colorPalette && selectedOrder.colorPalette.length > 0)) && (
+                               <div className="bg-white dark:bg-slate-900 p-7 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm shadow-gray-200/50 dark:shadow-none">
+                                   <div className="flex justify-between items-center mb-5 pb-3 border-b border-gray-100 dark:border-slate-800">
+                                      <h3 className="text-sm font-bold text-gray-900 dark:text-slate-100 flex items-center gap-2"><LayoutIcon size={18} className="text-gray-400" /> Specifications</h3>
+                                      <button onClick={() => selectedOrder?.colorPalette && exportPalette(selectedOrder.colorPalette)} className="text-[10px] font-bold text-gray-500 dark:text-slate-400 hover:text-blue-600 flex items-center gap-1 uppercase tracking-wider">
+                                        <Download size={12} /> Export Palette
+                                      </button>
                                    </div>
-                                   <div className="col-span-2">
-                                       <span className="text-gray-400 block text-xs uppercase tracking-wider mb-2">Project Brief</span>
-                                       <div className="bg-gray-50 dark:bg-slate-800 p-4 rounded-lg border border-white dark:border-slate-800/5 text-gray-800 dark:text-slate-200 leading-relaxed whitespace-pre-wrap">
-                                          {selectedOrder?.requirements}
-                                       </div>
-                                       
-                                       {selectedOrder?.customFields && Object.keys(selectedOrder.customFields).length > 0 && (
-                                           <div className="mt-6 pt-6 border-t border-gray-100 dark:border-slate-700 grid grid-cols-1 md:grid-cols-2 gap-4">
-                                             {Object.entries(selectedOrder.customFields).map(([key, value]) => {
-                                                if (!value) return null;
-                                                return (
-                                                  <div key={key} className="bg-gray-50 dark:bg-slate-800 p-3 rounded-lg border border-gray-100 dark:border-slate-700">
-                                                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">{key}</span>
-                                                    <div className="text-sm font-medium text-gray-800 dark:text-slate-200 break-words">
-                                                      {Array.isArray(value) ? (
-                                                        <ul className="list-disc list-inside space-y-1">
-                                                          {value.map((item: any, i: number) => {
-                                                            if (typeof item === 'string') return <li key={i}>{item}</li>;
-                                                            if (item.platform && item.handle) return <li key={i}><span className="font-semibold">{item.platform}:</span> {item.handle}</li>;
-                                                            if (item.title) return <li key={i}><span className="italic">{item.title}</span> {item.author ? `by ${item.author}` : ''}</li>;
-                                                            return <li key={i}>{JSON.stringify(item)}</li>;
-                                                          })}
-                                                        </ul>
-                                                      ) : (
-                                                        value.toString()
-                                                      )}
-                                                    </div>
-                                                  </div>
-                                                );
-                                             })}
+                                   <div className="grid grid-cols-2 gap-6 text-sm">
+                                       {selectedOrder?.dimensions && (
+                                           <div>
+                                               <span className="text-gray-600 dark:text-slate-400 font-bold block text-xs uppercase tracking-wider mb-1">Dimensions</span>
+                                               <span className="font-mono text-gray-800 dark:text-slate-200 bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded inline-block uppercase">{selectedOrder.dimensions.width}x{selectedOrder.dimensions.height}{selectedOrder.dimensions.unit} ({selectedOrder.dimensions.ppi}ppi)</span>
+                                           </div>
+                                       )}
+                                       {selectedOrder?.colorPalette && selectedOrder.colorPalette.length > 0 && (
+                                           <div>
+                                                <div className="flex justify-between items-center mb-1">
+                                                   <span className="text-gray-600 dark:text-slate-400 font-bold block text-xs uppercase tracking-wider">Palette</span>
+                                                   <button onClick={() => copyPalette(selectedOrder.colorPalette)} className="text-gray-400 hover:text-gray-600 dark:text-slate-400"><Copy size={10} /></button>
+                                                </div>
+                                                <div className="flex gap-1.5 mt-1 flex-wrap">
+                                                    {selectedOrder.colorPalette.map(c => <div key={c} className="w-8 h-8 rounded-full border border-gray-200 dark:border-slate-700 shadow-sm" style={{backgroundColor: c}}></div>)}
+                                                </div>
                                            </div>
                                        )}
                                    </div>
                                </div>
-                           </div>
+                           )}
                       </div>
                   </div>
                   
-                  <div className="px-8 py-5 border-t border-gray-100 dark:border-slate-700 bg-white dark:bg-slate-900 flex justify-between items-center gap-4 z-10 shrink-0">
+                  <div className="px-8 py-5 border-t border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 flex justify-between items-center gap-4 z-10 shrink-0">
                       <button onClick={confirmDeleteOrder} className="px-6 py-2.5 rounded-lg text-red-500 font-semibold hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-sm flex items-center gap-2">
                           <Trash2 size={16} /> Delete Order
                       </button>

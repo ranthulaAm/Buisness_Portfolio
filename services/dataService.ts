@@ -1,7 +1,7 @@
 import { collection, doc, getDocs, updateDoc, setDoc, deleteDoc, addDoc, query, orderBy, onSnapshot, where } from 'firebase/firestore';
 import { db } from './firebase';
 import type { Unsubscribe } from 'firebase/firestore';
-import { WheelSegment } from '../types';
+import { WheelSegment, ServiceFieldConfig } from '../types';
 
 export interface SkillItem {
   id?: string;
@@ -63,6 +63,7 @@ export interface ServiceItem {
   description?: string;
   image?: string;
   features?: string[];
+  customFields?: ServiceFieldConfig[];
 }
 
 export const getPortfolioItems = async (): Promise<PortfolioItem[]> => {

@@ -77,6 +77,15 @@ export interface Order {
   customFields?: { [key: string]: any }; // Flexible storage for service-specific inputs
 }
 
+export interface ServiceFieldConfig {
+  id: string; // alphanumeric lowercase identifier, e.g. "age_limit", "logo_link"
+  label: string; // e.g. "Brand Name", "Target Audience"
+  type: 'text' | 'number' | 'select' | 'checkbox' | 'textarea';
+  placeholder?: string;
+  required: boolean;
+  options?: string[]; // strictly for 'select' type
+}
+
 export interface Service {
   id: string;
   title: string;
@@ -87,6 +96,7 @@ export interface Service {
   hidden?: boolean;
   image: string;
   features: string[];
+  customFields?: ServiceFieldConfig[];
 }
 
 export interface User {

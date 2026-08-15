@@ -376,6 +376,7 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
                image: c.image || 'https://picsum.photos/600/800?random=999',
                features: c.features || [],
                price: c.price,
+               customFields: c.customFields || [],
             });
          }
       });
@@ -384,9 +385,21 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
         setServices(baseServices.map(s => {
            if (configs[s.id]) {
               if (configs[s.id].isCustom) {
-                  return { ...s, price: configs[s.id].price, title: configs[s.id].title || s.title, description: configs[s.id].description || s.description, image: configs[s.id].image || s.image, features: configs[s.id].features || s.features };
+                  return { 
+                     ...s, 
+                     price: configs[s.id].price, 
+                     title: configs[s.id].title || s.title, 
+                     description: configs[s.id].description || s.description, 
+                     image: configs[s.id].image || s.image, 
+                     features: configs[s.id].features || s.features,
+                     customFields: configs[s.id].customFields || []
+                  };
               }
-              return { ...s, price: configs[s.id].price };
+              return { 
+                 ...s, 
+                 price: configs[s.id].price,
+                 customFields: configs[s.id].customFields || []
+              };
            }
            return s;
         }));
@@ -431,6 +444,7 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
     telephones: [''],
     books: [{ title: '', author: '' }],
     extraDetails: '',
+    customFields: {} as Record<string, any>,
     // Technical Specs
     dimensions: {
       width: '1080',
@@ -614,6 +628,31 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
       else if (!emailRegex.test(formData.email)) newErrors.email = 'Enter a valid email address';
       if (!formData.mobile || formData.mobile.length === 0) newErrors.mobile = 'Phone number is required';
     }
+    if (currentStep === 2) {
+      const selectedService = services.find(s => s.id === formData.serviceType);
+      if (selectedService?.customFields && selectedService.customFields.length > 0) {
+        selectedService.customFields.forEach(field => {
+          if (field.required) {
+            const val = formData.customFields[field.id];
+            if (field.type === 'checkbox') {
+              if (!val) {
+                newErrors[field.id] = `${field.label} is required`;
+              }
+            } else {
+              if (val === undefined || val === null || (typeof val === 'string' && !val.trim())) {
+                newErrors[field.id] = `${field.label} is required`;
+              }
+            }
+          }
+        });
+      } else {
+        if (['s_social', 's_banner', 's_flyer'].includes(formData.serviceType)) {
+          if (!formData.eventTitle.trim()) newErrors.eventTitle = 'Event Title is required';
+          if (!formData.requirements.trim()) newErrors.requirements = 'Vision/Requirements is required';
+          if (!formData.brandName.trim()) newErrors.brandName = 'Brand Name is required';
+        }
+      }
+    }
 
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) {
@@ -658,6 +697,23 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
       setFormData(prev => ({ ...prev, [name]: finalValue }));
     }
     if (errors[name]) setErrors(prev => { const n = { ...prev }; delete n[name]; return n; });
+  };
+
+  const handleCustomFieldChange = (fieldId: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      customFields: {
+        ...prev.customFields,
+        [fieldId]: value
+      }
+    }));
+    if (errors[fieldId]) {
+      setErrors(prev => {
+        const n = { ...prev };
+        delete n[fieldId];
+        return n;
+      });
+    }
   };
 
   const handleDimensionChange = (field: string, value: string) => {
@@ -850,25 +906,43 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
         customFields[key] = val;
       };
 
-      addIf('Event Title', formData.eventTitle);
-      addIf('Brand Name', formData.brandName);
-      if(formData.socialLinks.some(l => l.handle)) customFields['Social Media'] = formData.socialLinks.filter(l => l.handle);
-      addIf('Website', formData.websiteUrl);
-      addIf('Target Audience', formData.audience); 
-      addIf('Venue', formData.venue);
-      addIf('Event Date', formData.eventDate);
-      addIf('Event Time', formData.eventTime);
-      addIf('Recipient', formData.recipient);
-      addIf('Subject', formData.subject);
-      addIf('Unit Name', formData.unitName);
-      addIf('Tutor Name', formData.tutorName);
-      addIf('Year', formData.year);
-      addIf('Institutes', formData.institutes);
-      addIf('Motto', formData.motto);
-      addIf('Location', formData.location);
-      if(formData.telephones.some(t => t)) customFields['Contact Numbers'] = formData.telephones.filter(t => t);
-      if(formData.books.some(b => b.title)) customFields['Books'] = formData.books.filter(b => b.title);
-      addIf('Extra Details', formData.extraDetails);
+      const selectedService = services.find(s => s.id === formData.serviceType);
+      if (selectedService?.customFields && selectedService.customFields.length > 0) {
+        selectedService.customFields.forEach(field => {
+          const val = formData.customFields[field.id];
+          if (val !== undefined && val !== null) {
+            if (field.type === 'checkbox') {
+              customFields[field.label] = !!val;
+            } else if (typeof val === 'string') {
+              if (val.trim()) {
+                customFields[field.label] = val;
+              }
+            } else {
+              customFields[field.label] = val;
+            }
+          }
+        });
+      } else {
+        addIf('Event Title', formData.eventTitle);
+        addIf('Brand Name', formData.brandName);
+        if(formData.socialLinks.some(l => l.handle)) customFields['Social Media'] = formData.socialLinks.filter(l => l.handle);
+        addIf('Website', formData.websiteUrl);
+        addIf('Target Audience', formData.audience); 
+        addIf('Venue', formData.venue);
+        addIf('Event Date', formData.eventDate);
+        addIf('Event Time', formData.eventTime);
+        addIf('Recipient', formData.recipient);
+        addIf('Subject', formData.subject);
+        addIf('Unit Name', formData.unitName);
+        addIf('Tutor Name', formData.tutorName);
+        addIf('Year', formData.year);
+        addIf('Institutes', formData.institutes);
+        addIf('Motto', formData.motto);
+        addIf('Location', formData.location);
+        if(formData.telephones.some(t => t)) customFields['Contact Numbers'] = formData.telephones.filter(t => t);
+        if(formData.books.some(b => b.title)) customFields['Books'] = formData.books.filter(b => b.title);
+        addIf('Extra Details', formData.extraDetails);
+      }
 
       let originalPrice = selectedService?.price || 0;
       let finalPrice = originalPrice;
@@ -946,6 +1020,111 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
     const inputClass = (errKey: string) => `w-full bg-slate-50 border rounded-2xl px-6 py-4 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 outline-none transition-all focus:bg-white dark:bg-slate-900 ${errors[errKey] ? 'border-red-500 bg-red-50/20 shadow-sm' : 'border-zinc-300 focus:border-purple-600 focus:ring-4 focus:ring-purple-100 shadow-sm'}`;
     const ErrorMsg = ({ name }: { name: string }) => errors[name] ? <div className="text-red-500 text-[10px] font-bold mt-1.5 flex items-center gap-1.5"><AlertCircle size={10} /> {errors[name]}</div> : null;
     
+    const selectedService = services.find(s => s.id === type);
+    if (selectedService?.customFields && selectedService.customFields.length > 0) {
+      return (
+        <div className="space-y-6">
+          {selectedService.customFields.map(field => {
+            if (field.type === 'textarea') {
+              return (
+                <div key={field.id}>
+                  <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+                    {field.label} {field.required && <span className="text-red-500">*</span>}
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={formData.customFields[field.id] || ''}
+                    onChange={e => handleCustomFieldChange(field.id, e.target.value)}
+                    placeholder={field.placeholder || ''}
+                    className={inputClass(field.id)}
+                  />
+                  <ErrorMsg name={field.id} />
+                </div>
+              );
+            }
+            if (field.type === 'number') {
+              return (
+                <div key={field.id}>
+                  <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+                    {field.label} {field.required && <span className="text-red-500">*</span>}
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.customFields[field.id] || ''}
+                    onChange={e => handleCustomFieldChange(field.id, e.target.value)}
+                    placeholder={field.placeholder || ''}
+                    className={inputClass(field.id)}
+                  />
+                  <ErrorMsg name={field.id} />
+                </div>
+              );
+            }
+            if (field.type === 'select') {
+              return (
+                <div key={field.id}>
+                  <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+                    {field.label} {field.required && <span className="text-red-500">*</span>}
+                  </label>
+                  <select
+                    value={formData.customFields[field.id] || ''}
+                    onChange={e => handleCustomFieldChange(field.id, e.target.value)}
+                    className={inputClass(field.id)}
+                  >
+                    <option value="" className="bg-white dark:bg-slate-900 text-gray-400">
+                      {field.placeholder || "Select an option..."}
+                    </option>
+                    {field.options?.map((opt, idx) => (
+                      <option key={idx} value={opt} className="bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100">
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
+                  <ErrorMsg name={field.id} />
+                </div>
+              );
+            }
+            if (field.type === 'checkbox') {
+              return (
+                <div key={field.id} className="flex items-start gap-3 p-4 bg-slate-50 dark:bg-slate-900/50 border border-zinc-200 dark:border-slate-800 rounded-2xl">
+                  <input
+                    type="checkbox"
+                    id={`client_check_${field.id}`}
+                    checked={!!formData.customFields[field.id]}
+                    onChange={e => handleCustomFieldChange(field.id, e.target.checked)}
+                    className="mt-1 rounded border-gray-300 dark:border-slate-600 text-purple-600 focus:ring-purple-500 w-4 h-4 cursor-pointer"
+                  />
+                  <div>
+                    <label htmlFor={`client_check_${field.id}`} className="text-sm font-semibold text-gray-900 dark:text-slate-100 cursor-pointer select-none">
+                      {field.label} {field.required && <span className="text-red-500">*</span>}
+                    </label>
+                    {field.placeholder && (
+                      <p className="text-xs text-gray-400 mt-1">{field.placeholder}</p>
+                    )}
+                    <ErrorMsg name={field.id} />
+                  </div>
+                </div>
+              );
+            }
+            return (
+              <div key={field.id}>
+                <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2">
+                  {field.label} {field.required && <span className="text-red-500">*</span>}
+                </label>
+                <input
+                  type="text"
+                  value={formData.customFields[field.id] || ''}
+                  onChange={e => handleCustomFieldChange(field.id, e.target.value)}
+                  placeholder={field.placeholder || ''}
+                  className={inputClass(field.id)}
+                />
+                <ErrorMsg name={field.id} />
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
     if (['s_social', 's_banner', 's_flyer'].includes(type)) {
       return (
         <div className="space-y-6">
