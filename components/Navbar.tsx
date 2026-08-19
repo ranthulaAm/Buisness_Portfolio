@@ -61,7 +61,7 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onLoginClick, onLogout }) 
               }
             }
           }}
-          className="pointer-events-auto cursor-pointer flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-full bg-white dark:bg-slate-800 backdrop-blur-2xl border border-gray-300/80 dark:border-slate-500 shadow-[0_8px_30px_rgba(0,0,0,0.2)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.8)] hover:scale-105 active:scale-95 transition-all text-gray-900 dark:text-white"
+          className="pointer-events-auto cursor-pointer flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-full bg-white dark:bg-zinc-800 backdrop-blur-2xl border border-gray-300/80 dark:border-slate-500 shadow-[0_8px_30px_rgba(0,0,0,0.2)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.8)] hover:scale-105 active:scale-95 transition-all text-gray-900 dark:text-white"
           title="Go Back"
         >
              <ArrowLeft size={24} strokeWidth={2.5} />
@@ -79,7 +79,7 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onLoginClick, onLogout }) 
             </button>
             <button 
               onClick={toggleTheme} 
-              className="text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-800 hover:bg-white dark:bg-slate-900 backdrop-blur-md px-4 py-2.5 md:px-4 md:py-2.5 rounded-full border border-gray-300 dark:border-slate-500 shadow-[0_8px_30px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.8)] transition-all flex items-center gap-2"
+              className="text-gray-900 dark:text-white bg-white dark:bg-zinc-800 hover:bg-white dark:bg-zinc-900 backdrop-blur-md px-4 py-2.5 md:px-4 md:py-2.5 rounded-full border border-gray-300 dark:border-slate-500 shadow-[0_8px_30px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.8)] transition-all flex items-center gap-2"
             >
               {isDarkMode ? <Sun size={18} className="w-[18px] h-[18px]" /> : <Moon size={18} className="w-[18px] h-[18px]" />}
               <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest hidden md:block">
@@ -101,7 +101,7 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onLoginClick, onLogout }) 
                 >
                   Dash
                 </button>
-                <div className="flex items-center gap-1 md:gap-3 bg-white dark:bg-slate-800 backdrop-blur-md px-3 py-2 md:px-4 md:py-2 rounded-full border border-gray-300 dark:border-slate-500 shadow-[0_8px_30px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.8)] hover:border-purple-300 transition-colors">
+                <div className="flex items-center gap-1 md:gap-3 bg-white dark:bg-zinc-800 backdrop-blur-md px-3 py-2 md:px-4 md:py-2 rounded-full border border-gray-300 dark:border-slate-500 shadow-[0_8px_30px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.8)] hover:border-purple-300 transition-colors">
                   <button 
                     onClick={() => {
                       if (window.location.hash.startsWith('#/admin')) {
@@ -113,15 +113,15 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onLoginClick, onLogout }) 
                     className="flex items-center gap-2 md:gap-3 hover:opacity-80 transition-opacity text-left"
                   >
                     <img src={user.avatar} alt={user.name} className="w-8 h-8 md:w-8 md:h-8 rounded-full border border-purple-500" />
-                    <span className="text-xs md:text-sm font-bold text-gray-900 dark:text-slate-100 hidden md:block max-w-[100px] truncate">{user.name}</span>
+                    <span className="text-xs md:text-sm font-bold text-gray-900 dark:text-white hidden md:block max-w-[100px] truncate">{user.name}</span>
                   </button>
-                  <button onClick={(e) => { e.stopPropagation(); onLogout(); }} className="text-gray-500 dark:text-slate-400 hover:text-red-500 ml-1 md:ml-2 p-1 transition-colors">
+                  <button onClick={(e) => { e.stopPropagation(); onLogout(); }} className="text-gray-500 dark:text-gray-400 hover:text-red-500 ml-1 md:ml-2 p-1 transition-colors">
                     <LogOut size={18} className="w-[18px] h-[18px]" />
                   </button>
                 </div>
               </div>
             ) : (
-              <button onClick={onLoginClick} className="text-gray-900 dark:text-slate-100 bg-white dark:bg-slate-800 hover:bg-gray-200 px-4 py-2.5 md:px-4 md:py-2 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest backdrop-blur-md border border-gray-200 dark:border-slate-500 shadow-[0_8px_30px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.8)] transition-all">
+              <button onClick={onLoginClick} className="text-gray-900 dark:text-white bg-white dark:bg-zinc-800 hover:bg-gray-200 px-4 py-2.5 md:px-4 md:py-2 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest backdrop-blur-md border border-gray-200 dark:border-slate-500 shadow-[0_8px_30px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.8)] transition-all">
                  Sign In
               </button>
             )}

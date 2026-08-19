@@ -142,7 +142,7 @@ const AppContent: React.FC = () => {
   return (
     <>
       <Toaster position="top-center" reverseOrder={false} />
-      {!isAdmin && <div className="fixed inset-0 w-full h-full -z-10 bg-gray-50 dark:bg-slate-800" />}
+      {!isAdmin && <div className="fixed inset-0 w-full h-full -z-10 bg-gray-50 dark:bg-zinc-800" />}
       {showIntro && (
         <IntroSequence 
           onComplete={handleIntroComplete} 

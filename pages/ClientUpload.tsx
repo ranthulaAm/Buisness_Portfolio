@@ -153,13 +153,13 @@ export const ClientUpload: React.FC<{ user?: User | null }> = ({ user }) => {
 
   if (isSuccess) {
     return (
-      <div className="min-h-screen pt-32 pb-24 bg-gray-50 dark:bg-slate-900 flex items-center justify-center px-4">
-        <div className="max-w-md w-full bg-white dark:bg-slate-800 rounded-3xl p-12 text-center shadow-2xl border border-gray-100 dark:border-slate-700">
+      <div className="min-h-screen pt-32 pb-24 bg-gray-50 dark:bg-zinc-900 flex items-center justify-center px-4">
+        <div className="max-w-md w-full bg-white dark:bg-zinc-800 rounded-3xl p-12 text-center shadow-2xl border border-gray-100 dark:border-zinc-700">
           <div className="w-24 h-24 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle2 size={48} />
           </div>
-          <h2 className="text-3xl font-display font-bold text-gray-900 dark:text-slate-100 mb-4">Upload Complete!</h2>
-          <p className="text-gray-500 dark:text-slate-400 mb-8">Thank you, {formData.clientName}. Your files have been successfully uploaded and we will review them shortly.</p>
+          <h2 className="text-3xl font-display font-bold text-gray-900 dark:text-white mb-4">Upload Complete!</h2>
+          <p className="text-gray-500 dark:text-gray-400 mb-8">Thank you, {formData.clientName}. Your files have been successfully uploaded and we will review them shortly.</p>
           <button 
             onClick={() => {
               setIsSuccess(false);
@@ -184,20 +184,20 @@ export const ClientUpload: React.FC<{ user?: User | null }> = ({ user }) => {
   };
 
   return (
-    <div className="min-h-screen pt-32 pb-24 bg-gray-50 dark:bg-slate-900 px-4 sm:px-6 lg:px-8 font-sans">
+    <div className="min-h-screen pt-32 pb-24 bg-gray-50 dark:bg-zinc-900 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-display font-bold text-gray-900 dark:text-slate-100 mb-4 leading-tight">Send Us Your Files</h1>
-          <p className="text-lg text-gray-500 dark:text-slate-400 max-w-2xl mx-auto">Upload your high-resolution assets, videos, or raw files securely. We support very large files for your events and projects.</p>
+          <h1 className="text-4xl md:text-5xl font-display font-bold text-gray-900 dark:text-white mb-4 leading-tight">Send Us Your Files</h1>
+          <p className="text-lg text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">Upload your high-resolution assets, videos, or raw files securely. We support very large files for your events and projects.</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-gray-100 dark:border-slate-700 overflow-hidden">
+        <div className="bg-white dark:bg-zinc-800 rounded-3xl shadow-xl border border-gray-100 dark:border-zinc-700 overflow-hidden">
           <form onSubmit={handleSubmit} className="p-8 md:p-12">
             
             {/* Form Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
               <div>
-                <label className="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-2">Client Name *</label>
+                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Client Name *</label>
                 <input 
                   type="text" 
                   name="clientName"
@@ -206,11 +206,11 @@ export const ClientUpload: React.FC<{ user?: User | null }> = ({ user }) => {
                   required
                   placeholder="John Doe"
                   disabled={isSubmitting}
-                  className="w-full border-b-2 border-gray-200 dark:border-slate-700 focus:border-blue-500 bg-transparent py-3 text-lg font-medium text-gray-900 dark:text-slate-100 outline-none transition-colors"
+                  className="w-full border-b-2 border-gray-200 dark:border-zinc-700 focus:border-blue-500 bg-transparent py-3 text-lg font-medium text-gray-900 dark:text-white outline-none transition-colors"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-2">Email Address (Optional)</label>
+                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Email Address (Optional)</label>
                 <input 
                   type="email" 
                   name="email"
@@ -218,11 +218,11 @@ export const ClientUpload: React.FC<{ user?: User | null }> = ({ user }) => {
                   onChange={handleInputChange}
                   placeholder="john@example.com"
                   disabled={isSubmitting}
-                  className="w-full border-b-2 border-gray-200 dark:border-slate-700 focus:border-blue-500 bg-transparent py-3 text-lg font-medium text-gray-900 dark:text-slate-100 outline-none transition-colors"
+                  className="w-full border-b-2 border-gray-200 dark:border-zinc-700 focus:border-blue-500 bg-transparent py-3 text-lg font-medium text-gray-900 dark:text-white outline-none transition-colors"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-2">WhatsApp Number *</label>
+                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">WhatsApp Number *</label>
                 <input 
                   type="tel" 
                   name="whatsapp"
@@ -231,11 +231,11 @@ export const ClientUpload: React.FC<{ user?: User | null }> = ({ user }) => {
                   required
                   placeholder="+1 234 567 8900"
                   disabled={isSubmitting}
-                  className="w-full border-b-2 border-gray-200 dark:border-slate-700 focus:border-blue-500 bg-transparent py-3 text-lg font-medium text-gray-900 dark:text-slate-100 outline-none transition-colors"
+                  className="w-full border-b-2 border-gray-200 dark:border-zinc-700 focus:border-blue-500 bg-transparent py-3 text-lg font-medium text-gray-900 dark:text-white outline-none transition-colors"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-2">Event / Project Name *</label>
+                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">Event / Project Name *</label>
                 <input 
                   type="text" 
                   name="eventName"
@@ -244,15 +244,15 @@ export const ClientUpload: React.FC<{ user?: User | null }> = ({ user }) => {
                   required
                   placeholder="Summer Wedding 2024"
                   disabled={isSubmitting}
-                  className="w-full border-b-2 border-gray-200 dark:border-slate-700 focus:border-blue-500 bg-transparent py-3 text-lg font-medium text-gray-900 dark:text-slate-100 outline-none transition-colors"
+                  className="w-full border-b-2 border-gray-200 dark:border-zinc-700 focus:border-blue-500 bg-transparent py-3 text-lg font-medium text-gray-900 dark:text-white outline-none transition-colors"
                 />
               </div>
             </div>
 
             {/* File Uploader */}
             <div className="mb-12">
-              <label className="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-4">Files to Upload *</label>
-              <div className={`border-2 border-dashed rounded-3xl p-12 text-center transition-all relative ${files.length > 0 ? 'bg-gray-50/50 dark:bg-slate-900/50 border-gray-200 dark:border-slate-700' : 'bg-gray-50 dark:bg-slate-900 border-gray-300 dark:border-slate-600 hover:border-blue-500'}`}>
+              <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4">Files to Upload *</label>
+              <div className={`border-2 border-dashed rounded-3xl p-12 text-center transition-all relative ${files.length > 0 ? 'bg-gray-50/50 dark:bg-zinc-900/50 border-gray-200 dark:border-zinc-700' : 'bg-gray-50 dark:bg-zinc-900 border-gray-300 dark:border-zinc-600 hover:border-blue-500'}`}>
                 <input 
                   type="file" 
                   multiple 
@@ -262,8 +262,8 @@ export const ClientUpload: React.FC<{ user?: User | null }> = ({ user }) => {
                 />
                 <div className="pointer-events-none">
                   <Upload className="mx-auto mb-4 text-blue-500 animate-pulse" size={48} />
-                  <p className="text-xl font-bold text-gray-900 dark:text-slate-100 mb-2">Drag & Drop or Click to Add Files</p>
-                  <p className="text-gray-500 dark:text-slate-400">Supports all file types. Large files will be uploaded securely.</p>
+                  <p className="text-xl font-bold text-gray-900 dark:text-white mb-2">Drag & Drop or Click to Add Files</p>
+                  <p className="text-gray-500 dark:text-gray-400">Supports all file types. Large files will be uploaded securely.</p>
                 </div>
               </div>
 
@@ -271,17 +271,17 @@ export const ClientUpload: React.FC<{ user?: User | null }> = ({ user }) => {
               {files.length > 0 && (
                 <div className="mt-8 space-y-4">
                   {files.map((fileObj, idx) => (
-                    <div key={idx} className="bg-gray-50 dark:bg-slate-900 rounded-2xl p-4 flex items-center gap-4 border border-gray-200 dark:border-slate-700">
-                      <div className="w-12 h-12 bg-white dark:bg-slate-800 rounded-xl flex items-center justify-center shrink-0 shadow-sm">
+                    <div key={idx} className="bg-gray-50 dark:bg-zinc-900 rounded-2xl p-4 flex items-center gap-4 border border-gray-200 dark:border-zinc-700">
+                      <div className="w-12 h-12 bg-white dark:bg-zinc-800 rounded-xl flex items-center justify-center shrink-0 shadow-sm">
                         {getFileIcon(fileObj.file.type)}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-center mb-1">
-                          <h4 className="font-semibold text-gray-900 dark:text-slate-100 truncate text-sm">{fileObj.file.name}</h4>
-                          <span className="text-xs font-bold text-gray-500 dark:text-slate-400 font-mono ml-4">{formatSize(fileObj.file.size)}</span>
+                          <h4 className="font-semibold text-gray-900 dark:text-white truncate text-sm">{fileObj.file.name}</h4>
+                          <span className="text-xs font-bold text-gray-500 dark:text-gray-400 font-mono ml-4">{formatSize(fileObj.file.size)}</span>
                         </div>
                         
-                        <div className="relative h-2 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden mt-2">
+                        <div className="relative h-2 bg-gray-200 dark:bg-zinc-700 rounded-full overflow-hidden mt-2">
                           <div 
                             className={`absolute top-0 left-0 h-full transition-all duration-300 ${fileObj.status === 'error' ? 'bg-red-500' : fileObj.status === 'completed' ? 'bg-green-500' : 'bg-blue-500'}`}
                             style={{ width: `${fileObj.progress}%` }}
@@ -316,7 +316,7 @@ export const ClientUpload: React.FC<{ user?: User | null }> = ({ user }) => {
               disabled={isSubmitting || files.length === 0}
               className={`w-full py-5 rounded-2xl font-bold uppercase tracking-widest text-sm flex items-center justify-center gap-3 transition-all ${
                 isSubmitting || files.length === 0 
-                  ? 'bg-gray-100 text-gray-400 dark:bg-slate-800 dark:text-slate-500 cursor-not-allowed' 
+                  ? 'bg-gray-100 text-gray-400 dark:bg-zinc-800 dark:text-gray-500 cursor-not-allowed' 
                   : 'bg-blue-600 text-white hover:bg-blue-700 shadow-xl shadow-blue-600/20 hover:-translate-y-1'
               }`}
             >

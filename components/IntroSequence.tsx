@@ -112,12 +112,12 @@ export const IntroSequence: React.FC<IntroSequenceProps> = ({ onComplete, skipAn
               onError={handleImageError}
             />
             {/* Fallback Element */}
-            <div id="intro-logo-fallback" style={{ display: 'none' }} className="w-full h-full border-2 border-white dark:border-slate-800/20 rounded-full items-center justify-center bg-white/5 backdrop-blur-sm absolute inset-0">
+            <div id="intro-logo-fallback" style={{ display: 'none' }} className="w-full h-full border-2 border-white dark:border-zinc-700/20 rounded-full items-center justify-center bg-white/5 backdrop-blur-sm absolute inset-0">
                <span className="font-display font-bold text-2xl text-white">RA</span>
             </div>
          </div>
 
-         <div className="text-[10px] md:text-xs font-sans uppercase tracking-[0.3em] text-white/40 border border-white dark:border-slate-800/10 px-3 py-1.5 rounded-full bg-white/5 text-center">
+         <div className="text-[10px] md:text-xs font-sans uppercase tracking-[0.3em] text-white/40 border border-white dark:border-zinc-700/10 px-3 py-1.5 rounded-full bg-white/5 text-center">
             Personal Portfolio
          </div>
       </div>

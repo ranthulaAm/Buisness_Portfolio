@@ -85,7 +85,7 @@ export const SharedProjectView: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="py-24 bg-gray-50 dark:bg-slate-900 flex items-center justify-center">
+      <div className="py-24 bg-gray-50 dark:bg-zinc-900 flex items-center justify-center">
         <Loader2 size={40} className="animate-spin text-blue-600" />
       </div>
     );
@@ -93,14 +93,14 @@ export const SharedProjectView: React.FC = () => {
 
   if (error || !project) {
     return (
-      <div className="py-24 bg-gray-50 dark:bg-slate-900 flex flex-col items-center justify-center p-6 text-center">
-        <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-xl max-w-md w-full border border-gray-200 dark:border-slate-700">
+      <div className="py-24 bg-gray-50 dark:bg-zinc-900 flex flex-col items-center justify-center p-6 text-center">
+        <div className="bg-white dark:bg-zinc-800 p-8 rounded-2xl shadow-xl max-w-md w-full border border-gray-200 dark:border-zinc-700">
           <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
             <Lock size={32} />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-2">Access Denied</h2>
-          <p className="text-gray-500 dark:text-slate-400 mb-8">{error || 'This link is invalid or has expired.'}</p>
-          <button onClick={() => window.location.href = '/'} className="bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300 px-6 py-2 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors">Return Home</button>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Access Denied</h2>
+          <p className="text-gray-500 dark:text-gray-400 mb-8">{error || 'This link is invalid or has expired.'}</p>
+          <button onClick={() => window.location.href = '/'} className="bg-gray-100 dark:bg-zinc-700 text-gray-700 dark:text-gray-300 px-6 py-2 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors">Return Home</button>
         </div>
       </div>
     );
@@ -108,15 +108,15 @@ export const SharedProjectView: React.FC = () => {
 
   if (!accessGranted) {
     return (
-      <div className="py-24 bg-gray-50 dark:bg-slate-900 flex flex-col items-center justify-center p-6">
-        <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-xl max-w-md w-full border border-gray-200 dark:border-slate-700">
+      <div className="py-24 bg-gray-50 dark:bg-zinc-900 flex flex-col items-center justify-center p-6">
+        <div className="bg-white dark:bg-zinc-800 p-8 rounded-2xl shadow-xl max-w-md w-full border border-gray-200 dark:border-zinc-700">
           <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
             {project.accessType === 'password' ? <Lock size={32} /> : <Mail size={32} />}
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-2 text-center leading-tight">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 text-center leading-tight">
             {getGreeting()} {project.clientName}
           </h2>
-          <p className="text-gray-500 dark:text-slate-400 mb-6 text-center">
+          <p className="text-gray-500 dark:text-gray-400 mb-6 text-center">
             {project.accessType === 'password' ? 'Please enter the password to access your files.' : 'Please verify your identity to access your files.'}
           </p>
           
@@ -128,7 +128,7 @@ export const SharedProjectView: React.FC = () => {
                 value={passwordInput}
                 onChange={(e) => setPasswordInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleVerify()}
-                className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg p-3 text-gray-900 dark:text-slate-100 focus:outline-none focus:border-blue-500"
+                className="w-full bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-lg p-3 text-gray-900 dark:text-white focus:outline-none focus:border-blue-500"
               />
             ) : (
               <input 
@@ -137,7 +137,7 @@ export const SharedProjectView: React.FC = () => {
                 value={emailInput}
                 onChange={(e) => setEmailInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleVerify()}
-                className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg p-3 text-gray-900 dark:text-slate-100 focus:outline-none focus:border-blue-500"
+                className="w-full bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-lg p-3 text-gray-900 dark:text-white focus:outline-none focus:border-blue-500"
               />
             )}
             
@@ -156,17 +156,17 @@ export const SharedProjectView: React.FC = () => {
   }
 
   return (
-    <div className="py-24 bg-gray-50 dark:bg-slate-900 px-4 sm:px-6">
+    <div className="py-24 bg-gray-50 dark:bg-zinc-900 px-4 sm:px-6">
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white dark:bg-slate-800 rounded-full border border-gray-200 dark:border-slate-700 text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white dark:bg-zinc-800 rounded-full border border-gray-200 dark:border-zinc-700 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-4">
               <Lock size={12} /> Secure Share
             </div>
-            <h1 className="text-3xl md:text-4xl font-display font-bold text-gray-900 dark:text-slate-100 max-w-2xl leading-tight">
+            <h1 className="text-3xl md:text-4xl font-display font-bold text-gray-900 dark:text-white max-w-2xl leading-tight">
               {getGreeting()} {project.clientName},<br/>download your project files here
             </h1>
-            <p className="text-gray-500 dark:text-slate-400 mt-4 text-lg">Shared on {new Date(project.createdAt).toLocaleDateString()}</p>
+            <p className="text-gray-500 dark:text-gray-400 mt-4 text-lg">Shared on {new Date(project.createdAt).toLocaleDateString()}</p>
           </div>
           
           {project.files.length > 0 && (
@@ -185,7 +185,7 @@ export const SharedProjectView: React.FC = () => {
         </div>
 
         {project.files.length === 0 ? (
-          <div className="bg-white dark:bg-slate-800 rounded-2xl border border-dashed border-gray-300 dark:border-slate-700 p-12 text-center text-gray-500 dark:text-slate-400">
+          <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-dashed border-gray-300 dark:border-zinc-700 p-12 text-center text-gray-500 dark:text-gray-400">
             No files have been uploaded to this project yet.
           </div>
         ) : (
@@ -196,17 +196,17 @@ export const SharedProjectView: React.FC = () => {
               
               return (
                 <div key={folder}>
-                  {folder !== 'Unsorted' && <h3 className="text-xl font-display font-bold text-gray-900 dark:text-slate-100 mb-6 border-b border-gray-200 dark:border-slate-700 pb-2">{folder}</h3>}
+                  {folder !== 'Unsorted' && <h3 className="text-xl font-display font-bold text-gray-900 dark:text-white mb-6 border-b border-gray-200 dark:border-zinc-700 pb-2">{folder}</h3>}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {folderFiles.map((file, idx) => {
                       const isImage = (file.type || "").startsWith('image/');
                       const isVideo = (file.type || "").startsWith('video/');
                       
                       return (
-                        <div key={idx} className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl overflow-hidden shadow-sm group hover:shadow-xl transition-all">
+                        <div key={idx} className="bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-2xl overflow-hidden shadow-sm group hover:shadow-xl transition-all">
                           
                           {/* Preview Area */}
-                          <div className="h-48 w-full bg-gray-100 dark:bg-slate-900 flex items-center justify-center relative overflow-hidden">
+                          <div className="h-48 w-full bg-gray-100 dark:bg-zinc-900 flex items-center justify-center relative overflow-hidden">
                             {(isImage || isVideo) ? (
                               <MediaRenderer 
                                 src={file.url} 
@@ -241,9 +241,9 @@ export const SharedProjectView: React.FC = () => {
                           </div>
                           
                           {/* File Info */}
-                          <div className="p-4 border-t border-gray-100 dark:border-slate-700">
-                            <h3 className="font-semibold text-gray-900 dark:text-slate-100 truncate mb-1" title={file.name}>{file.name}</h3>
-                            <div className="flex justify-between items-center text-xs text-gray-500 dark:text-slate-400 font-mono">
+                          <div className="p-4 border-t border-gray-100 dark:border-zinc-700">
+                            <h3 className="font-semibold text-gray-900 dark:text-white truncate mb-1" title={file.name}>{file.name}</h3>
+                            <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 font-mono">
                               <span className="uppercase">{(file.type || '').split('/')[1] || 'FILE'}</span>
                               <span>{(file.size / (1024 * 1024)).toFixed(2)} MB</span>
                             </div>

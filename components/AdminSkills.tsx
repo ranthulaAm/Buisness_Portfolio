@@ -71,7 +71,7 @@ export const AdminSkills: React.FC = () => {
     };
 
     return (
-        <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-6 max-w-4xl mx-auto relative">
+        <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl shadow-sm p-6 max-w-4xl mx-auto relative">
             <ConfirmationDialog 
                 isOpen={itemToDelete !== null}
                 title="Delete Skill"
@@ -81,7 +81,7 @@ export const AdminSkills: React.FC = () => {
                 onCancel={() => setItemToDelete(null)}
             />
             <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 flex items-center gap-2">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                     <Award className="text-blue-600" size={20} /> Software Skills
                 </h3>
                 <button onClick={handleAdd} className="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors">
@@ -94,12 +94,12 @@ export const AdminSkills: React.FC = () => {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {skills.sort((a,b) => (a.order || 0) - (b.order || 0)).map((s, i) => (
-                        <div key={s.id || i} className={`border border-gray-200 dark:border-slate-700 rounded-xl p-4 flex flex-col gap-4 ${s.hidden ? 'bg-gray-100 dark:bg-slate-800 opacity-70' : 'bg-gray-50 dark:bg-slate-800'}`}>
+                        <div key={s.id || i} className={`border border-gray-200 dark:border-zinc-700 rounded-xl p-4 flex flex-col gap-4 ${s.hidden ? 'bg-gray-100 dark:bg-zinc-800 opacity-70' : 'bg-gray-50 dark:bg-zinc-800'}`}>
                             <div className="flex gap-2">
                                 <input 
                                     value={s.name}
                                     onChange={e => handleChange(i, 'name', e.target.value)}
-                                    className="font-bold text-gray-900 dark:text-slate-100 bg-transparent border-b border-gray-300 dark:border-slate-600 focus:border-blue-500 outline-none w-full pb-1 flex-1"
+                                    className="font-bold text-gray-900 dark:text-white bg-transparent border-b border-gray-300 dark:border-zinc-600 focus:border-blue-500 outline-none w-full pb-1 flex-1"
                                     placeholder="Skill Name (e.g. React.js)"
                                 />
                                 <div className="flex items-center gap-1">
@@ -108,7 +108,7 @@ export const AdminSkills: React.FC = () => {
                                         type="number" 
                                         value={s.order || 0}
                                         onChange={e => handleChange(i, 'order', Number(e.target.value))}
-                                        className="w-12 text-center bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg outline-none text-sm px-1 py-1"
+                                        className="w-12 text-center bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-lg outline-none text-sm px-1 py-1"
                                     />
                                 </div>
                             </div>
@@ -123,7 +123,7 @@ export const AdminSkills: React.FC = () => {
                                 />
                             </div>
                             <div className="flex gap-2 justify-end mt-2">
-                                <button onClick={() => handleChange(i, 'hidden', !s.hidden)} className="text-gray-500 dark:text-slate-400 hover:text-blue-600 hover:bg-blue-50 p-2 rounded-lg transition-colors" title={s.hidden ? "Show" : "Hide"}>
+                                <button onClick={() => handleChange(i, 'hidden', !s.hidden)} className="text-gray-500 dark:text-gray-400 hover:text-blue-600 hover:bg-blue-50 p-2 rounded-lg transition-colors" title={s.hidden ? "Show" : "Hide"}>
                                     {s.hidden ? <EyeOff size={16} /> : <Eye size={16} />}
                                 </button>
                                 <button onClick={() => handleDelete(i)} className="text-gray-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors">

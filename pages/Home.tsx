@@ -419,7 +419,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
   }, [selectedWork]);
 
   return (
-    <div className="flex flex-col min-h-screen text-gray-900 dark:text-slate-100">
+    <div className="flex flex-col min-h-screen text-gray-900 dark:text-white">
       <Helmet>
         <title>Ranthula | Buisness portfolio</title>
         <meta name="description" content="Immersive brand experiences crafted with precision. Visual soundscapes for your digital identity." />
@@ -431,12 +431,12 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
       <section className="min-h-[90vh] flex flex-col justify-center items-center text-center px-4 md:px-12 max-w-7xl mx-auto pt-20 relative z-10">
         <div className="max-w-5xl">
             <h1 className="text-5xl sm:text-6xl md:text-8xl font-display font-bold mb-6 md:mb-8 tracking-tight md:tracking-tighter leading-tight md:leading-none animate-fade-in select-none">
-                <span className="block text-gray-900 dark:text-slate-100 mb-1 md:mb-0">Bring your ideas</span>
-                <span className="block text-gray-900 dark:text-slate-100 mb-1 md:mb-0">to life with</span>
+                <span className="block text-gray-900 dark:text-white mb-1 md:mb-0">Bring your ideas</span>
+                <span className="block text-gray-900 dark:text-white mb-1 md:mb-0">to life with</span>
                 <span className="block bg-clip-text text-transparent bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 animate-gradient pb-2">vivid visuals!</span>
               </h1>
               
-              <p className="text-sm sm:text-base md:text-2xl text-gray-500 dark:text-slate-400 max-w-2xl mx-auto mb-8 md:mb-16 font-light leading-relaxed animate-fade-in px-4" style={{ animationDelay: '0.2s' }}>
+              <p className="text-sm sm:text-base md:text-2xl text-gray-500 dark:text-gray-400 max-w-2xl mx-auto mb-8 md:mb-16 font-light leading-relaxed animate-fade-in px-4" style={{ animationDelay: '0.2s' }}>
                 Immersive brand experiences crafted with precision. <br className="hidden md:block" />
                 Visual soundscapes for your digital identity.
               </p>
@@ -463,15 +463,15 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
       {skills.filter(s => !s.hidden).length > 0 && (
         <section className="py-24">
           <div className="px-6 md:px-12 max-w-7xl mx-auto">
-            <h2 className="text-4xl md:text-6xl font-display tracking-tight text-gray-900 dark:text-slate-100 mb-16 text-center">Software Skills</h2>
+            <h2 className="text-4xl md:text-6xl font-display font-bold tracking-tight text-gray-900 dark:text-white mb-16 text-center">Software Skills</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {skills.filter(s => !s.hidden).map((skill, idx) => (
-                <div key={skill.id || `skill-${idx}`} className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-700 p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+                <div key={skill.id || `skill-${idx}`} className="bg-white dark:bg-zinc-900 border border-gray-100 dark:border-zinc-700 p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
                   <div className="flex justify-between items-end mb-4">
-                    <h4 className="font-bold text-gray-900 dark:text-slate-100 text-lg">{skill.name}</h4>
+                    <h4 className="font-bold text-gray-900 dark:text-white text-lg">{skill.name}</h4>
                     <span className="text-sm font-mono text-gray-400 font-bold">{skill.level}%</span>
                   </div>
-                  <div className="h-2 w-full bg-gray-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                  <div className="h-2 w-full bg-gray-100 dark:bg-zinc-800 rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-all duration-1000 ease-out"
                       style={{ width: `${skill.level}%` }}
@@ -486,15 +486,15 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
 
       {/* 3. EXPERIENCE & EDUCATION */}
       {(experience.filter(e => !e.hidden).length > 0 || education.filter(e => !e.hidden).length > 0) && (
-        <section className="py-24 bg-gray-50 dark:bg-slate-800 border-y border-gray-100 dark:border-slate-700">
+        <section className="py-24 bg-gray-50 dark:bg-zinc-800 border-y border-gray-100 dark:border-zinc-700">
           <div className="px-6 md:px-12 max-w-7xl mx-auto">
-            <h2 className="text-4xl md:text-6xl font-display tracking-tight text-gray-900 dark:text-slate-100 mb-16 text-center">Journey & Background</h2>
+            <h2 className="text-4xl md:text-6xl font-display font-bold tracking-tight text-gray-900 dark:text-white mb-16 text-center">Journey & Background</h2>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
               {/* Experience */}
               {experience.filter(e => !e.hidden).length > 0 && (
                 <div>
-                  <h3 className="text-2xl font-display font-medium text-gray-900 dark:text-slate-100 mb-8 border-b border-gray-200 dark:border-slate-700 pb-4 flex items-center gap-3">
+                  <h3 className="text-2xl font-display font-bold text-gray-900 dark:text-white mb-8 border-b border-gray-200 dark:border-zinc-700 pb-4 flex items-center gap-3">
                     <span className="w-2 h-2 bg-purple-600 rounded-full"></span>
                     Professional Experience
                   </h3>
@@ -503,9 +503,9 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
                       <div key={exp.id || `exp-${idx}`} className="relative pl-6 border-l-2 border-purple-100 pb-4">
                         <div className="absolute w-3 h-3 bg-purple-500 rounded-full -left-[7px] top-1.5 shadow-[0_0_0_4px_white]"></div>
                         <div className="text-sm font-mono text-purple-600 font-bold mb-1 tracking-wider">{exp.period}</div>
-                        <h4 className="text-xl font-bold text-gray-900 dark:text-slate-100 mb-1">{exp.role}</h4>
-                        <div className="text-sm font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-3">{exp.company}</div>
-                        <p className="text-gray-600 dark:text-slate-400 text-sm leading-relaxed whitespace-pre-wrap">{exp.description}</p>
+                        <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{exp.role}</h4>
+                        <div className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">{exp.company}</div>
+                        <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed whitespace-pre-wrap">{exp.description}</p>
                       </div>
                     ))}
                   </div>
@@ -515,7 +515,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
               {/* Education */}
               {education.filter(e => !e.hidden).length > 0 && (
                 <div>
-                  <h3 className="text-2xl font-display font-medium text-gray-900 dark:text-slate-100 mb-8 border-b border-gray-200 dark:border-slate-700 pb-4 flex items-center gap-3">
+                  <h3 className="text-2xl font-display font-bold text-gray-900 dark:text-white mb-8 border-b border-gray-200 dark:border-zinc-700 pb-4 flex items-center gap-3">
                     <span className="w-2 h-2 bg-blue-600 rounded-full"></span>
                     Education
                   </h3>
@@ -524,9 +524,9 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
                       <div key={edu.id || `edu-${idx}`} className="relative pl-6 border-l-2 border-blue-100 pb-4">
                         <div className="absolute w-3 h-3 bg-blue-500 rounded-full -left-[7px] top-1.5 shadow-[0_0_0_4px_white]"></div>
                         <div className="text-sm font-mono text-blue-600 font-bold mb-1 tracking-wider">{edu.year}</div>
-                        <h4 className="text-xl font-bold text-gray-900 dark:text-slate-100 mb-1">{edu.degree}</h4>
-                        <div className="text-sm font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-3">{edu.institution}</div>
-                        <p className="text-gray-600 dark:text-slate-400 text-sm leading-relaxed whitespace-pre-wrap">{edu.description}</p>
+                        <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{edu.degree}</h4>
+                        <div className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-3">{edu.institution}</div>
+                        <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed whitespace-pre-wrap">{edu.description}</p>
                       </div>
                     ))}
                   </div>
@@ -541,9 +541,9 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
       <section id="portfolio" className="py-24">
         <div className="px-6 md:px-12 max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
-             <h2 className="text-5xl md:text-7xl font-display tracking-tighter text-gray-900 dark:text-slate-100">Selected<br/>Works</h2>
+             <h2 className="text-5xl md:text-7xl font-display font-bold tracking-tighter text-gray-900 dark:text-white leading-none">Selected<br/>Works</h2>
              <div className="h-px bg-gray-300 flex-1 mx-8 hidden md:block"></div>
-             <p className="text-gray-500 dark:text-slate-400 max-w-xs text-sm">Curated projects that define visual landscapes.</p>
+             <p className="text-gray-500 dark:text-gray-400 max-w-xs text-sm">Curated projects that define visual landscapes.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 grid-flow-row-dense">
@@ -551,7 +551,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
               [1, 2, 3, 4, 5, 6].map((i, idx) => (
                 <div 
                   key={`skeleton-${i}`}
-                  className={`animate-pulse bg-gray-200 dark:bg-slate-800 rounded-2xl ${idx === 0 ? 'md:col-span-2 md:row-span-2 aspect-square md:aspect-auto' : 'aspect-[4/5]'}`}
+                  className={`animate-pulse bg-gray-200 dark:bg-zinc-800 rounded-2xl ${idx === 0 ? 'md:col-span-2 md:row-span-2 aspect-square md:aspect-auto' : 'aspect-[4/5]'}`}
                 ></div>
               ))
             ) : portfolio.filter(item => !item.hidden).map((item, idx) => {
@@ -565,7 +565,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
                 onClick={() => openWork(item.id)}
                 className={`group relative rounded-2xl overflow-hidden transition-all duration-500 
                   ${isLarge ? 'md:col-span-2 md:row-span-2 aspect-square md:aspect-auto min-h-[400px]' : isWide ? 'md:col-span-2 aspect-[21/9] min-h-[300px]' : 'aspect-[4/5] min-h-[300px]'} 
-                  cursor-pointer bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 hover:shadow-2xl hover:-translate-y-1`}
+                  cursor-pointer bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 hover:shadow-2xl hover:-translate-y-1`}
               >
                 <div className="absolute top-4 right-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-2 group-hover:translate-y-0 flex gap-2">
                   <button 
@@ -582,15 +582,23 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
                         navigator.clipboard.writeText(url);
                       }
                     }}
-                    className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-3 rounded-full border border-gray-200 dark:border-slate-700 text-gray-900 dark:text-slate-100 hover:bg-gray-900 hover:text-white transition-colors shadow-lg"
+                    className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md p-3 rounded-full border border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white hover:bg-gray-900 hover:text-white transition-colors shadow-lg"
                     title="Share project"
                   >
                     <Share2 size={20} />
                   </button>
-                  <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-3 rounded-full border border-gray-200 dark:border-slate-700 text-gray-900 dark:text-slate-100 hover:bg-gray-900 hover:text-white transition-colors shadow-lg">
+                  <div className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md p-3 rounded-full border border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white hover:bg-gray-900 hover:text-white transition-colors shadow-lg">
                     <Maximize2 size={20} />
                   </div>
                 </div>
+
+                {/* Blurred Background to prevent letterboxing while keeping object-contain */}
+                {item.img && !item.videoUrl && (
+                  <MediaRenderer 
+                    src={item.img} 
+                    className="absolute inset-0 w-full h-full object-cover object-center opacity-40 dark:opacity-30 blur-2xl scale-110" 
+                  />
+                )}
 
                 {item.videoUrl ? (
                   <video 
@@ -599,13 +607,13 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
                     loop 
                     muted 
                     playsInline
-                    className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110 opacity-100" 
+                    className="absolute inset-0 w-full h-full object-contain object-center transition-transform duration-700 group-hover:scale-105 opacity-100 z-0" 
                   />
                 ) : (
                   <MediaRenderer 
                     src={item.img} 
                     alt={item.title} 
-                    className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110 opacity-100" 
+                    className="absolute inset-0 w-full h-full object-contain object-center transition-transform duration-700 group-hover:scale-105 opacity-100 z-0" 
                   />
                 )}
                 
@@ -629,17 +637,17 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
 
       {/* LUCKY WHEEL OF FORTUNE SECTION */}
       {(enableServiceWheel || enableDiscountWheel) && (
-        <section className="py-24 relative z-10 bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-700 overflow-hidden">
+        <section className="py-24 relative z-10 bg-white dark:bg-zinc-900 border-b border-gray-100 dark:border-zinc-700 overflow-hidden">
           <div className="px-6 md:px-12 max-w-7xl mx-auto flex flex-col items-center">
             <div className="max-w-3xl text-center mb-12">
-              <h2 className="text-4xl md:text-6xl font-display font-bold tracking-tight text-gray-900 dark:text-slate-100 mb-6 uppercase">
+              <h2 className="text-4xl md:text-6xl font-display font-bold tracking-tight text-gray-900 dark:text-white mb-6 uppercase">
                 The Lucky Wheel of Fortune
               </h2>
-              <p className="text-gray-500 dark:text-slate-400 font-light text-base md:text-lg leading-relaxed">
+              <p className="text-gray-500 dark:text-gray-400 font-light text-base md:text-lg leading-relaxed">
                 Feeling lucky? Spin our dynamic option wheel to find your perfect service, or switch to <strong className="text-purple-600 font-semibold">Lucky Discount Mode</strong> to win up to <strong className="text-purple-600 font-semibold">20% OFF</strong> your project instantly! Your prize will automatically load onto your order checkout.
               </p>
             </div>
-            <div className="w-full max-w-4xl bg-gray-50 dark:bg-slate-800 rounded-[2rem] sm:rounded-[3rem] p-4 sm:p-8 md:p-14 border border-gray-150 dark:border-slate-700 shadow-xl">
+            <div className="w-full max-w-4xl bg-gray-50 dark:bg-zinc-800 rounded-[2rem] sm:rounded-[3rem] p-4 sm:p-8 md:p-14 border border-gray-150 dark:border-zinc-700 shadow-xl">
               <OptionWheel />
             </div>
           </div>
@@ -647,9 +655,9 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
       )}
 
       {/* 5. SERVICES SECTION */}
-      <section id="services" className="py-24 relative z-10 bg-gray-50 dark:bg-slate-800 border-y border-gray-100 dark:border-slate-700">
+      <section id="services" className="py-24 relative z-10 bg-gray-50 dark:bg-zinc-800 border-y border-gray-100 dark:border-zinc-700">
         <div className="px-6 md:px-12 max-w-7xl mx-auto mb-12 flex items-end justify-between">
-          <h2 className="text-3xl font-display text-gray-900 dark:text-slate-100">Select Mode</h2>
+          <h2 className="text-4xl md:text-6xl font-display font-bold tracking-tight text-gray-900 dark:text-white">Select Mode</h2>
           <span className="text-xs text-gray-400 uppercase tracking-widest hidden md:block">Choose your workflow</span>
         </div>
 
@@ -658,43 +666,48 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
             <Link 
               key={service.id} 
               to={`/order?service=${service.id}`} 
-              className="group relative bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 md:p-10 flex flex-col border border-gray-200 dark:border-slate-700 transition-all duration-500 hover:-translate-y-2 overflow-hidden shadow-sm hover:shadow-xl"
+              className="group relative bg-white dark:bg-zinc-900 rounded-[2.5rem] p-8 md:p-10 flex flex-col border border-gray-200 dark:border-zinc-700 transition-all duration-500 hover:-translate-y-2 overflow-hidden shadow-sm hover:shadow-xl"
             >
               <div className="flex justify-between items-start mb-6">
-                <span className="text-xs font-mono text-gray-400 border border-gray-200 dark:border-slate-700 px-3 py-1.5 rounded-full text-center">0{idx + 1}</span>
+                <span className="text-xs font-mono text-gray-400 border border-gray-200 dark:border-zinc-700 px-3 py-1.5 rounded-full text-center">0{idx + 1}</span>
                 <ArrowRight className="text-transparent group-hover:text-purple-600 transition-all duration-300 -translate-x-4 group-hover:translate-x-0" />
               </div>
-              <h3 className="text-3xl md:text-4xl font-display mb-3 leading-tight text-gray-900 dark:text-slate-100">{service.title}</h3>
-              <p className="text-gray-500 dark:text-slate-400 text-sm md:text-base leading-relaxed mb-8 pr-4">{service.description}</p>
+              <h3 className="text-3xl md:text-4xl font-display font-bold mb-3 leading-tight text-gray-900 dark:text-white">{service.title}</h3>
+              <p className="text-gray-500 dark:text-gray-400 text-sm md:text-base leading-relaxed mb-8 pr-4">{service.description}</p>
               
-              <div className="w-full aspect-[4/3] rounded-3xl overflow-hidden mb-8 relative">
+              <div className="w-full rounded-3xl overflow-hidden mb-8 relative bg-gray-50 dark:bg-zinc-900/50 group-hover:shadow-md transition-all duration-500">
                   {showServiceAnimations ? (
-                      <div className="w-full h-full relative overflow-hidden bg-gray-100 dark:bg-slate-800 flex items-center justify-center">
+                      <div className="w-full aspect-square relative overflow-hidden bg-gray-100 dark:bg-zinc-800 flex items-center justify-center">
                           <ServiceVisual id={service.id} title={service.title} />
                       </div>
                   ) : (
-                      <MediaRenderer src={service.image} alt={service.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                      <div className="w-full relative flex items-center justify-center min-h-[250px]">
+                          {service.image && (
+                              <MediaRenderer src={service.image} className="absolute inset-0 w-full h-full object-cover opacity-30 dark:opacity-20 blur-2xl scale-110 z-0" />
+                          )}
+                          <MediaRenderer src={service.image} alt={service.title} className="w-full h-auto max-h-[600px] object-contain transition-transform duration-700 group-hover:scale-[1.03] z-10 relative" />
+                      </div>
                   )}
-                  <div className="absolute inset-0 border border-black/5 dark:border-white/5 rounded-3xl pointer-events-none"></div>
+                  <div className="absolute inset-0 border border-black/5 dark:border-white/5 rounded-3xl pointer-events-none z-20"></div>
               </div>
 
-              <div className="border-t border-gray-100 dark:border-slate-700 pt-8 mt-auto">
+              <div className="border-t border-gray-100 dark:border-zinc-700 pt-8 mt-auto">
                 <div className="mb-4">
                     {service.discountPercentage && service.discountPercentage > 0 && service.originalPrice ? (
                          <div className="flex flex-col gap-1">
                            <div className="flex items-center gap-3">
-                             <div className="text-3xl lg:text-4xl font-light text-gray-900 dark:text-slate-100">LKR {service.price.toLocaleString()}</div>
+                             <div className="text-3xl lg:text-4xl font-light text-gray-900 dark:text-white">LKR {service.price.toLocaleString()}</div>
                              <span className="bg-rose-100 text-rose-600 px-2 py-1 rounded font-black text-sm uppercase tracking-widest animate-pulse border border-rose-200 shadow-sm">{service.discountPercentage}% OFF</span>
                            </div>
                            <span className="text-base text-gray-400 line-through">LKR {service.originalPrice.toLocaleString()}</span>
                          </div>
                     ) : (
-                         <div className="text-3xl lg:text-4xl font-light text-gray-900 dark:text-slate-100">LKR {service.price.toLocaleString()}</div>
+                         <div className="text-3xl lg:text-4xl font-light text-gray-900 dark:text-white">LKR {service.price.toLocaleString()}</div>
                     )}
                 </div>
                 <ul className="space-y-2">
                   {service.features.map((f, i) => (
-                     <li key={i} className="text-xs text-gray-600 dark:text-slate-400 flex items-start gap-2">
+                     <li key={i} className="text-xs text-gray-600 dark:text-gray-400 flex items-start gap-2">
                        <div className="w-1.5 h-1.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full shrink-0 mt-1"></div>
                        <span>{f}</span>
                      </li>
@@ -708,7 +721,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
 
       {/* 6. TESTIMONIALS */}
       {testimonials.length > 0 && (
-        <section className="py-24 bg-white dark:bg-slate-900 overflow-hidden relative">
+        <section className="py-24 bg-white dark:bg-zinc-900 overflow-hidden relative">
           <style dangerouslySetInnerHTML={{__html: `
              @keyframes marquee {
                 0% { transform: translateX(0); }
@@ -723,8 +736,8 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
           `}} />
           <div className="px-6 md:px-12 max-w-7xl mx-auto mb-16 relative z-10">
             <div className="flex flex-col items-center text-center">
-               <h2 className="text-4xl md:text-6xl font-display tracking-tight text-gray-900 dark:text-slate-100 mb-4">Client Feedback</h2>
-               <p className="text-gray-500 dark:text-slate-400 max-w-lg text-sm">Real stories from the brands and individuals I've collaborated with.</p>
+               <h2 className="text-4xl md:text-6xl font-display font-bold tracking-tight text-gray-900 dark:text-white mb-4">Client Feedback</h2>
+               <p className="text-gray-500 dark:text-gray-400 max-w-lg text-sm">Real stories from the brands and individuals I've collaborated with.</p>
             </div>
           </div>
           
@@ -732,9 +745,9 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
              <div className="flex gap-6 pb-8 animate-marquee pl-6 w-max">
                {/* Double the list to create a seamless loop effect */}
                {[...testimonials, ...testimonials].map((t, idx) => (
-                 <div key={`${t.id || 't'}-${idx}`} className="w-[280px] md:w-[320px] bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700 p-6 rounded-3xl flex-shrink-0 relative mt-8 flex flex-col hover:shadow-lg transition-shadow">
+                 <div key={`${t.id || 't'}-${idx}`} className="w-[280px] md:w-[320px] bg-gray-50 dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700 p-6 rounded-3xl flex-shrink-0 relative mt-8 flex flex-col hover:shadow-lg transition-shadow">
                     <div className="absolute -top-5 left-6 bg-purple-600 text-white w-10 h-10 flex items-center justify-center rounded-full shadow-lg font-serif italic text-2xl leading-none pt-3">"</div>
-                    <p className="text-gray-600 dark:text-slate-400 font-medium leading-relaxed mb-6 pt-3 text-sm flex-1">
+                    <p className="text-gray-600 dark:text-gray-400 font-medium leading-relaxed mb-6 pt-3 text-sm flex-1">
                        {t.feedback}
                     </p>
                     {t.rating && (
@@ -743,7 +756,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
                       </div>
                     )}
                     <div>
-                       <div className="font-bold text-gray-900 dark:text-slate-100 text-base">{t.clientName}</div>
+                       <div className="font-bold text-gray-900 dark:text-white text-base">{t.clientName}</div>
                        <div className="text-[10px] uppercase tracking-widest text-purple-600 font-bold mt-1">{t.projectRole}</div>
                     </div>
                  </div>
@@ -754,24 +767,24 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
       )}
 
       {/* 6.5 FAQ SECTION */}
-      <section className="py-24 bg-gray-50 dark:bg-slate-800">
+      <section className="py-24 bg-gray-50 dark:bg-zinc-800">
         <div className="px-6 md:px-12 max-w-4xl mx-auto">
           <div className="flex flex-col items-center mb-16 text-center">
-             <h2 className="text-4xl md:text-6xl font-display tracking-tight text-gray-900 dark:text-slate-100 mb-4">Frequently Asked Questions</h2>
-             <p className="text-gray-500 dark:text-slate-400 max-w-lg text-sm">Everything you need to know about the product and billing.</p>
+             <h2 className="text-4xl md:text-6xl font-display font-bold tracking-tight text-gray-900 dark:text-white mb-4">Frequently Asked Questions</h2>
+             <p className="text-gray-500 dark:text-gray-400 max-w-lg text-sm">Everything you need to know about the product and billing.</p>
           </div>
           <div className="space-y-4">
              {FAQS.map((faq, idx) => (
-               <div key={idx} className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl overflow-hidden transition-all shadow-sm">
+               <div key={idx} className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-2xl overflow-hidden transition-all shadow-sm">
                  <button 
                    onClick={() => setOpenFaq(openFaq === idx ? null : idx)} 
-                   className="w-full px-6 py-5 text-left flex justify-between items-center bg-white dark:bg-slate-900 hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-800 transition-colors"
+                   className="w-full px-6 py-5 text-left flex justify-between items-center bg-white dark:bg-zinc-900 hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-zinc-800 transition-colors"
                   >
-                   <span className="font-medium text-gray-900 dark:text-slate-100">{faq.question}</span>
+                   <span className="font-medium text-gray-900 dark:text-white">{faq.question}</span>
                    <ChevronDown size={20} className={`text-gray-400 transition-transform duration-300 ${openFaq === idx ? 'rotate-180' : ''}`} />
                  </button>
                  <div className={`overflow-hidden transition-all duration-300 ${openFaq === idx ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'}`}>
-                   <div className="px-6 pb-5 pt-0 text-gray-500 dark:text-slate-400 text-sm leading-relaxed">
+                   <div className="px-6 pb-5 pt-0 text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
                      {faq.answer}
                    </div>
                  </div>
@@ -793,7 +806,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
             Have a project in mind? Looking to collaborate? Fill out the form below and I'll get back to you as soon as possible.
           </p>
           
-          <form onSubmit={handleContactSubmit} className="bg-white/5 backdrop-blur-md border border-white dark:border-slate-800/20 p-8 md:p-10 rounded-3xl text-left max-w-2xl mx-auto shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+          <form onSubmit={handleContactSubmit} className="bg-white/5 backdrop-blur-md border border-white dark:border-zinc-700/20 p-8 md:p-10 rounded-3xl text-left max-w-2xl mx-auto shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
             <div className="mb-6">
               <label className="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Your Name</label>
               <input 
@@ -801,7 +814,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
                 required
                 value={contactForm.name}
                 onChange={e => setContactForm({ ...contactForm, name: e.target.value })}
-                className="w-full bg-black/20 border border-white dark:border-slate-800/20 rounded-xl px-4 py-3 text-white outline-none focus:border-purple-500 transition-colors shadow-inner"
+                className="w-full bg-black/20 border border-white dark:border-zinc-700/20 rounded-xl px-4 py-3 text-white outline-none focus:border-purple-500 transition-colors shadow-inner"
                 placeholder="John Doe"
               />
             </div>
@@ -814,7 +827,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
                   required
                   value={contactForm.email}
                   onChange={e => setContactForm({ ...contactForm, email: e.target.value })}
-                  className="w-full bg-black/20 border border-white dark:border-slate-800/20 rounded-xl px-4 py-3 text-white outline-none focus:border-purple-500 transition-colors shadow-inner"
+                  className="w-full bg-black/20 border border-white dark:border-zinc-700/20 rounded-xl px-4 py-3 text-white outline-none focus:border-purple-500 transition-colors shadow-inner"
                   placeholder="john@example.com"
                 />
               </div>
@@ -826,7 +839,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
                 type="text" 
                 value={contactForm.whatsapp}
                 onChange={e => setContactForm({ ...contactForm, whatsapp: e.target.value })}
-                className="w-full bg-black/20 border border-white dark:border-slate-800/20 rounded-xl px-4 py-3 text-white outline-none focus:border-purple-500 transition-colors shadow-inner"
+                className="w-full bg-black/20 border border-white dark:border-zinc-700/20 rounded-xl px-4 py-3 text-white outline-none focus:border-purple-500 transition-colors shadow-inner"
                 placeholder="+1 234 567 890"
               />
             </div>
@@ -837,7 +850,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
                 required
                 value={contactForm.message}
                 onChange={e => setContactForm({ ...contactForm, message: e.target.value })}
-                className="w-full bg-black/20 border border-white dark:border-slate-800/20 rounded-xl px-4 py-3 text-white outline-none focus:border-purple-500 transition-colors min-h-[120px] resize-none shadow-inner"
+                className="w-full bg-black/20 border border-white dark:border-zinc-700/20 rounded-xl px-4 py-3 text-white outline-none focus:border-purple-500 transition-colors min-h-[120px] resize-none shadow-inner"
                 placeholder="Tell me about your project..."
               />
             </div>
@@ -845,7 +858,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
             <button 
               type="submit" 
               disabled={contactStatus !== 'idle'}
-              className="w-full bg-white dark:bg-slate-900 text-gray-900 dark:text-slate-100 font-bold py-4 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-700 dark:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full bg-white dark:bg-zinc-900 text-gray-900 dark:text-white font-bold py-4 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-700 dark:bg-zinc-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {contactStatus === 'loading' ? 'Sending...' : contactStatus === 'success' ? 'Message Sent!' : 'Send Message'}
               {contactStatus === 'idle' && <ArrowRight size={18} />}
@@ -857,13 +870,13 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
       {/* SMART LIGHTBOX MODAL - FIXED CENTER POSITIONING */}
       {selectedWork && (
         <div className="fixed inset-0 z-[100] flex items-start md:items-center justify-center p-4 md:p-8 animate-[fadeIn_0.3s_ease-out_forwards] overflow-y-auto overflow-x-hidden">
-          <div className="fixed inset-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl" onClick={closeLightbox}></div>
+          <div className="fixed inset-0 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl" onClick={closeLightbox}></div>
           
           <div className="relative w-full max-w-6xl my-auto pointer-events-none">
             {/* Close Button Mobile (Sticky-style) */}
             <button 
               onClick={closeLightbox} 
-              className="fixed top-6 right-6 text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100 pointer-events-auto transition-all z-[110] p-2 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-full border border-gray-200 dark:border-slate-700 md:hidden shadow-sm"
+              className="fixed top-6 right-6 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-slate-100 pointer-events-auto transition-all z-[110] p-2 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md rounded-full border border-gray-200 dark:border-zinc-700 md:hidden shadow-sm"
             >
               <X size={24} />
             </button>
@@ -871,7 +884,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
             {/* Close Button Desktop */}
             <button 
               onClick={closeLightbox} 
-              className="absolute -top-12 -right-12 text-gray-400 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100 pointer-events-auto transition-colors z-50 p-2 group hidden md:flex items-center"
+              className="absolute -top-12 -right-12 text-gray-400 dark:text-gray-400 hover:text-gray-900 dark:hover:text-slate-100 pointer-events-auto transition-colors z-50 p-2 group hidden md:flex items-center"
             >
               <span className="mr-2 text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">Close</span>
               <X size={32} />
@@ -879,7 +892,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
 
             <div className="flex flex-col md:flex-row gap-6 md:gap-12 pointer-events-auto items-center">
               {/* Image Container */}
-              <div className="flex-1 w-full flex items-center justify-center relative rounded-2xl overflow-hidden shadow-2xl bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700">
+              <div className="flex-1 w-full flex items-center justify-center relative rounded-2xl overflow-hidden shadow-2xl bg-gray-50 dark:bg-zinc-800 border border-gray-100 dark:border-zinc-700">
                  <MediaRenderer 
                    src={selectedWork.img} 
                    alt={selectedWork.title} 
@@ -888,13 +901,13 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
               </div>
 
               {/* Text Container */}
-              <div className="w-full md:w-[400px] flex flex-col justify-center bg-white/60 dark:bg-slate-900/60 md:bg-transparent md:dark:bg-transparent backdrop-blur-xl md:backdrop-blur-none p-6 md:p-0 rounded-2xl md:rounded-none border border-gray-300 dark:border-slate-600 md:border-none shadow-[0_8px_32px_rgba(0,0,0,0.12)] md:shadow-none">
+              <div className="w-full md:w-[400px] flex flex-col justify-center bg-white/60 dark:bg-zinc-900/60 md:bg-transparent md:dark:bg-transparent backdrop-blur-xl md:backdrop-blur-none p-6 md:p-0 rounded-2xl md:rounded-none border border-gray-300 dark:border-zinc-600 md:border-none shadow-[0_8px_32px_rgba(0,0,0,0.12)] md:shadow-none">
                   <div className="flex items-center gap-3 mb-4">
                      <span className="h-px w-8 bg-purple-500"></span>
                      <span className="text-purple-600 text-xs font-bold uppercase tracking-widest">{selectedWork.category}</span>
                   </div>
-                  <h2 className="text-3xl md:text-5xl font-display font-bold text-gray-900 dark:text-slate-100 mb-6 leading-tight">{selectedWork.title}</h2>
-                  <p className="text-gray-600 dark:text-slate-400 text-sm md:text-base leading-relaxed font-light border-l border-gray-200 dark:border-slate-700 pl-5 py-1 mb-8">
+                  <h2 className="text-3xl md:text-5xl font-display font-bold text-gray-900 dark:text-white mb-6 leading-tight">{selectedWork.title}</h2>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base leading-relaxed font-light border-l border-gray-200 dark:border-zinc-700 pl-5 py-1 mb-8">
                     {selectedWork.description}
                   </p>
                   
@@ -905,7 +918,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
                      }}>
                         Start Similar Project
                      </InteractiveButton>
-                     <button onClick={closeLightbox} className="md:hidden w-full py-4 bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400 border border-gray-200 dark:border-slate-700 font-bold rounded-full uppercase tracking-wider text-xs shadow-sm hover:bg-gray-200">
+                     <button onClick={closeLightbox} className="md:hidden w-full py-4 bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-zinc-700 font-bold rounded-full uppercase tracking-wider text-xs shadow-sm hover:bg-gray-200">
                         Back to Portfolio
                      </button>
                   </div>
@@ -917,12 +930,12 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
 
       {/* RATING PROMPT FOR UNRATED COMPLETED PROJECTS */}
       {unratedOrder && (
-         <div className="fixed bottom-6 right-6 z-[100] bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-2xl border border-gray-200 dark:border-slate-700 w-80 animate-[slideUp_0.3s_ease-out_forwards]">
-             <button onClick={() => setUnratedOrder(null)} className="absolute top-3 right-3 p-1 rounded-full text-gray-400 hover:text-gray-900 dark:text-slate-100 transition-colors bg-gray-100 dark:bg-slate-800 hover:bg-gray-200">
+         <div className="fixed bottom-6 right-6 z-[100] bg-white dark:bg-zinc-900 p-6 rounded-2xl shadow-2xl border border-gray-200 dark:border-zinc-700 w-80 animate-[slideUp_0.3s_ease-out_forwards]">
+             <button onClick={() => setUnratedOrder(null)} className="absolute top-3 right-3 p-1 rounded-full text-gray-400 hover:text-gray-900 dark:text-white transition-colors bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200">
                 <X size={16} />
              </button>
-             <h4 className="font-bold text-sm mb-2 text-gray-900 dark:text-slate-100 leading-tight">Rate your experience!</h4>
-             <p className="text-xs text-gray-500 dark:text-slate-400 mb-5 leading-relaxed">
+             <h4 className="font-bold text-sm mb-2 text-gray-900 dark:text-white leading-tight">Rate your experience!</h4>
+             <p className="text-xs text-gray-500 dark:text-gray-400 mb-5 leading-relaxed">
                 Your project "{unratedOrder.serviceType}" was completed. Let us know how we did!
              </p>
              <InteractiveButton onClick={() => navigate(`/tracking?id=${unratedOrder.id}`)} className="text-[10px] px-4 py-3 w-full flex justify-center items-center">

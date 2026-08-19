@@ -216,14 +216,14 @@ export const OptionWheel: React.FC<OptionWheelProps> = ({ onSelectService }) => 
     <div className="w-full flex flex-col items-center">
       {/* Mode Switches */}
       {(config.enableServiceWheel && config.enableDiscountWheel) && (
-        <div className="flex gap-2 p-1.5 bg-gray-100 dark:bg-slate-800 rounded-full border border-gray-200 dark:border-slate-700 mb-8 max-w-sm w-full">
+        <div className="flex gap-2 p-1.5 bg-gray-100 dark:bg-zinc-800 rounded-full border border-gray-200 dark:border-zinc-700 mb-8 max-w-sm w-full">
           <button
             onClick={() => { if (!isSpinning) { setMode('service'); setResultIndex(null); } }}
             disabled={isSpinning}
             className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
               mode === 'service'
                 ? 'bg-purple-600 text-white shadow-md'
-                : 'text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100'
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-slate-100'
             }`}
           >
             <Sparkles size={14} />
@@ -235,7 +235,7 @@ export const OptionWheel: React.FC<OptionWheelProps> = ({ onSelectService }) => 
             className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
               mode === 'discount'
                 ? 'bg-purple-600 text-white shadow-md'
-                : 'text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100'
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-slate-100'
             }`}
           >
             <Gift size={14} />
@@ -253,7 +253,7 @@ export const OptionWheel: React.FC<OptionWheelProps> = ({ onSelectService }) => 
           {/* Outer Ring & Glow Effects */}
           <div className="absolute inset-[-12px] bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 rounded-full blur-lg opacity-25 dark:opacity-30"></div>
           
-          <div className="absolute inset-[-6px] border-4 border-slate-900 dark:border-slate-700 rounded-full shadow-[0_0_30px_rgba(168,85,247,0.3)] bg-gradient-to-b from-slate-800 to-slate-900"></div>
+          <div className="absolute inset-[-6px] border-4 border-slate-900 dark:border-zinc-700 rounded-full shadow-[0_0_30px_rgba(168,85,247,0.3)] bg-gradient-to-b from-slate-800 to-slate-900"></div>
 
           {/* Wheel SVG */}
           <div 
@@ -328,7 +328,7 @@ export const OptionWheel: React.FC<OptionWheelProps> = ({ onSelectService }) => 
           <button
             onClick={handleSpin}
             disabled={isSpinning}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-16 h-16 rounded-full bg-white dark:bg-slate-950 text-gray-900 dark:text-slate-100 flex flex-col items-center justify-center border-4 border-purple-600 shadow-[0_0_20px_rgba(147,51,234,0.4)] hover:shadow-[0_0_35px_rgba(147,51,234,0.7)] hover:scale-105 active:scale-95 disabled:scale-100 disabled:opacity-50 transition-all cursor-pointer select-none"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-16 h-16 rounded-full bg-white dark:bg-slate-950 text-gray-900 dark:text-white flex flex-col items-center justify-center border-4 border-purple-600 shadow-[0_0_20px_rgba(147,51,234,0.4)] hover:shadow-[0_0_35px_rgba(147,51,234,0.7)] hover:scale-105 active:scale-95 disabled:scale-100 disabled:opacity-50 transition-all cursor-pointer select-none"
           >
             <span className="text-[10px] font-black tracking-wider uppercase leading-none">SPIN</span>
           </button>
@@ -341,7 +341,7 @@ export const OptionWheel: React.FC<OptionWheelProps> = ({ onSelectService }) => 
         </div>
 
         {/* Results / Information Panel */}
-        <div className="flex-1 min-w-[240px] md:min-w-[340px] w-full bg-gray-50 dark:bg-slate-800/60 border border-gray-200 dark:border-slate-700/80 rounded-[2rem] p-6 md:p-8 flex flex-col relative overflow-hidden backdrop-blur-md">
+        <div className="flex-1 min-w-[240px] md:min-w-[340px] w-full bg-gray-50 dark:bg-zinc-800/60 border border-gray-200 dark:border-zinc-700/80 rounded-[2rem] p-6 md:p-8 flex flex-col relative overflow-hidden backdrop-blur-md">
           {/* Sounds Toggle */}
           <button 
             onClick={() => setSoundEnabled(!soundEnabled)}
@@ -356,10 +356,10 @@ export const OptionWheel: React.FC<OptionWheelProps> = ({ onSelectService }) => 
               <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/30 rounded-3xl flex items-center justify-center text-purple-600 dark:text-purple-400 mb-6 animate-pulse">
                 {mode === 'service' ? <Sparkles size={28} /> : <Gift size={28} />}
               </div>
-              <h3 className="text-xl font-display font-bold text-gray-900 dark:text-slate-100 mb-3">
+              <h3 className="text-xl font-display font-bold text-gray-900 dark:text-white mb-3">
                 {mode === 'service' ? 'Service Selector Wheel' : 'Lucky Discount Wheel'}
               </h3>
-              <p className="text-sm text-gray-500 dark:text-slate-400 max-w-xs leading-relaxed mb-6">
+              <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs leading-relaxed mb-6">
                 {mode === 'service' 
                   ? 'Unsure which service fits your brand? Click the SPIN button to let destiny pick the perfect service for your creative project!' 
                   : 'Feeling lucky? Spin the wheel to unlock exclusive custom discounts, free add-ons, or priority delivery at checkout!'}
@@ -375,10 +375,10 @@ export const OptionWheel: React.FC<OptionWheelProps> = ({ onSelectService }) => 
           ) : isSpinning ? (
             <div className="flex flex-col items-center justify-center text-center py-16">
               <RefreshCw size={44} className="text-purple-600 dark:text-purple-400 animate-spin mb-6" />
-              <h3 className="text-lg font-bold text-gray-800 dark:text-slate-200 animate-pulse">
+              <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200 animate-pulse">
                 Destiny is rotating...
               </h3>
-              <p className="text-xs text-gray-400 dark:text-slate-500 mt-2">
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
                 Decelerating onto your selected slot
               </p>
             </div>
@@ -389,18 +389,18 @@ export const OptionWheel: React.FC<OptionWheelProps> = ({ onSelectService }) => 
                   Your Spin Result
                 </span>
                 
-                <h3 className="text-2xl sm:text-3xl font-display font-bold text-gray-900 dark:text-slate-100 mb-3 flex items-center gap-2">
+                <h3 className="text-2xl sm:text-3xl font-display font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
                   <span>{selectedResult.title}</span>
                   <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: selectedResult.color }}></div>
                 </h3>
 
-                <p className="text-sm text-gray-600 dark:text-slate-300 leading-relaxed mb-6">
+                <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-6">
                   {selectedResult.description}
                 </p>
 
                 {/* Promo Code section for Lucky Wheel */}
                 {mode === 'discount' && selectedResult.promoCode && (
-                  <div className="bg-white dark:bg-slate-900 border border-purple-100 dark:border-purple-900/30 rounded-2xl p-4 mb-6 flex items-center justify-between shadow-inner">
+                  <div className="bg-white dark:bg-zinc-900 border border-purple-100 dark:border-purple-900/30 rounded-2xl p-4 mb-6 flex items-center justify-between shadow-inner">
                     <div className="flex flex-col">
                       <span className="text-[9px] text-gray-400 uppercase font-bold tracking-wider">PROMO CODE</span>
                       <span className="text-lg font-mono font-black text-purple-600 dark:text-purple-400">{selectedResult.promoCode}</span>
@@ -432,7 +432,7 @@ export const OptionWheel: React.FC<OptionWheelProps> = ({ onSelectService }) => 
 
                   <button
                     onClick={handleSpin}
-                    className="border border-gray-300 dark:border-slate-600 hover:bg-gray-100 dark:hover:bg-slate-700/50 py-3 px-5 rounded-2xl text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-slate-300 transition-all flex items-center justify-center gap-2"
+                    className="border border-gray-300 dark:border-zinc-600 hover:bg-gray-100 dark:hover:bg-slate-700/50 py-3 px-5 rounded-2xl text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300 transition-all flex items-center justify-center gap-2"
                   >
                     <RefreshCw size={14} />
                     <span>Spin Again</span>

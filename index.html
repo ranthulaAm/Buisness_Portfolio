@@ -30,17 +30,25 @@
     <title>Ranthula | Buisness portfolio</title>
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/ranthulaAm/App/main/img/logo.png" />
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
     <script>
       tailwind.config = {
         darkMode: 'class',
         theme: {
           extend: {
             fontFamily: {
-              sans: ['Lato', 'sans-serif'],
-              display: ['Righteous', 'cursive'],
+              sans: ['system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif'],
+              display: ['system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif'],
+            },
+            fontSize: {
+              xs: ['12px', { lineHeight: '16px', letterSpacing: '0em' }], // Caption 2
+              sm: ['13px', { lineHeight: '18px', letterSpacing: '-0.01em' }], // Footnote / Caption 1
+              base: ['17px', { lineHeight: '22px', letterSpacing: '-0.022em' }], // Body
+              lg: ['20px', { lineHeight: '25px', letterSpacing: '-0.022em' }], // Title 3
+              xl: ['22px', { lineHeight: '28px', letterSpacing: '-0.026em' }], // Title 2
+              '2xl': ['28px', { lineHeight: '34px', letterSpacing: '-0.026em' }], // Title 1
+              '3xl': ['34px', { lineHeight: '41px', letterSpacing: '-0.026em' }], // Large Title
+              '4xl': ['41px', { lineHeight: '49px', letterSpacing: '-0.026em' }],
+              '5xl': ['48px', { lineHeight: '54px', letterSpacing: '-0.026em' }],
             },
             colors: {
               bg: {
@@ -90,9 +98,11 @@
       body {
         background-color: transparent;
         color: var(--text-light);
-        font-family: 'Lato', sans-serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         overflow-x: hidden;
         min-height: 100vh;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
       }
 
       .animate-gradient {
@@ -217,10 +227,10 @@
         transform: scale(0.95) !important;
       }
 
-      /* Dark Mode Base */
+      /* Dark Mode Base - Apple iOS Guidelines */
       html.dark body {
-        background-color: #0f172a; /* slate-900 */
-        color: #f8fafc; /* slate-50 */
+        background-color: #18181b; /* Elevated black for base */
+        color: #ffffff; /* Pure white for text */
       }
 
       /* Prevent images and videos from getting dim, dark, or losing color/contrast in dark mode */

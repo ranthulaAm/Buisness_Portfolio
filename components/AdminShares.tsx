@@ -170,8 +170,8 @@ export const AdminShares: React.FC = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Client File Shares</h2>
-          <p className="text-sm text-gray-500 dark:text-slate-400">Share project files securely with clients</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Client File Shares</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Share project files securely with clients</p>
         </div>
         <button 
           onClick={() => setIsCreating(true)}
@@ -182,45 +182,45 @@ export const AdminShares: React.FC = () => {
       </div>
 
       {isCreating && (
-        <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm space-y-4 mb-8">
-          <h3 className="font-bold text-lg text-gray-900 dark:text-slate-100">Create New Share Link</h3>
+        <div className="bg-white dark:bg-zinc-900 p-6 rounded-xl border border-gray-200 dark:border-zinc-700 shadow-sm space-y-4 mb-8">
+          <h3 className="font-bold text-lg text-gray-900 dark:text-white">Create New Share Link</h3>
           
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">Project / Client Name</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Project / Client Name</label>
               <input 
                 type="text" 
                 value={newProjectName} 
                 onChange={(e) => setNewProjectName(e.target.value)}
                 placeholder="e.g. Acme Corp Rebrand" 
-                className="w-full bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-3 text-gray-900 dark:text-slate-100"
+                className="w-full bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg p-3 text-gray-900 dark:text-white"
               />
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">Access Control</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Access Control</label>
               <div className="flex gap-4">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" checked={accessType === 'public'} onChange={() => setAccessType('public')} className="text-blue-600" />
-                  <span className="text-sm text-gray-700 dark:text-slate-300 flex items-center gap-1"><Globe size={14}/> Anyone with link</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-1"><Globe size={14}/> Anyone with link</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" checked={accessType === 'email'} onChange={() => setAccessType('email')} className="text-blue-600" />
-                  <span className="text-sm text-gray-700 dark:text-slate-300 flex items-center gap-1"><Mail size={14}/> Email/Phone</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-1"><Mail size={14}/> Email/Phone</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" checked={accessType === 'password'} onChange={() => {
                     setAccessType('password');
                     setAccessValue(Math.random().toString(36).substring(2, 8)); // auto generate
                   }} className="text-blue-600" />
-                  <span className="text-sm text-gray-700 dark:text-slate-300 flex items-center gap-1"><Lock size={14}/> Password</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-1"><Lock size={14}/> Password</span>
                 </label>
               </div>
             </div>
             
             {accessType !== 'public' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   {accessType === 'email' ? 'Allowed Email/Phone' : 'Access Password (give this to client)'}
                 </label>
                 <div className="relative">
@@ -228,7 +228,7 @@ export const AdminShares: React.FC = () => {
                     type={accessType === 'password' && !showNewPassword ? 'password' : 'text'}
                     value={accessValue} 
                     onChange={(e) => setAccessValue(e.target.value)}
-                    className="w-full bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-3 text-gray-900 dark:text-slate-100 font-mono pr-12"
+                    className="w-full bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg p-3 text-gray-900 dark:text-white font-mono pr-12"
                   />
                   {accessType === 'password' && (
                     <button 
@@ -243,7 +243,7 @@ export const AdminShares: React.FC = () => {
             )}
             
             <div className="flex justify-end gap-3 pt-2">
-              <button onClick={() => setIsCreating(false)} className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 dark:text-slate-400">Cancel</button>
+              <button onClick={() => setIsCreating(false)} className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400">Cancel</button>
               <button onClick={handleCreate} disabled={!newProjectName} className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium disabled:opacity-50">Create</button>
             </div>
           </div>
@@ -252,18 +252,18 @@ export const AdminShares: React.FC = () => {
 
       <div className="grid grid-cols-1 gap-4">
         {projects.length === 0 && !isCreating && (
-          <div className="text-center py-12 bg-white dark:bg-slate-900 rounded-xl border border-dashed border-gray-300 dark:border-slate-700 text-gray-500">
+          <div className="text-center py-12 bg-white dark:bg-zinc-900 rounded-xl border border-dashed border-gray-300 dark:border-zinc-700 text-gray-500">
             No shared projects yet. Create one to share files with clients.
           </div>
         )}
         
         {projects.map(project => (
-          <div key={project.id} className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm">
+          <div key={project.id} className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl overflow-hidden shadow-sm">
             {/* Header */}
-            <div className="p-4 md:p-6 border-b border-gray-100 dark:border-slate-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="p-4 md:p-6 border-b border-gray-100 dark:border-zinc-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
-                <h3 className="font-bold text-lg text-gray-900 dark:text-slate-100 mb-1">{project.clientName}</h3>
-                <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-slate-400">
+                <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-1">{project.clientName}</h3>
+                <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
                   <span className="flex items-center gap-1">
                     {project.accessType === 'public' && <Globe size={12}/>}
                     {project.accessType === 'email' && <Mail size={12}/>}
@@ -279,7 +279,7 @@ export const AdminShares: React.FC = () => {
               <div className="flex flex-wrap items-center gap-2">
                 <button 
                   onClick={() => copyLink(project.id)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-700 dark:text-slate-300 rounded text-sm transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 rounded text-sm transition-colors"
                 >
                   {copySuccess === project.id ? <span className="text-green-600 font-medium">Copied!</span> : <><LinkIcon size={14}/> Copy Link</>}
                 </button>
@@ -300,16 +300,16 @@ export const AdminShares: React.FC = () => {
 
             {/* Manager Body */}
             {editingProject?.id === project.id && (
-              <div className="p-4 md:p-6 bg-gray-50 dark:bg-slate-800/50">
+              <div className="p-4 md:p-6 bg-gray-50 dark:bg-zinc-800/50">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                   {/* Settings */}
                   <div className="space-y-4">
-                    <h4 className="font-semibold text-gray-900 dark:text-slate-100 text-sm">Access Settings</h4>
-                    <div className="space-y-3 bg-white dark:bg-slate-900 p-4 rounded-lg border border-gray-200 dark:border-slate-700">
+                    <h4 className="font-semibold text-gray-900 dark:text-white text-sm">Access Settings</h4>
+                    <div className="space-y-3 bg-white dark:bg-zinc-900 p-4 rounded-lg border border-gray-200 dark:border-zinc-700">
                       <select 
                         value={project.accessType}
                         onChange={(e) => handleUpdateSettings(project.id, e.target.value as any, project.accessValue)}
-                        className="w-full bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded p-2 text-sm text-gray-900 dark:text-slate-100"
+                        className="w-full bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded p-2 text-sm text-gray-900 dark:text-white"
                       >
                         <option value="public">Public (Anyone with link)</option>
                         <option value="email">Email / Phone Verification</option>
@@ -326,7 +326,7 @@ export const AdminShares: React.FC = () => {
                               type={project.accessType === 'password' && !showPasswords[project.id] ? 'password' : 'text'}
                               value={project.accessValue}
                               onChange={(e) => handleUpdateSettings(project.id, project.accessType, e.target.value)}
-                              className="w-full bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded p-2 text-sm text-gray-900 dark:text-slate-100 font-mono pr-10"
+                              className="w-full bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded p-2 text-sm text-gray-900 dark:text-white font-mono pr-10"
                             />
                             {project.accessType === 'password' && (
                               <button 
@@ -345,7 +345,7 @@ export const AdminShares: React.FC = () => {
                   {/* Files */}
                   <div className="lg:col-span-2 space-y-4">
                     <div className="flex justify-between items-center">
-                      <h4 className="font-semibold text-gray-900 dark:text-slate-100 text-sm">Project Files</h4>
+                      <h4 className="font-semibold text-gray-900 dark:text-white text-sm">Project Files</h4>
                       <div className="relative">
                         <input 
                           type="file" 
@@ -361,10 +361,10 @@ export const AdminShares: React.FC = () => {
 
                     <div className="space-y-2">
                       {Object.entries(uploadProgress).map(([fileName, progress]) => (
-                        <div key={fileName} className="bg-white dark:bg-slate-900 p-3 rounded-lg border border-blue-200 dark:border-blue-900 flex items-center justify-between">
-                          <span className="text-sm truncate text-gray-700 dark:text-slate-300 mr-4 flex-1">{fileName}</span>
+                        <div key={fileName} className="bg-white dark:bg-zinc-900 p-3 rounded-lg border border-blue-200 dark:border-blue-900 flex items-center justify-between">
+                          <span className="text-sm truncate text-gray-700 dark:text-gray-300 mr-4 flex-1">{fileName}</span>
                           <div className="flex items-center gap-3">
-                            <div className="w-24 h-1.5 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                            <div className="w-24 h-1.5 bg-gray-200 dark:bg-zinc-700 rounded-full overflow-hidden">
                               <div className="h-full bg-blue-600 transition-all duration-300" style={{ width: `${progress}%` }}></div>
                             </div>
                             <span className="text-xs text-gray-500">{Math.round(progress)}%</span>
@@ -373,18 +373,18 @@ export const AdminShares: React.FC = () => {
                       ))}
 
                       {project.files.length === 0 && Object.keys(uploadProgress).length === 0 && (
-                        <div className="text-center py-8 text-sm text-gray-500 bg-white dark:bg-slate-900 rounded-lg border border-dashed border-gray-300 dark:border-slate-700">
+                        <div className="text-center py-8 text-sm text-gray-500 bg-white dark:bg-zinc-900 rounded-lg border border-dashed border-gray-300 dark:border-zinc-700">
                           No files uploaded yet.
                         </div>
                       )}
 
                       {project.files.map(file => (
-                        <div key={file.url} className="bg-white dark:bg-slate-900 p-3 rounded-lg border border-gray-200 dark:border-slate-700 flex items-center justify-between group">
+                        <div key={file.url} className="bg-white dark:bg-zinc-900 p-3 rounded-lg border border-gray-200 dark:border-zinc-700 flex items-center justify-between group">
                           <div className="flex items-center gap-3 overflow-hidden flex-1">
                             {(file.type || "").startsWith('image/') ? <ImageIcon size={18} className="text-blue-500 shrink-0" /> : 
                              (file.type || "").startsWith('video/') ? <Video size={18} className="text-purple-500 shrink-0" /> : 
                              <FileText size={18} className="text-gray-400 shrink-0" />}
-                            <a href={file.url} target="_blank" rel="noreferrer" className="text-sm text-gray-700 dark:text-slate-300 truncate hover:text-blue-600 dark:hover:text-blue-400 hover:underline">
+                            <a href={file.url} target="_blank" rel="noreferrer" className="text-sm text-gray-700 dark:text-gray-300 truncate hover:text-blue-600 dark:hover:text-blue-400 hover:underline">
                               {file.name}
                             </a>
                           </div>

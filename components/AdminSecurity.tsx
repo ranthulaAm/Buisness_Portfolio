@@ -297,46 +297,46 @@ export const AdminSecurity: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-8 animate-fade-in text-gray-900 dark:text-slate-100">
+    <div className="space-y-8 animate-fade-in text-gray-900 dark:text-white">
       
       {/* Top Header Metrics Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+        <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-2xl p-5 flex items-center gap-4 shadow-sm">
           <div className="p-3 bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400 rounded-xl">
             <Activity className="animate-pulse" size={24} />
           </div>
           <div>
-            <p className="text-[11px] font-mono uppercase text-gray-400 dark:text-slate-500 font-bold">Active Visitors</p>
+            <p className="text-[11px] font-mono uppercase text-gray-400 dark:text-gray-500 font-bold">Active Visitors</p>
             <h4 className="text-2xl font-bold font-display text-gray-950 dark:text-slate-50">{totals.activeCount} <span className="text-xs font-normal text-gray-400">online</span></h4>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+        <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-2xl p-5 flex items-center gap-4 shadow-sm">
           <div className="p-3 bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 rounded-xl">
             <ShieldCheck size={24} />
           </div>
           <div>
-            <p className="text-[11px] font-mono uppercase text-gray-400 dark:text-slate-500 font-bold">Files Audited</p>
+            <p className="text-[11px] font-mono uppercase text-gray-400 dark:text-gray-500 font-bold">Files Audited</p>
             <h4 className="text-2xl font-bold font-display text-gray-950 dark:text-slate-50">{totals.scanned}</h4>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+        <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-2xl p-5 flex items-center gap-4 shadow-sm">
           <div className="p-3 bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 rounded-xl">
             <AlertCircle size={24} />
           </div>
           <div>
-            <p className="text-[11px] font-mono uppercase text-gray-400 dark:text-slate-500 font-bold">Audit Warnings</p>
+            <p className="text-[11px] font-mono uppercase text-gray-400 dark:text-gray-500 font-bold">Audit Warnings</p>
             <h4 className="text-2xl font-bold font-display text-gray-950 dark:text-slate-50">{totals.warnings}</h4>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+        <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-2xl p-5 flex items-center gap-4 shadow-sm">
           <div className="p-3 bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 rounded-xl">
             <ShieldAlert size={24} />
           </div>
           <div>
-            <p className="text-[11px] font-mono uppercase text-gray-400 dark:text-slate-500 font-bold">Malicious Blocked</p>
+            <p className="text-[11px] font-mono uppercase text-gray-400 dark:text-gray-500 font-bold">Malicious Blocked</p>
             <h4 className="text-2xl font-bold font-display text-gray-950 dark:text-slate-50">{totals.blocked}</h4>
           </div>
         </div>
@@ -563,9 +563,9 @@ export const AdminSecurity: React.FC = () => {
         </div>
 
         {/* Live connections log list */}
-        <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm flex flex-col justify-between h-[calc(100vh-280px)] min-h-[440px] max-h-[620px] md:h-[60vh] lg:h-[65vh] overflow-hidden">
+        <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-3xl p-6 shadow-sm flex flex-col justify-between h-[calc(100vh-280px)] min-h-[440px] max-h-[620px] md:h-[60vh] lg:h-[65vh] overflow-hidden">
           <div className="space-y-4 flex-1 flex flex-col min-h-0">
-            <div className="flex items-center justify-between border-b border-gray-100 dark:border-slate-800 pb-3">
+            <div className="flex items-center justify-between border-b border-gray-100 dark:border-zinc-700 pb-3">
               <h3 className="font-bold text-gray-950 dark:text-slate-50 text-sm uppercase tracking-wider flex items-center gap-2">
                 <Compass className="text-purple-600" size={18} /> Live Connections
               </h3>
@@ -575,7 +575,7 @@ export const AdminSecurity: React.FC = () => {
             </div>
 
             {onlineVisitors.length === 0 ? (
-              <div className="text-center py-12 text-gray-400 dark:text-slate-500 flex-1 flex flex-col items-center justify-center">
+              <div className="text-center py-12 text-gray-400 dark:text-gray-500 flex-1 flex flex-col items-center justify-center">
                 <Clock className="text-gray-300 mb-2 animate-pulse" size={24} />
                 <p className="text-xs">No active connections logged yet.</p>
               </div>
@@ -592,11 +592,11 @@ export const AdminSecurity: React.FC = () => {
                       className={`p-3 rounded-xl border transition-all cursor-pointer text-xs space-y-1 ${
                         isSelected 
                           ? 'border-purple-500 bg-purple-50/20 dark:bg-purple-950/20' 
-                          : 'border-gray-100 dark:border-slate-800 hover:border-gray-200 dark:hover:border-slate-700 bg-gray-50/30 dark:bg-slate-800/20'
+                          : 'border-gray-100 dark:border-zinc-700 hover:border-gray-200 dark:hover:border-slate-700 bg-gray-50/30 dark:bg-zinc-800/20'
                       }`}
                     >
                       <div className="flex justify-between items-center">
-                        <span className="font-bold text-gray-900 dark:text-slate-100 font-mono truncate max-w-[120px]" title={v.visitorId}>
+                        <span className="font-bold text-gray-900 dark:text-white font-mono truncate max-w-[120px]" title={v.visitorId}>
                           {v.visitorId}
                         </span>
                         <div className="flex items-center gap-1.5">
@@ -607,12 +607,12 @@ export const AdminSecurity: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="flex justify-between text-[11px] text-gray-500 dark:text-slate-400">
-                        <span>Loc: <span className="font-semibold text-gray-700 dark:text-slate-300">{v.city || 'Unknown'}, {v.country || 'Unknown'}</span></span>
+                      <div className="flex justify-between text-[11px] text-gray-500 dark:text-gray-400">
+                        <span>Loc: <span className="font-semibold text-gray-700 dark:text-gray-300">{v.city || 'Unknown'}, {v.country || 'Unknown'}</span></span>
                         <span>{new Date(v.lastActive).toLocaleTimeString()}</span>
                       </div>
 
-                      <div className="text-[11px] text-gray-500 dark:text-slate-400 truncate font-mono">
+                      <div className="text-[11px] text-gray-500 dark:text-gray-400 truncate font-mono">
                         Path: <span className="text-purple-600 dark:text-purple-400">{v.path || '/'}</span>
                       </div>
                     </div>
@@ -623,7 +623,7 @@ export const AdminSecurity: React.FC = () => {
           </div>
 
           {/* Simulated shell lines representing active audit monitoring logs */}
-          <div className="border-t border-gray-100 dark:border-slate-800 pt-4 mt-4">
+          <div className="border-t border-gray-100 dark:border-zinc-700 pt-4 mt-4">
             <h4 className="text-[11px] font-mono font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
               <Terminal size={12} className="text-purple-600" /> Security Log Stream
             </h4>
@@ -640,14 +640,14 @@ export const AdminSecurity: React.FC = () => {
       </div>
 
       {/* File upload history audit lists & tables */}
-      <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-6">
+      <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-3xl p-6 shadow-sm space-y-6">
         
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 dark:border-slate-800 pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 dark:border-zinc-700 pb-4">
           <div>
             <h3 className="font-bold text-gray-950 dark:text-slate-50 text-base flex items-center gap-2">
               <ShieldCheck size={20} className="text-purple-600" /> Central Security Audit Logs (File Uploads)
             </h3>
-            <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
               Global system ledger of file metadata validation scans, MIME signature tests, and size restriction reports.
             </p>
           </div>
@@ -660,11 +660,11 @@ export const AdminSecurity: React.FC = () => {
                 placeholder="Search audits..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8 pr-4 py-2 border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-800/50 rounded-xl text-xs outline-none focus:border-purple-500 text-gray-900 dark:text-slate-100"
+                className="pl-8 pr-4 py-2 border border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800/50 rounded-xl text-xs outline-none focus:border-purple-500 text-gray-900 dark:text-white"
               />
             </div>
             
-            <div className="flex gap-1.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-800 rounded-xl p-0.5">
+            <div className="flex gap-1.5 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-xl p-0.5">
               {(['all', 'passed', 'warning', 'blocked'] as const).map((filterOpt) => (
                 <button
                   key={filterOpt}
@@ -672,7 +672,7 @@ export const AdminSecurity: React.FC = () => {
                   className={`px-2.5 py-1 text-[10px] font-bold uppercase rounded-lg transition-colors ${
                     statusFilter === filterOpt 
                       ? 'bg-purple-600 text-white' 
-                      : 'text-gray-500 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-200'
+                      : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-slate-200'
                   }`}
                 >
                   {filterOpt}
@@ -683,16 +683,16 @@ export const AdminSecurity: React.FC = () => {
         </div>
 
         {filteredLogs.length === 0 ? (
-          <div className="text-center py-16 text-gray-400 dark:text-slate-500">
+          <div className="text-center py-16 text-gray-400 dark:text-gray-500">
             <ShieldCheck className="mx-auto text-gray-300 mb-2" size={36} />
             <p className="text-sm font-bold uppercase tracking-widest text-gray-500">No matching security audits found</p>
-            <p className="text-xs text-gray-400 dark:text-slate-500 mt-1">Audit logs are automatically populated on file uploads.</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Audit logs are automatically populated on file uploads.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="bg-gray-50 dark:bg-slate-800/50 border-b border-gray-200 dark:border-slate-800 text-gray-500 dark:text-slate-400 font-bold uppercase tracking-wider">
+                <tr className="bg-gray-50 dark:bg-zinc-800/50 border-b border-gray-200 dark:border-zinc-700 text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">
                   <th className="p-4 pl-6">Client / Email</th>
                   <th className="p-4">File Name</th>
                   <th className="p-4">Type</th>
@@ -712,15 +712,15 @@ export const AdminSecurity: React.FC = () => {
                   return (
                     <tr key={log.id || `log-${index}`} className="hover:bg-gray-50/50 dark:hover:bg-slate-800/10 transition-colors">
                       <td className="p-4 pl-6">
-                        <div className="font-bold text-gray-950 dark:text-slate-100">{log.userEmail}</div>
+                        <div className="font-bold text-gray-950 dark:text-white">{log.userEmail}</div>
                         <div className="text-[10px] font-mono text-gray-400 mt-0.5">UID: {log.userId}</div>
                       </td>
-                      <td className="p-4 font-semibold text-gray-900 dark:text-slate-100">
+                      <td className="p-4 font-semibold text-gray-900 dark:text-white">
                         <div>{log.fileName}</div>
                         <div className="text-[10px] text-gray-400 font-normal mt-0.5">{dateStr}</div>
                       </td>
-                      <td className="p-4 font-mono text-gray-500 dark:text-slate-400">{log.fileType}</td>
-                      <td className="p-4 font-mono text-gray-500 dark:text-slate-400">{formattedSize}</td>
+                      <td className="p-4 font-mono text-gray-500 dark:text-gray-400">{log.fileType}</td>
+                      <td className="p-4 font-mono text-gray-500 dark:text-gray-400">{formattedSize}</td>
                       <td className="p-4">
                         <div className="flex flex-col gap-1 text-[10px]">
                           <span className={`inline-flex items-center gap-1 font-semibold ${log.checks.extensionMatch ? 'text-green-600' : 'text-red-500'}`}>
@@ -755,7 +755,7 @@ export const AdminSecurity: React.FC = () => {
                           target="_blank" 
                           referrerPolicy="no-referrer"
                           rel="noopener noreferrer" 
-                          className="inline-flex items-center gap-1 hover:text-purple-600 text-gray-500 dark:text-slate-400 p-1.5 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors font-semibold"
+                          className="inline-flex items-center gap-1 hover:text-purple-600 text-gray-500 dark:text-gray-400 p-1.5 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors font-semibold"
                           title="View source asset"
                         >
                           <Download size={14} /> Download

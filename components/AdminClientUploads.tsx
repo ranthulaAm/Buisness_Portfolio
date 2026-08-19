@@ -58,30 +58,30 @@ export const AdminClientUploads: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-display font-bold text-gray-900 dark:text-slate-100">Client Uploads</h2>
+        <h2 className="text-2xl font-display font-bold text-gray-900 dark:text-white">Client Uploads</h2>
       </div>
 
       {uploads.length === 0 ? (
-        <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl p-12 text-center text-gray-500 dark:text-slate-400">
+        <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl p-12 text-center text-gray-500 dark:text-gray-400">
           No client uploads found.
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           {uploads.map((upload) => (
-            <div key={upload.id} className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm flex flex-col">
-              <div className="p-5 border-b border-gray-100 dark:border-slate-800 flex justify-between items-start">
+            <div key={upload.id} className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl overflow-hidden shadow-sm flex flex-col">
+              <div className="p-5 border-b border-gray-100 dark:border-zinc-700 flex justify-between items-start">
                 <div>
-                  <h3 className="font-bold text-lg text-gray-900 dark:text-slate-100 mb-1 flex items-center gap-2">
+                  <h3 className="font-bold text-lg text-gray-900 dark:text-white mb-1 flex items-center gap-2">
                     {upload.eventName}
                     {upload.status === 'new' && <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full">New</span>}
                   </h3>
-                  <div className="text-xs text-gray-500 dark:text-slate-400 flex items-center gap-1">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
                     <Calendar size={12} /> {new Date(upload.createdAt).toLocaleString()}
                   </div>
                 </div>
                 <button 
                   onClick={() => handleStatusChange(upload.id, upload.status)}
-                  className={`p-2 rounded-lg transition-colors ${upload.status === 'new' ? 'bg-gray-100 dark:bg-slate-800 text-gray-500 hover:text-green-600' : 'bg-green-100 dark:bg-green-900/30 text-green-600'}`}
+                  className={`p-2 rounded-lg transition-colors ${upload.status === 'new' ? 'bg-gray-100 dark:bg-zinc-800 text-gray-500 hover:text-green-600' : 'bg-green-100 dark:bg-green-900/30 text-green-600'}`}
                   title={upload.status === 'new' ? 'Mark as Reviewed' : 'Mark as New'}
                 >
                   <CheckCircle2 size={18} />
@@ -90,32 +90,32 @@ export const AdminClientUploads: React.FC = () => {
 
               <div className="p-5 flex-grow">
                 <div className="space-y-3 mb-6">
-                  <div className="flex items-center gap-3 text-sm text-gray-700 dark:text-slate-300">
+                  <div className="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-300">
                     <User size={16} className="text-gray-400" />
                     <span className="font-medium">{upload.clientName}</span>
                   </div>
                   {upload.email && (
-                    <div className="flex items-center gap-3 text-sm text-gray-700 dark:text-slate-300">
+                    <div className="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-300">
                       <Mail size={16} className="text-gray-400" />
                       <a href={`mailto:${upload.email}`} className="hover:text-blue-500">{upload.email}</a>
                     </div>
                   )}
-                  <div className="flex items-center gap-3 text-sm text-gray-700 dark:text-slate-300">
+                  <div className="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-300">
                     <Phone size={16} className="text-gray-400" />
                     <a href={`https://wa.me/${upload.whatsapp.replace(/\D/g,'')}`} target="_blank" rel="noreferrer" className="hover:text-green-500">{upload.whatsapp}</a>
                   </div>
                 </div>
 
-                <div className="border border-gray-100 dark:border-slate-800 rounded-lg overflow-hidden">
-                  <div className="bg-gray-50 dark:bg-slate-800 p-2 text-xs font-bold text-gray-500 uppercase tracking-wider flex justify-between items-center">
+                <div className="border border-gray-100 dark:border-zinc-700 rounded-lg overflow-hidden">
+                  <div className="bg-gray-50 dark:bg-zinc-800 p-2 text-xs font-bold text-gray-500 uppercase tracking-wider flex justify-between items-center">
                     <span>{upload.files?.length || 0} Files</span>
                   </div>
                   <div className="divide-y divide-gray-100 dark:divide-slate-800 max-h-48 overflow-y-auto">
                     {(upload.files || []).map((file: any, idx: number) => (
                       <div key={idx} className="p-3 flex justify-between items-center hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors group">
                         <div className="flex-1 min-w-0 pr-4">
-                          <p className="text-sm font-medium text-gray-900 dark:text-slate-100 truncate" title={file.name}>{file.name}</p>
-                          <p className="text-xs text-gray-500 dark:text-slate-400">{formatSize(file.size || 0)}</p>
+                          <p className="text-sm font-medium text-gray-900 dark:text-white truncate" title={file.name}>{file.name}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{formatSize(file.size || 0)}</p>
                         </div>
                         <a 
                           href={file.url} 
@@ -131,7 +131,7 @@ export const AdminClientUploads: React.FC = () => {
                 </div>
               </div>
 
-              <div className="p-4 border-t border-gray-100 dark:border-slate-800 bg-gray-50 dark:bg-slate-800/50 flex justify-end">
+              <div className="p-4 border-t border-gray-100 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800/50 flex justify-end">
                 <button 
                   onClick={() => setItemToDelete(upload.id)}
                   className="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 p-2 rounded-lg transition-colors flex items-center gap-2 text-sm font-bold"

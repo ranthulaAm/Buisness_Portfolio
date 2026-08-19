@@ -134,14 +134,14 @@ export const AdminClients: React.FC<AdminClientsProps> = ({ orders }) => {
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm overflow-hidden">
-      <div className="p-6 border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl shadow-sm overflow-hidden">
+      <div className="p-6 border-b border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-zinc-800/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100 flex items-center gap-2">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
             <UserIcon className="text-blue-500" />
             Client Management
           </h2>
-          <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             Detailed information about all {clients.length} unique clients.
           </p>
         </div>
@@ -152,14 +152,14 @@ export const AdminClients: React.FC<AdminClientsProps> = ({ orders }) => {
              onChange={(e) => setSearchTerm(e.target.value)}
              type="text" 
              placeholder="Search clients..." 
-             className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-slate-800 dark:text-slate-200"
+             className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-zinc-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-zinc-800 dark:text-gray-200"
            />
         </div>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-gray-50/50 dark:bg-slate-800/50 border-b border-gray-200 dark:border-slate-700 text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+            <tr className="bg-gray-50/50 dark:bg-zinc-800/50 border-b border-gray-200 dark:border-zinc-700 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
               <th className="p-4 whitespace-nowrap">Client</th>
               <th className="p-4 whitespace-nowrap">Contact Details</th>
               <th className="p-4 whitespace-nowrap">Joined</th>
@@ -172,23 +172,23 @@ export const AdminClients: React.FC<AdminClientsProps> = ({ orders }) => {
               <tr key={i} className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
                 <td className="p-4">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-bold text-gray-900 dark:text-slate-100 text-base">{c.name}</span>
+                    <span className="font-bold text-gray-900 dark:text-white text-base">{c.name}</span>
                     {c.isRegisteredUser && (
                       <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-green-100 text-green-800 dark:bg-green-950/30 dark:text-green-400 border border-green-200/50 dark:border-green-900/30">
                         <UserCheck size={10} /> Registered User
                       </span>
                     )}
                   </div>
-                  <div className="text-xs text-gray-500 dark:text-slate-400 mt-1">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                      Top service: {Object.entries(c.categories).sort((a: any, b: any) => b[1] - a[1])[0]?.[0] || 'N/A'}
                   </div>
                 </td>
                 <td className="p-4">
                   <div className="flex flex-col gap-1.5">
-                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-slate-300">
+                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
                       <Mail size={14} className="text-gray-400" /> {c.email}
                     </div>
-                    <div className="flex items-start gap-2 text-sm text-gray-600 dark:text-slate-300">
+                    <div className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-300">
                       <Phone size={14} className="text-gray-400 mt-0.5" /> 
                       {editingEmail === c.email ? (
                         <div className="flex items-center gap-2">
@@ -197,7 +197,7 @@ export const AdminClients: React.FC<AdminClientsProps> = ({ orders }) => {
                               value={editMobileValue}
                               onChange={(e) => setEditMobileValue(e.target.value)}
                               placeholder="Multiple numbers? Separate by comma"
-                              className="px-2 py-1 border border-gray-200 dark:border-slate-700 rounded text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-slate-800 dark:text-slate-200"
+                              className="px-2 py-1 border border-gray-200 dark:border-zinc-700 rounded text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-zinc-800 dark:text-gray-200"
                               autoFocus
                            />
                            <button 
@@ -222,7 +222,7 @@ export const AdminClients: React.FC<AdminClientsProps> = ({ orders }) => {
                            <div className="flex flex-col">
                              {c.mobiles.size > 0 ? (
                                Array.from(c.mobiles).flatMap((m: any) => m.split(',')).map(m => m.trim()).filter(Boolean).map((m: any, idx) => (
-                                 <span key={idx} className="bg-gray-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-[11px] mb-1 mr-1 inline-block">{m}</span>
+                                 <span key={idx} className="bg-gray-100 dark:bg-zinc-800 px-1.5 py-0.5 rounded text-[11px] mb-1 mr-1 inline-block">{m}</span>
                                ))
                              ) : (
                                <span className="text-gray-400 italic">No number</span>
@@ -236,7 +236,7 @@ export const AdminClients: React.FC<AdminClientsProps> = ({ orders }) => {
                     </div>
                   </div>
                 </td>
-                <td className="p-4 text-sm text-gray-500 dark:text-slate-400">
+                <td className="p-4 text-sm text-gray-500 dark:text-gray-400">
                   <div className="flex items-center gap-2">
                      <Calendar size={14} /> {new Date(c.joined).toLocaleDateString()}
                   </div>
@@ -246,13 +246,13 @@ export const AdminClients: React.FC<AdminClientsProps> = ({ orders }) => {
                     <Package size={12} className="mr-1" /> {c.totalOrders}
                   </span>
                 </td>
-                <td className="p-4 text-right font-medium text-gray-900 dark:text-slate-100">
+                <td className="p-4 text-right font-medium text-gray-900 dark:text-white">
                   LKR {c.totalSpent.toLocaleString()}
                 </td>
               </tr>
             )) : (
               <tr>
-                 <td colSpan={5} className="p-8 text-center text-gray-500 dark:text-slate-400">
+                 <td colSpan={5} className="p-8 text-center text-gray-500 dark:text-gray-400">
                     No clients found matching your search.
                  </td>
               </tr>

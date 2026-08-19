@@ -635,13 +635,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
   const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#eab308'];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-slate-100 flex flex-col h-screen overflow-hidden">
+    <div className="min-h-screen bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-white flex flex-col h-screen overflow-hidden">
       <Helmet>
         <title>Admin Dashboard | Ranthula | Buisness portfolio</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
       {/* Navigation */}
-      <div className="bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700 z-30 px-4 md:px-8 py-3 flex justify-between items-center shadow-sm shrink-0">
+      <div className="bg-white dark:bg-zinc-900 border-b border-gray-200 dark:border-zinc-700 z-30 px-4 md:px-8 py-3 flex justify-between items-center shadow-sm shrink-0">
          <div className="flex items-center gap-3 md:pl-4">
              <span className="font-bold text-lg tracking-tight">Admin Control Center</span>
              <span className="bg-green-100 text-green-800 text-[10px] font-bold px-2 py-0.5 rounded border border-green-200 hidden sm:inline-block">CLOUD MODE</span>
@@ -667,7 +667,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                </span>
                {activeUsers} ACTIVE
              </button>
-             <button onClick={handleLogout} className="text-xs font-bold text-gray-500 dark:text-slate-400 hover:text-red-600 flex items-center gap-2 bg-gray-100 dark:bg-slate-800 hover:bg-red-50 px-3 py-2 rounded-lg transition-colors cursor-pointer">
+             <button onClick={handleLogout} className="text-xs font-bold text-gray-500 dark:text-gray-400 hover:text-red-600 flex items-center gap-2 bg-gray-100 dark:bg-zinc-800 hover:bg-red-50 px-3 py-2 rounded-lg transition-colors cursor-pointer">
                 <LogOut size={14} /> <span className="hidden sm:inline">Log Out</span>
              </button>
          </div>
@@ -675,62 +675,62 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <aside className="w-64 bg-white dark:bg-slate-900 border-r border-gray-200 dark:border-slate-700 flex-shrink-0 overflow-y-auto hidden lg:block">
+        <aside className="w-64 bg-white dark:bg-zinc-900 border-r border-gray-200 dark:border-zinc-700 flex-shrink-0 overflow-y-auto hidden lg:block">
            <div className="py-4 space-y-6">
               
               <div>
-                 <div className="px-6 text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest mb-3">Management</div>
+                 <div className="px-6 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">Management</div>
                  <nav className="space-y-0.5 px-3">
-                   <button onClick={() => handleTabChange('orders')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'orders' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
-                     <List size={18} className={activeTab === 'orders' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-slate-500'} /> Orders
+                   <button onClick={() => handleTabChange('orders')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'orders' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-slate-800'}`}>
+                     <List size={18} className={activeTab === 'orders' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'} /> Orders
                      {orders.filter(o => o.status === OrderStatus.PENDING).length > 0 && (
                        <span className="ml-auto bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">{orders.filter(o => o.status === OrderStatus.PENDING).length}</span>
                      )}
                    </button>
-                   <button onClick={() => handleTabChange('clients')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'clients' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
-                     <UserIcon size={18} className={activeTab === 'clients' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-slate-500'} /> Clients
+                   <button onClick={() => handleTabChange('clients')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'clients' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-slate-800'}`}>
+                     <UserIcon size={18} className={activeTab === 'clients' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'} /> Clients
                    </button>
-                   <button onClick={() => handleTabChange('charts')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'charts' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
-                     <BarChart2 size={18} className={activeTab === 'charts' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-slate-500'} /> Analytics
+                   <button onClick={() => handleTabChange('charts')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'charts' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-slate-800'}`}>
+                     <BarChart2 size={18} className={activeTab === 'charts' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'} /> Analytics
                    </button>
-                   <button onClick={() => handleTabChange('uploads')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'uploads' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
-                     <Upload size={18} className={activeTab === 'uploads' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-slate-500'} /> Client Uploads
+                   <button onClick={() => handleTabChange('uploads')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'uploads' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-slate-800'}`}>
+                     <Upload size={18} className={activeTab === 'uploads' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'} /> Client Uploads
                    </button>
-                   <button onClick={() => handleTabChange('shares')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'shares' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
-                     <FileBox size={18} className={activeTab === 'shares' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-slate-500'} /> Shared Files
-                   </button>
-                 </nav>
-              </div>
-
-              <div>
-                 <div className="px-6 text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest mb-3">Portfolio Content</div>
-                 <nav className="space-y-0.5 px-3">
-                   <button onClick={() => handleTabChange('portfolio')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'portfolio' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
-                     <ImageIcon size={18} className={activeTab === 'portfolio' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-slate-500'} /> Portfolio Projects
-                   </button>
-                   <button onClick={() => handleTabChange('skills')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'skills' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
-                     <Award size={18} className={activeTab === 'skills' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-slate-500'} /> Skills & Services
-                   </button>
-                   <button onClick={() => handleTabChange('experience')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'experience' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
-                     <Briefcase size={18} className={activeTab === 'experience' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-slate-500'} /> Experience
-                   </button>
-                   <button onClick={() => handleTabChange('education')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'education' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
-                     <GraduationCap size={18} className={activeTab === 'education' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-slate-500'} /> Education
+                   <button onClick={() => handleTabChange('shares')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'shares' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-slate-800'}`}>
+                     <FileBox size={18} className={activeTab === 'shares' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'} /> Shared Files
                    </button>
                  </nav>
               </div>
 
               <div>
-                 <div className="px-6 text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest mb-3">Communication</div>
+                 <div className="px-6 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">Portfolio Content</div>
                  <nav className="space-y-0.5 px-3">
-                   <button onClick={() => handleTabChange('contacts')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'contacts' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
-                     <Mail size={18} className={activeTab === 'contacts' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-slate-500'} /> Contact Messages
+                   <button onClick={() => handleTabChange('portfolio')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'portfolio' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-slate-800'}`}>
+                     <ImageIcon size={18} className={activeTab === 'portfolio' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'} /> Portfolio Projects
+                   </button>
+                   <button onClick={() => handleTabChange('skills')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'skills' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-slate-800'}`}>
+                     <Award size={18} className={activeTab === 'skills' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'} /> Skills & Services
+                   </button>
+                   <button onClick={() => handleTabChange('experience')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'experience' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-slate-800'}`}>
+                     <Briefcase size={18} className={activeTab === 'experience' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'} /> Experience
+                   </button>
+                   <button onClick={() => handleTabChange('education')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'education' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-slate-800'}`}>
+                     <GraduationCap size={18} className={activeTab === 'education' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'} /> Education
+                   </button>
+                 </nav>
+              </div>
+
+              <div>
+                 <div className="px-6 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">Communication</div>
+                 <nav className="space-y-0.5 px-3">
+                   <button onClick={() => handleTabChange('contacts')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'contacts' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-slate-800'}`}>
+                     <Mail size={18} className={activeTab === 'contacts' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'} /> Contact Messages
                      {contacts.filter(c => !c.isRead).length > 0 && (
                        <span className="ml-auto bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">{contacts.filter(c => !c.isRead).length}</span>
                      )}
                    </button>
-                   <button onClick={() => handleTabChange('reviews')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'reviews' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
-                     <Star size={18} className={activeTab === 'reviews' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-slate-500'} /> Client Reviews
+                   <button onClick={() => handleTabChange('reviews')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'reviews' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-slate-800'}`}>
+                     <Star size={18} className={activeTab === 'reviews' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'} /> Client Reviews
                      {orders.filter(o => o.rating && !o.isFeedbackRead).length > 0 && (
                        <span className="ml-auto bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">{orders.filter(o => o.rating && !o.isFeedbackRead).length}</span>
                      )}
@@ -739,19 +739,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
               </div>
 
               <div>
-                 <div className="px-6 text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest mb-3">System & Tools</div>
+                 <div className="px-6 text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">System & Tools</div>
                  <nav className="space-y-0.5 px-3">
-                   <button onClick={() => handleTabChange('settings')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'settings' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
-                     <Settings size={18} className={activeTab === 'settings' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-slate-500'} /> Settings & Admin
+                   <button onClick={() => handleTabChange('settings')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'settings' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-slate-800'}`}>
+                     <Settings size={18} className={activeTab === 'settings' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'} /> Settings & Admin
                    </button>
-                   <button onClick={() => handleTabChange('invoice')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'invoice' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
-                     <Receipt size={18} className={activeTab === 'invoice' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-slate-500'} /> Invoice Templates
+                   <button onClick={() => handleTabChange('invoice')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'invoice' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-slate-800'}`}>
+                     <Receipt size={18} className={activeTab === 'invoice' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'} /> Invoice Templates
                    </button>
-                   <button onClick={() => handleTabChange('email')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'email' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
-                     <Mail size={18} className={activeTab === 'email' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-slate-500'} /> Email Templates
+                   <button onClick={() => handleTabChange('email')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'email' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-slate-800'}`}>
+                     <Mail size={18} className={activeTab === 'email' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'} /> Email Templates
                    </button>
-                   <button onClick={() => handleTabChange('security')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'security' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
-                     <ShieldAlert size={18} className={activeTab === 'security' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-slate-500'} /> Security & Access
+                   <button onClick={() => handleTabChange('security')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'security' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-slate-800'}`}>
+                     <ShieldAlert size={18} className={activeTab === 'security' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'} /> Security & Access
                    </button>
                  </nav>
               </div>
@@ -760,33 +760,33 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-gray-50 dark:bg-slate-800 relative w-full">
+        <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-gray-50 dark:bg-zinc-800 relative w-full">
 
         <div className="flex flex-col xl:flex-row justify-between xl:items-end mb-4 gap-4">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 dark:text-slate-100 mb-1">Projects</h2>
-              <p className="text-gray-500 dark:text-slate-400 text-sm">Manage client requests (Real-time Cloud Sync).</p>
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">Projects</h2>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">Manage client requests (Real-time Cloud Sync).</p>
             </div>
             
             <div className="flex flex-col sm:flex-row gap-3 w-full xl:w-auto items-center">
-              <div className="flex items-center gap-2 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-2.5 shadow-sm text-sm w-full sm:w-auto overflow-x-auto">
-                 <span className="text-gray-500 dark:text-slate-400 font-medium whitespace-nowrap">From:</span>
+              <div className="flex items-center gap-2 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-lg px-3 py-2.5 shadow-sm text-sm w-full sm:w-auto overflow-x-auto">
+                 <span className="text-gray-500 dark:text-gray-400 font-medium whitespace-nowrap">From:</span>
                  <input 
                    type="date" 
                    value={startDate}
                    onChange={e => setStartDate(e.target.value)}
-                   className="outline-none bg-transparent text-gray-700 dark:text-slate-300 min-w-max"
+                   className="outline-none bg-transparent text-gray-700 dark:text-gray-300 min-w-max"
                  />
                  <span className="text-gray-300">|</span>
-                 <span className="text-gray-500 dark:text-slate-400 font-medium whitespace-nowrap">To:</span>
+                 <span className="text-gray-500 dark:text-gray-400 font-medium whitespace-nowrap">To:</span>
                  <input 
                    type="date" 
                    value={endDate}
                    onChange={e => setEndDate(e.target.value)}
-                   className="outline-none bg-transparent text-gray-700 dark:text-slate-300 min-w-max"
+                   className="outline-none bg-transparent text-gray-700 dark:text-gray-300 min-w-max"
                  />
                  {(startDate || endDate) && (
-                   <button onClick={() => { setStartDate(''); setEndDate(''); }} className="ml-1 text-gray-400 hover:text-red-500 bg-gray-50 dark:bg-slate-800 hover:bg-red-50 p-1 rounded transition-colors whitespace-nowrap">
+                   <button onClick={() => { setStartDate(''); setEndDate(''); }} className="ml-1 text-gray-400 hover:text-red-500 bg-gray-50 dark:bg-zinc-800 hover:bg-red-50 p-1 rounded transition-colors whitespace-nowrap">
                      <X size={14} />
                    </button>
                  )}
@@ -800,20 +800,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                          value={searchTerm} 
                          onChange={e => setSearchTerm(e.target.value)}
                          placeholder="Search tracking ID, client..." 
-                         className="w-full bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg pl-10 pr-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all flex-1"
+                         className="w-full bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-lg pl-10 pr-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all flex-1"
                        />
                     </div>
                     <select
                       value={filterStatus}
                       onChange={e => setFilterStatus(e.target.value)}
-                      className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 text-gray-700 dark:text-slate-300 py-2.5 px-4 rounded-lg text-sm outline-none focus:border-blue-500"
+                      className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-gray-300 py-2.5 px-4 rounded-lg text-sm outline-none focus:border-blue-500"
                     >
                        <option value="All">All Statuses</option>
                        {Object.values(OrderStatus).map(status => (
                          <option key={status} value={status}>{status}</option>
                        ))}
                     </select>
-                    <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 text-gray-400 p-2.5 rounded-lg transition-all shrink-0" title="Sync Status">
+                    <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 text-gray-400 p-2.5 rounded-lg transition-all shrink-0" title="Sync Status">
                       <RefreshCw size={16} className={isLoading ? 'animate-spin' : ''} />
                     </div>
                   </>
@@ -824,12 +824,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
         
 
           {/* Mobile Tabs */}
-          <div className="lg:hidden flex gap-4 border-b border-gray-200 dark:border-slate-700 mb-6 pb-2 overflow-x-auto whitespace-nowrap scrollbar-hide">
+          <div className="lg:hidden flex gap-4 border-b border-gray-200 dark:border-zinc-700 mb-6 pb-2 overflow-x-auto whitespace-nowrap scrollbar-hide">
              {['orders', 'clients', 'charts', 'uploads', 'shares', 'portfolio', 'skills', 'experience', 'education', 'contacts', 'reviews', 'settings', 'invoice', 'email', 'security'].map(tab => (
                  <button 
                     key={tab}
                     onClick={() => handleTabChange(tab as any)}
-                    className={`pb-2 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 capitalize ${activeTab === tab ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:text-slate-300'}`}
+                    className={`pb-2 px-2 font-semibold text-sm border-b-2 transition-colors flex items-center gap-2 capitalize ${activeTab === tab ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300'}`}
                  >
                     {tab.replace('-', ' ')}
                  </button>
@@ -839,18 +839,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
           {activeTab === 'clients' ? (
            <AdminClients orders={orders} />
         ) : activeTab === 'orders' ? (
-          <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm overflow-hidden">
+          <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl shadow-sm overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                     <thead>
-                        <tr className="bg-gray-50/50 border-b border-gray-200 dark:border-slate-700 text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                        <tr className="bg-gray-50/50 border-b border-gray-200 dark:border-zinc-700 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                             <th className="p-4 pl-6">ID / Client</th>
                             <th className="p-4">Service</th>
                             <th className="p-4">Status</th>
-                            <th className="p-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 dark:bg-slate-800 transition-colors select-none group" onClick={toggleSort}>
-                                <div className="flex items-center gap-1 text-gray-700 dark:text-slate-300">
+                            <th className="p-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-700 dark:bg-zinc-800 transition-colors select-none group" onClick={toggleSort}>
+                                <div className="flex items-center gap-1 text-gray-700 dark:text-gray-300">
                                     Date
-                                    {sortOrder === 'asc' ? <ChevronUp size={14} className="text-gray-500 dark:text-slate-400" /> : <ChevronDown size={14} className="text-gray-500 dark:text-slate-400" />}
+                                    {sortOrder === 'asc' ? <ChevronUp size={14} className="text-gray-500 dark:text-gray-400" /> : <ChevronDown size={14} className="text-gray-500 dark:text-gray-400" />}
                                 </div>
                             </th>
                             <th className="p-4 text-right pr-6">Action</th>
@@ -858,7 +858,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                     </thead>
                     <tbody className="text-sm divide-y divide-gray-100">
                         {filteredOrders.length > 0 ? filteredOrders.map(o => (
-                            <tr key={o?.id || Math.random()} className={`hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-slate-800 transition-colors group cursor-pointer relative ${o?.status === OrderStatus.CANCELLED ? 'opacity-60 bg-red-50/10' : ''}`} onClick={() => openOrder(o)}>
+                            <tr key={o?.id || Math.random()} className={`hover:bg-gray-50 dark:hover:bg-slate-800 dark:bg-zinc-800 transition-colors group cursor-pointer relative ${o?.status === OrderStatus.CANCELLED ? 'opacity-60 bg-red-50/10' : ''}`} onClick={() => openOrder(o)}>
                                 <td className="p-4 pl-6">
                                     <div className="flex items-center gap-4">
                                         {o?.status === OrderStatus.PENDING && !o.isDeletedByAdmin && (
@@ -869,12 +869,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                                         )}
                                         <div className="flex flex-col relative">
                                           {o?.status === OrderStatus.REVISION && <span className="absolute -left-4 top-1.5 w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>}
-                                          <span className={`font-medium ${o?.status === OrderStatus.CANCELLED ? 'text-gray-400 line-through' : 'text-gray-900 dark:text-slate-100'}`}>{o?.clientName}</span>
+                                          <span className={`font-medium ${o?.status === OrderStatus.CANCELLED ? 'text-gray-400 line-through' : 'text-gray-900 dark:text-white'}`}>{o?.clientName}</span>
                                           <span className="text-xs font-mono text-gray-400 uppercase tracking-tighter">{o?.id}</span>
                                         </div>
                                     </div>
                                 </td>
-                                <td className="p-4 text-gray-600 dark:text-slate-400">
+                                <td className="p-4 text-gray-600 dark:text-gray-400">
                                     {o?.serviceType}
                                     {o.isDeletedByAdmin && <span className="ml-2 text-[9px] bg-red-100 text-red-600 px-1 rounded uppercase font-bold">Files Deleted</span>}
                                 </td>
@@ -890,7 +890,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                                                 o?.status === OrderStatus.CANCELLED ? 'bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800/50 hover:bg-red-100 dark:hover:bg-red-900/50' :
                                                 o?.status === OrderStatus.WAITING_PAYMENT ? 'bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-800/50 hover:bg-orange-100 dark:hover:bg-orange-900/50' :
                                                 o?.status === OrderStatus.PENDING ? 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800/50 ring-1 ring-red-500/20 hover:bg-red-100 dark:hover:bg-red-900/50' :
-                                                'bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 border-gray-200 dark:border-slate-700 hover:bg-gray-200'
+                                                'bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-zinc-700 hover:bg-gray-200'
                                             }`}
                                         >
                                             {Object.values(OrderStatus).map(status => (
@@ -902,10 +902,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                                         </div>
                                     </div>
                                 </td>
-                                <td className="p-4 text-gray-500 dark:text-slate-400 text-xs">{o?.createdAt ? new Date(o.createdAt).toLocaleDateString() : 'N/A'}</td>
+                                <td className="p-4 text-gray-500 dark:text-gray-400 text-xs">{o?.createdAt ? new Date(o.createdAt).toLocaleDateString() : 'N/A'}</td>
                                 <td className="p-4 text-right pr-6">
                                     <div className="flex items-center justify-end gap-2">
-                                        <button onClick={() => openOrder(o)} className="text-gray-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-2 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-full">
+                                        <button onClick={() => openOrder(o)} className="text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-2 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-full">
                                             <ChevronRight size={18} />
                                         </button>
                                     </div>
@@ -925,38 +925,38 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
         ) : activeTab === 'charts' ? (
           <div className="space-y-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-               <div onClick={() => setAnalyticsModal('total_earned')} className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-5 flex flex-col justify-center items-center text-center cursor-pointer hover:border-green-500 transition-colors">
+               <div onClick={() => setAnalyticsModal('total_earned')} className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl shadow-sm p-5 flex flex-col justify-center items-center text-center cursor-pointer hover:border-green-500 transition-colors">
                   <DollarSign size={24} className="text-green-500 mb-2" />
-                  <h3 className="text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-1">Total Earned</h3>
-                  <div className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-1">LKR {filteredOrders.filter(o => o.status === OrderStatus.COMPLETED).reduce((acc, curr) => acc + (curr.price || 0), 0).toLocaleString()}</div>
+                  <h3 className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1">Total Earned</h3>
+                  <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">LKR {filteredOrders.filter(o => o.status === OrderStatus.COMPLETED).reduce((acc, curr) => acc + (curr.price || 0), 0).toLocaleString()}</div>
                </div>
-               <div onClick={() => setAnalyticsModal('total_orders')} className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-5 flex flex-col justify-center items-center text-center cursor-pointer hover:border-blue-500 transition-colors">
+               <div onClick={() => setAnalyticsModal('total_orders')} className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl shadow-sm p-5 flex flex-col justify-center items-center text-center cursor-pointer hover:border-blue-500 transition-colors">
                   <Package size={24} className="text-blue-500 mb-2" />
-                  <h3 className="text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-1">Total Orders</h3>
-                  <div className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-1">{filteredOrders.length}</div>
+                  <h3 className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1">Total Orders</h3>
+                  <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">{filteredOrders.length}</div>
                </div>
-               <div onClick={() => setAnalyticsModal('clients')} className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-5 flex flex-col justify-center items-center text-center cursor-pointer hover:border-purple-500 transition-colors">
+               <div onClick={() => setAnalyticsModal('clients')} className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl shadow-sm p-5 flex flex-col justify-center items-center text-center cursor-pointer hover:border-purple-500 transition-colors">
                   <UserIcon size={24} className="text-purple-500 mb-2" />
-                  <h3 className="text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-1">Unique Clients</h3>
-                  <div className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-1">{new Set(filteredOrders.map(o => o.email || (o as any).clientEmail).filter(Boolean)).size}</div>
+                  <h3 className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1">Unique Clients</h3>
+                  <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">{new Set(filteredOrders.map(o => o.email || (o as any).clientEmail).filter(Boolean)).size}</div>
                </div>
-               <div onClick={() => setAnalyticsModal('active_orders')} className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-5 flex flex-col justify-center items-center text-center relative overflow-hidden cursor-pointer hover:border-red-500 transition-colors">
+               <div onClick={() => setAnalyticsModal('active_orders')} className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl shadow-sm p-5 flex flex-col justify-center items-center text-center relative overflow-hidden cursor-pointer hover:border-red-500 transition-colors">
                   <div className="absolute -right-4 -top-4 w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center animate-pulse">
                      <span className="w-4 h-4 bg-red-500 rounded-full shadow-[0_0_10px_rgba(239,68,68,0.6)]"></span>
                   </div>
-                  <h3 className="text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest mb-1 relative z-10 mt-4">Active Orders</h3>
+                  <h3 className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-1 relative z-10 mt-4">Active Orders</h3>
                   <div className="text-3xl font-bold text-red-500 mb-1 relative z-10">{filteredOrders.filter(o => o.status !== OrderStatus.COMPLETED && o.status !== OrderStatus.CANCELLED).length}</div>
                </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-6 md:col-span-2">
+              <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl shadow-sm p-6 md:col-span-2">
                  <div className="flex justify-between items-center mb-6">
-                   <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 flex items-center gap-2"><BarChart2 size={18} className="text-blue-500"/> Orders Over Time</h3>
+                   <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2"><BarChart2 size={18} className="text-blue-500"/> Orders Over Time</h3>
                    <select 
                       value={chartTimeframe} 
                       onChange={(e) => setChartTimeframe(e.target.value as any)}
-                      className="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 text-gray-700 dark:text-slate-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2"
+                      className="bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2"
                    >
                       <option value="day">Day by Day</option>
                       <option value="week">Week by Week</option>
@@ -977,8 +977,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                  </div>
               </div>
 
-              <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-6 flex flex-col">
-                 <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 mb-6 flex items-center gap-2"><Star size={18} className="text-yellow-500"/> Top Services</h3>
+              <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl shadow-sm p-6 flex flex-col">
+                 <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2"><Star size={18} className="text-yellow-500"/> Top Services</h3>
                  <div className="flex-1 overflow-y-auto pr-2 space-y-4">
                     {(() => {
                        const serviceCounts = filteredOrders.reduce((acc, o) => {
@@ -991,11 +991,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                        const maxCount = topServices[0][1];
                        return topServices.map(([title, count], i) => (
                           <div key={i} className="mb-4">
-                             <div className="flex justify-between text-xs font-semibold text-gray-700 dark:text-slate-300 mb-1">
+                             <div className="flex justify-between text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">
                                 <span className="truncate pr-2">{title}</span>
                                 <span>{count} orders</span>
                              </div>
-                             <div className="w-full bg-gray-100 dark:bg-slate-800 rounded-full h-2">
+                             <div className="w-full bg-gray-100 dark:bg-zinc-800 rounded-full h-2">
                                 <div className="bg-blue-500 h-2 rounded-full" style={{ width: `${(count / maxCount) * 100}%` }}></div>
                              </div>
                           </div>
@@ -1008,8 +1008,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
             <ClientActivityChart orders={filteredOrders} />
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-6">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100 mb-6">Orders by Status</h3>
+              <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl shadow-sm p-6">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Orders by Status</h3>
                 <div className="h-[300px] w-full">
                   <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                     <PieChart>
@@ -1032,9 +1032,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                   </ResponsiveContainer>
                 </div>
               </div>
-              <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-6 flex flex-col justify-center items-center text-center">
-                  <h3 className="text-sm font-bold text-gray-800 dark:text-slate-200 mb-2">Export Project Data</h3>
-                  <p className="text-xs text-gray-500 dark:text-slate-400 mb-6 max-w-sm">Download current filtered records (.CSV or .PDF format) for external reporting.</p>
+              <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl shadow-sm p-6 flex flex-col justify-center items-center text-center">
+                  <h3 className="text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">Export Project Data</h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-6 max-w-sm">Download current filtered records (.CSV or .PDF format) for external reporting.</p>
                   <div className="flex gap-3">
                      <button onClick={exportToCsv} className="bg-blue-600 text-white font-bold px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition flex items-center gap-2">
                         <Download size={16} /> CSV
@@ -1044,14 +1044,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                      </button>
                   </div>
                   
-                  <div className="mt-8 pt-8 border-t border-gray-100 dark:border-slate-800 w-full">
+                  <div className="mt-8 pt-8 border-t border-gray-100 dark:border-zinc-700 w-full">
                      <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Peak Activity</h3>
                      {(() => {
                         const monthlyData = getTimeframeData();
                         const peakMonth = [...monthlyData].sort((a, b) => b.orders - a.orders)[0];
                         return peakMonth && peakMonth.orders > 0 ? (
                            <div>
-                              <div className="text-2xl font-bold text-gray-900 dark:text-slate-100 mb-1">{peakMonth.name}</div>
+                              <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">{peakMonth.name}</div>
                               <div className="text-sm text-gray-500">{peakMonth.orders} orders placed</div>
                            </div>
                         ) : <div className="text-sm text-gray-400">Not enough data</div>;
@@ -1062,36 +1062,36 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
           </div>
         ) : activeTab === 'reviews' ? (
           <div className="space-y-12">
-            <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm p-6 space-y-6">
+            <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl shadow-sm p-6 space-y-6">
               <h3 className="text-xl font-bold">Client Reviews from Orders</h3>
               {orders.filter(o => o.rating).length === 0 ? (
-                <div className="p-8 text-center text-gray-500 dark:text-slate-400 bg-gray-50 dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 border-dashed">No reviews yet.</div>
+                <div className="p-8 text-center text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-zinc-800 rounded-xl border border-gray-200 dark:border-zinc-700 border-dashed">No reviews yet.</div>
               ) : (
                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                    {orders.filter(o => o.rating).sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(o => (
-                      <div key={o.id} className={`border ${!o.isFeedbackRead ? 'border-red-300 bg-red-50/20' : 'border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900'} shadow-sm p-6 rounded-2xl relative overflow-hidden transition-all hover:shadow-md`}>
+                      <div key={o.id} className={`border ${!o.isFeedbackRead ? 'border-red-300 bg-red-50/20' : 'border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-900'} shadow-sm p-6 rounded-2xl relative overflow-hidden transition-all hover:shadow-md`}>
                           {!o.isFeedbackRead && (
                              <div className="absolute top-4 right-4 z-10">
                                <span className="bg-red-500 text-white text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full shadow-sm flex items-center gap-1.5">
-                                  <span className="w-1.5 h-1.5 bg-white dark:bg-slate-900 rounded-full animate-pulse"></span>
+                                  <span className="w-1.5 h-1.5 bg-white dark:bg-zinc-900 rounded-full animate-pulse"></span>
                                   NEW
                                </span>
                              </div>
                           )}
                           <div className="flex justify-between items-start mb-4 relative z-0 pr-16">
                              <div>
-                                 <h4 className="font-bold text-gray-900 dark:text-slate-100 border-b border-gray-200 dark:border-slate-700 pb-1">{o.clientName}</h4>
+                                 <h4 className="font-bold text-gray-900 dark:text-white border-b border-gray-200 dark:border-zinc-700 pb-1">{o.clientName}</h4>
                                  <span className="text-xs text-purple-600 font-bold uppercase tracking-wider">{o.serviceType}</span>
                              </div>
                              <div className="flex gap-0.5 text-lg">
                                  {[1,2,3,4,5].map(s => <span key={s} className={s <= (o.rating||0) ? 'text-yellow-400' : 'text-gray-200'}>★</span>)}
                              </div>
                           </div>
-                          {o.feedback && <p className="italic text-gray-700 dark:text-slate-300 text-sm mb-6 pb-4 border-b border-gray-100 dark:border-slate-700">"{o.feedback}"</p>}
+                          {o.feedback && <p className="italic text-gray-700 dark:text-gray-300 text-sm mb-6 pb-4 border-b border-gray-100 dark:border-zinc-700">"{o.feedback}"</p>}
                           
                           <div className="flex gap-3">
                               {!o.isFeedbackRead && (
-                                  <button onClick={() => updateOrder({...o, isFeedbackRead: true})} className="flex-1 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 hover:border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-300 text-xs uppercase tracking-widest font-black py-2.5 rounded-xl transition-all">Mark Read</button>
+                                  <button onClick={() => updateOrder({...o, isFeedbackRead: true})} className="flex-1 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 hover:border-gray-300 dark:border-zinc-600 text-gray-700 dark:text-gray-300 text-xs uppercase tracking-widest font-black py-2.5 rounded-xl transition-all">Mark Read</button>
                               )}
                               <button onClick={async () => { 
                                  try {
@@ -1117,7 +1117,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
               )}
             </div>
             
-            <div className="pt-4 border-t border-gray-200 dark:border-slate-700">
+            <div className="pt-4 border-t border-gray-200 dark:border-zinc-700">
                <h3 className="text-xl font-bold mb-4">Manual Testimonials</h3>
                <AdminTestimonials />
             </div>
@@ -1150,15 +1150,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
       
       {analyticsModal === 'total_orders' && (
          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex justify-center items-center p-4">
-            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden border border-gray-100 dark:border-slate-800">
-               <div className="px-6 py-4 border-b border-gray-100 dark:border-slate-800 flex justify-between items-center bg-gray-50 dark:bg-slate-800/50">
+            <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden border border-gray-100 dark:border-zinc-700">
+               <div className="px-6 py-4 border-b border-gray-100 dark:border-zinc-700 flex justify-between items-center bg-gray-50 dark:bg-zinc-800/50">
                   <div className="flex items-center gap-3">
                      <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
                         <Package size={20} />
                      </div>
                      <div>
-                        <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">Orders by Category</h2>
-                        <p className="text-xs text-gray-500 dark:text-slate-400">Total number of orders grouped by service category</p>
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Orders by Category</h2>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Total number of orders grouped by service category</p>
                      </div>
                   </div>
                   <button onClick={() => setAnalyticsModal(null)} className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full transition-colors">
@@ -1168,7 +1168,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                <div className="p-6 overflow-auto">
                   <table className="w-full text-left border-collapse">
                      <thead>
-                        <tr className="bg-gray-50/50 dark:bg-slate-800/50 border-b border-gray-200 dark:border-slate-700 text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                        <tr className="bg-gray-50/50 dark:bg-zinc-800/50 border-b border-gray-200 dark:border-zinc-700 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                            <th className="p-3 whitespace-nowrap">Service Category</th>
                            <th className="p-3 whitespace-nowrap text-right">Total Orders</th>
                         </tr>
@@ -1182,7 +1182,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                            }, {} as Record<string, number>);
                            return Object.entries(categoryCounts).sort((a, b) => b[1] - a[1]).map(([cat, count], i) => (
                               <tr key={i} className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
-                                 <td className="p-3 text-sm font-medium text-gray-900 dark:text-slate-100">{cat}</td>
+                                 <td className="p-3 text-sm font-medium text-gray-900 dark:text-white">{cat}</td>
                                  <td className="p-3 text-sm font-bold text-right text-blue-600 dark:text-blue-400">{count}</td>
                               </tr>
                            ));
@@ -1196,15 +1196,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
 
       {analyticsModal === 'total_earned' && (
          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex justify-center items-center p-4">
-            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden border border-gray-100 dark:border-slate-800">
-               <div className="px-6 py-4 border-b border-gray-100 dark:border-slate-800 flex justify-between items-center bg-gray-50 dark:bg-slate-800/50">
+            <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden border border-gray-100 dark:border-zinc-700">
+               <div className="px-6 py-4 border-b border-gray-100 dark:border-zinc-700 flex justify-between items-center bg-gray-50 dark:bg-zinc-800/50">
                   <div className="flex items-center gap-3">
                      <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 dark:text-green-400">
                         <DollarSign size={20} />
                      </div>
                      <div>
-                        <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">Earnings by Category</h2>
-                        <p className="text-xs text-gray-500 dark:text-slate-400">Total earned from completed orders grouped by service</p>
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Earnings by Category</h2>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Total earned from completed orders grouped by service</p>
                      </div>
                   </div>
                   <button onClick={() => setAnalyticsModal(null)} className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full transition-colors">
@@ -1214,7 +1214,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                <div className="p-6 overflow-auto">
                   <table className="w-full text-left border-collapse">
                      <thead>
-                        <tr className="bg-gray-50/50 dark:bg-slate-800/50 border-b border-gray-200 dark:border-slate-700 text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                        <tr className="bg-gray-50/50 dark:bg-zinc-800/50 border-b border-gray-200 dark:border-zinc-700 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                            <th className="p-3 whitespace-nowrap">Service Category</th>
                            <th className="p-3 whitespace-nowrap text-right">Total Earned</th>
                         </tr>
@@ -1230,13 +1230,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                            if (sorted.length === 0) {
                               return (
                                  <tr>
-                                    <td colSpan={2} className="p-4 text-center text-sm text-gray-500 dark:text-slate-400">No earnings data available yet</td>
+                                    <td colSpan={2} className="p-4 text-center text-sm text-gray-500 dark:text-gray-400">No earnings data available yet</td>
                                  </tr>
                               );
                            }
                            return sorted.map(([cat, amount], i) => (
                               <tr key={i} className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
-                                 <td className="p-3 text-sm font-medium text-gray-900 dark:text-slate-100">{cat}</td>
+                                 <td className="p-3 text-sm font-medium text-gray-900 dark:text-white">{cat}</td>
                                  <td className="p-3 text-sm font-bold text-right text-green-600 dark:text-green-400">LKR {amount.toLocaleString()}</td>
                               </tr>
                            ));
@@ -1250,15 +1250,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
 
       {analyticsModal === 'clients' && (
          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex justify-center items-center p-4">
-            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden border border-gray-100 dark:border-slate-800">
-               <div className="px-6 py-4 border-b border-gray-100 dark:border-slate-800 flex justify-between items-center bg-gray-50 dark:bg-slate-800/50">
+            <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden border border-gray-100 dark:border-zinc-700">
+               <div className="px-6 py-4 border-b border-gray-100 dark:border-zinc-700 flex justify-between items-center bg-gray-50 dark:bg-zinc-800/50">
                   <div className="flex items-center gap-3">
                      <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400">
                         <UserIcon size={20} />
                      </div>
                      <div>
-                        <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">Unique Clients</h2>
-                        <p className="text-xs text-gray-500 dark:text-slate-400">Detailed list of all clients</p>
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Unique Clients</h2>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Detailed list of all clients</p>
                      </div>
                   </div>
                   <button onClick={() => setAnalyticsModal(null)} className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full transition-colors">
@@ -1268,7 +1268,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                <div className="p-6 overflow-auto">
                   <table className="w-full text-left border-collapse">
                      <thead>
-                        <tr className="bg-gray-50/50 dark:bg-slate-800/50 border-b border-gray-200 dark:border-slate-700 text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                        <tr className="bg-gray-50/50 dark:bg-zinc-800/50 border-b border-gray-200 dark:border-zinc-700 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                            <th className="p-3 whitespace-nowrap">Client Name</th>
                            <th className="p-3 whitespace-nowrap">Email</th>
                            <th className="p-3 whitespace-nowrap">Mobile</th>
@@ -1312,12 +1312,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                               const mostUsed = Object.entries(c.categories).sort((a, b) => b[1] - a[1])[0][0];
                               return (
                                  <tr key={i} className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
-                                    <td className="p-3 text-sm font-medium text-gray-900 dark:text-slate-100">{c.name}</td>
-                                    <td className="p-3 text-sm text-gray-500 dark:text-slate-400">{c.email}</td>
-                                    <td className="p-3 text-sm text-gray-500 dark:text-slate-400">{c.mobiles.size > 0 ? Array.from(c.mobiles).flatMap(m => (m as string).split(',')).map(m => m.trim()).filter(Boolean).join(', ') : '-'}</td>
-                                    <td className="p-3 text-sm text-gray-500 dark:text-slate-400">{new Date(c.joined).toLocaleDateString()}</td>
+                                    <td className="p-3 text-sm font-medium text-gray-900 dark:text-white">{c.name}</td>
+                                    <td className="p-3 text-sm text-gray-500 dark:text-gray-400">{c.email}</td>
+                                    <td className="p-3 text-sm text-gray-500 dark:text-gray-400">{c.mobiles.size > 0 ? Array.from(c.mobiles).flatMap(m => (m as string).split(',')).map(m => m.trim()).filter(Boolean).join(', ') : '-'}</td>
+                                    <td className="p-3 text-sm text-gray-500 dark:text-gray-400">{new Date(c.joined).toLocaleDateString()}</td>
                                     <td className="p-3 text-sm font-bold text-center text-blue-600 dark:text-blue-400">{c.count}</td>
-                                    <td className="p-3 text-sm text-gray-500 dark:text-slate-400"><span className="px-2 py-1 bg-gray-100 dark:bg-slate-800 rounded-md text-xs">{mostUsed}</span></td>
+                                    <td className="p-3 text-sm text-gray-500 dark:text-gray-400"><span className="px-2 py-1 bg-gray-100 dark:bg-zinc-800 rounded-md text-xs">{mostUsed}</span></td>
                                     <td className="p-3 text-sm text-right">
                                        <div className="flex gap-2 justify-end">
                                           <button 
@@ -1361,15 +1361,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
 
       {analyticsModal === 'active_orders' && (
          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex justify-center items-center p-4">
-            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden border border-gray-100 dark:border-slate-800">
-               <div className="px-6 py-4 border-b border-gray-100 dark:border-slate-800 flex justify-between items-center bg-gray-50 dark:bg-slate-800/50">
+            <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden border border-gray-100 dark:border-zinc-700">
+               <div className="px-6 py-4 border-b border-gray-100 dark:border-zinc-700 flex justify-between items-center bg-gray-50 dark:bg-zinc-800/50">
                   <div className="flex items-center gap-3">
                      <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400 animate-pulse">
                         <Loader2 size={20} className="animate-spin" />
                      </div>
                      <div>
-                        <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">Current Active Orders</h2>
-                        <p className="text-xs text-gray-500 dark:text-slate-400">All orders currently in progress or pending</p>
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Current Active Orders</h2>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">All orders currently in progress or pending</p>
                      </div>
                   </div>
                   <button onClick={() => setAnalyticsModal(null)} className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-full transition-colors">
@@ -1379,7 +1379,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                <div className="p-6 overflow-auto">
                   <table className="w-full text-left border-collapse">
                      <thead>
-                        <tr className="bg-gray-50/50 dark:bg-slate-800/50 border-b border-gray-200 dark:border-slate-700 text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                        <tr className="bg-gray-50/50 dark:bg-zinc-800/50 border-b border-gray-200 dark:border-zinc-700 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                            <th className="p-3 whitespace-nowrap">Order ID</th>
                            <th className="p-3 whitespace-nowrap">Client</th>
                            <th className="p-3 whitespace-nowrap">Service</th>
@@ -1393,10 +1393,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                            <tr key={i} onClick={() => { setAnalyticsModal(null); openOrder(o); }} className="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer">
                               <td className="p-3 text-sm font-mono text-blue-600 dark:text-blue-400">#{o.id.split('-')[1] || o.id.substring(0, 8)}</td>
                               <td className="p-3 text-sm">
-                                 <div className="font-medium text-gray-900 dark:text-slate-100">{o.clientName || 'Client'}</div>
+                                 <div className="font-medium text-gray-900 dark:text-white">{o.clientName || 'Client'}</div>
                                  <div className="text-xs text-gray-500">{o.email || (o as any).clientEmail}</div>
                               </td>
-                              <td className="p-3 text-sm text-gray-700 dark:text-slate-300">{o.serviceType || 'Custom'}</td>
+                              <td className="p-3 text-sm text-gray-700 dark:text-gray-300">{o.serviceType || 'Custom'}</td>
                               <td className="p-3">
                                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium 
                                      ${o.status === OrderStatus.PENDING ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-500' : 
@@ -1408,8 +1408,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                                      {o.status}
                                  </span>
                               </td>
-                              <td className="p-3 text-sm text-gray-500 dark:text-slate-400">{new Date(o.createdAt).toLocaleDateString()}</td>
-                              <td className="p-3 text-sm font-medium text-gray-900 dark:text-slate-100 text-right">LKR {(o.price || 0).toLocaleString()}</td>
+                              <td className="p-3 text-sm text-gray-500 dark:text-gray-400">{new Date(o.createdAt).toLocaleDateString()}</td>
+                              <td className="p-3 text-sm font-medium text-gray-900 dark:text-white text-right">LKR {(o.price || 0).toLocaleString()}</td>
                            </tr>
                         ))}
                      </tbody>
@@ -1420,25 +1420,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
       )}
 
       {selectedOrder && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 sm:p-4">
               <div className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onClick={() => closeOrder(true)}></div>
-              <div className="relative bg-white dark:bg-slate-900 rounded-2xl w-full max-w-6xl h-[90vh] shadow-2xl flex flex-col animate-fade-in border border-gray-200/60 dark:border-slate-800 overflow-hidden">
-                  <div className="px-8 py-6 border-b border-gray-100 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900 z-10 shrink-0">
+              <div className="relative bg-white dark:bg-zinc-900 w-full max-w-6xl h-[100dvh] sm:h-[90vh] rounded-none sm:rounded-2xl shadow-2xl flex flex-col animate-fade-in sm:border border-gray-200/60 dark:border-zinc-700 overflow-hidden">
+                  <div className="absolute top-0 left-0 right-0 px-5 sm:px-8 py-4 sm:py-6 border-b border-gray-200/50 dark:border-zinc-700/50 flex justify-between items-center bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl z-20 shrink-0">
                       <div className="flex items-center gap-5">
-                          <button onClick={() => closeOrder(true)} className="p-2 text-gray-400 hover:text-gray-900 dark:text-slate-100 bg-gray-50/50 dark:bg-slate-800/50 border border-gray-100 dark:border-slate-700 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-full transition-all hidden sm:block shadow-sm hover:shadow">
+                          <button onClick={() => closeOrder(true)} className="p-2 text-gray-400 hover:text-gray-900 dark:text-white bg-gray-50/50 dark:bg-zinc-800/50 border border-gray-100 dark:border-zinc-700 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-full transition-all hidden sm:block shadow-sm hover:shadow">
                               <ChevronLeft size={20} strokeWidth={2.5} />
                           </button>
                           <div>
                               <div className="flex items-center gap-3">
-                                 <h2 className="text-xl md:text-2xl font-black text-gray-900 dark:text-slate-100 tracking-tight">{selectedOrder?.serviceType}</h2>
+                                 <h2 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white tracking-tight">{selectedOrder?.serviceType}</h2>
                                  {selectedOrder?.status === OrderStatus.COMPLETED && (
                                     <div className="bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 text-[10px] uppercase font-bold px-2 py-1 rounded-md border border-emerald-200/50 dark:border-emerald-500/20 flex items-center gap-1">
                                         <Check size={12} strokeWidth={3} /> Approved by Client
                                     </div>
                                  )}
                               </div>
-                              <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-500 dark:text-slate-400 font-medium">
-                                 <span className="font-mono bg-gray-100 dark:bg-slate-800 px-2 py-0.5 rounded text-gray-600 dark:text-slate-300 uppercase tracking-wider">{selectedOrder?.id}</span>
+                              <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-500 dark:text-gray-400 font-medium">
+                                 <span className="font-mono bg-gray-100 dark:bg-zinc-800 px-2 py-0.5 rounded text-gray-600 dark:text-gray-300 uppercase tracking-wider">{selectedOrder?.id}</span>
                                  <span className="text-gray-300 dark:text-slate-600">•</span>
                                  <span className="flex items-center gap-1.5"><UserIcon size={14} className="text-gray-400"/> {selectedOrder?.clientName}</span>
                               </div>
@@ -1447,57 +1447,57 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                       <div className="flex items-center gap-2">
                         <button 
                           onClick={() => closeOrder(true)} 
-                          className="inline-flex items-center gap-1.5 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-all active:scale-[0.96] bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 px-5 py-3 rounded-full shadow-sm hover:shadow font-bold text-xs uppercase tracking-widest sm:hidden"
+                          className="inline-flex items-center gap-1.5 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-all active:scale-[0.96] bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 px-5 py-3 rounded-full shadow-sm hover:shadow font-bold text-xs uppercase tracking-widest sm:hidden"
                         >
                             <ChevronLeft size={18} strokeWidth={2.5} />
                             <span>Back</span>
                         </button>
-                        <button onClick={() => closeOrder(true)} className="text-gray-400 hover:text-gray-900 dark:text-slate-100 bg-gray-50 dark:bg-slate-800 border border-transparent hover:border-gray-200 dark:hover:border-slate-700 p-2 rounded-full transition-all hidden sm:block shadow-sm">
+                        <button onClick={() => closeOrder(true)} className="text-gray-400 hover:text-gray-900 dark:text-white bg-gray-50 dark:bg-zinc-800 border border-transparent hover:border-gray-200 dark:hover:border-slate-700 p-2 rounded-full transition-all hidden sm:block shadow-sm">
                             <X size={20} />
                         </button>
                       </div>
                   </div>
 
-                  <div className="flex-1 overflow-y-auto p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 bg-gray-50/50 dark:bg-slate-950/50">
+                  <div className="flex-1 overflow-y-auto px-5 sm:px-8 pt-[90px] sm:pt-[104px] pb-[200px] sm:pb-[120px] grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-8 bg-gray-50/30 dark:bg-slate-950/30">
                       
                       {/* COLUMN 1: CONTROLS */}
                       <div className="lg:col-span-4 space-y-6">
-                          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm shadow-gray-200/50 dark:shadow-none">
-                              <h3 className="text-sm font-bold uppercase text-gray-600 dark:text-slate-300 tracking-wider mb-5 flex items-center gap-2"><Settings size={16}/> Project Controls</h3>
+                          <div className="bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-gray-100 dark:border-zinc-700 shadow-sm shadow-gray-200/50 dark:shadow-none">
+                              <h3 className="text-sm font-bold uppercase text-gray-600 dark:text-gray-300 tracking-wider mb-5 flex items-center gap-2"><Settings size={16}/> Project Controls</h3>
                               <div className="mb-5">
-                                <label className="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-slate-400 mb-2 block">Status</label>
+                                <label className="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2 block">Status</label>
                                 <select 
                                   value={editStatus} 
                                   onChange={e => setEditStatus(e.target.value as OrderStatus)}
-                                  className="w-full bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-sm transition-all appearance-none cursor-pointer"
+                                  className="w-full bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-sm transition-all appearance-none cursor-pointer"
                                 >
                                     {Object.values(OrderStatus).map(s => <option key={s} value={s}>{s}</option>)}
                                 </select>
                               </div>
                               <div className="mb-6">
-                                <label className="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-slate-400 mb-2 block">Estimated Completion</label>
+                                <label className="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400 mb-2 block">Estimated Completion</label>
                                 <input 
                                   value={editEta}
                                   onChange={e => setEditEta(e.target.value)}
-                                  className="w-full bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-sm transition-all placeholder:text-gray-400"
+                                  className="w-full bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl px-4 py-2.5 text-sm font-medium text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-sm transition-all placeholder:text-gray-400"
                                   placeholder="e.g. 2-3 Days"
                                 />
                               </div>
                               {selectedOrder?.status === OrderStatus.WAITING_PAYMENT && (
-                                <button onClick={markPaymentComplete} className="w-full mt-2 bg-green-600 text-white py-3 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-green-700 transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-green-600/30">
+                                <button onClick={markPaymentComplete} className="w-full mt-2 bg-emerald-600 text-white py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-emerald-700 transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg hover:shadow-emerald-600/30">
                                    <DollarSign size={16} /> Confirm Payment
                                 </button>
                               )}
                           </div>
 
-                          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm shadow-gray-200/50 dark:shadow-none">
-                             <h3 className="text-sm font-bold uppercase text-gray-600 dark:text-slate-300 tracking-wider mb-5 flex items-center gap-2"><ImageIcon size={16}/> Deliverables (Drafts)</h3>
+                          <div className="bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-gray-100 dark:border-zinc-700 shadow-sm shadow-gray-200/50 dark:shadow-none">
+                             <h3 className="text-sm font-bold uppercase text-gray-600 dark:text-gray-300 tracking-wider mb-5 flex items-center gap-2"><ImageIcon size={16}/> Deliverables (Drafts)</h3>
                              
                              {/* Existing Drafts List */}
                              {draftImages.length > 0 && (
                                <div className="grid grid-cols-3 gap-3 mb-4">
                                  {draftImages.map((imgUrl, idx) => (
-                                   <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 dark:border-slate-700 bg-gray-50/50 group">
+                                   <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 dark:border-zinc-700 bg-gray-50/50 group">
                                      <img src={imgUrl} className="w-full h-full object-cover" alt={`Draft ${idx + 1}`} />
                                      <div className="absolute top-1 left-1 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded text-[8px] text-white font-bold uppercase tracking-wider">
                                        #{idx + 1}
@@ -1531,27 +1531,27 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                              })}
 
                              <label className="block w-full cursor-pointer group">
-                                <div className="w-full h-28 border-2 border-dashed border-gray-200 dark:border-slate-700 rounded-xl flex flex-col items-center justify-center gap-2 hover:bg-blue-50 dark:hover:bg-slate-800 hover:border-blue-400 transition-all relative overflow-hidden bg-gray-50/50 dark:bg-slate-800/30">
-                                   <div className="w-8 h-8 rounded-full bg-white dark:bg-slate-700 shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <div className="w-full h-28 border-2 border-dashed border-gray-200 dark:border-zinc-700 rounded-xl flex flex-col items-center justify-center gap-2 hover:bg-blue-50 dark:hover:bg-slate-800 hover:border-blue-400 transition-all relative overflow-hidden bg-gray-50/50 dark:bg-zinc-800/30">
+                                   <div className="w-8 h-8 rounded-full bg-white dark:bg-zinc-700 shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform">
                                      <Upload className="text-gray-400 group-hover:text-blue-500 transition-colors" size={16} />
                                    </div>
-                                   <span className="text-xs font-bold text-gray-600 dark:text-slate-300 uppercase tracking-widest mt-1">
+                                   <span className="text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-widest mt-1">
                                      Upload Drafts
                                    </span>
                                 </div>
                                 <input type="file" onChange={handleDraftUpload} className="hidden" accept="image/*" multiple />
                              </label>
-                             <div className="text-[11px] font-bold text-gray-500 dark:text-slate-400 mt-3 text-center uppercase tracking-wider">Uploading automatically sets status to 'Draft Sent'</div>
+                             <div className="text-[11px] font-bold text-gray-500 dark:text-gray-400 mt-3 text-center uppercase tracking-wider">Uploading automatically sets status to 'Draft Sent'</div>
                           </div>
 
-                           <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm shadow-gray-200/50 dark:shadow-none">
-                              <h3 className="text-sm font-bold uppercase text-gray-600 dark:text-slate-300 tracking-wider mb-5 flex items-center gap-2"><FileBox size={16}/> Final Assets</h3>
+                           <div className="bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-gray-100 dark:border-zinc-700 shadow-sm shadow-gray-200/50 dark:shadow-none">
+                              <h3 className="text-sm font-bold uppercase text-gray-600 dark:text-gray-300 tracking-wider mb-5 flex items-center gap-2"><FileBox size={16}/> Final Assets</h3>
                              <label className="block w-full cursor-pointer group mb-5">
-                                <div className="w-full h-32 border-2 border-dashed border-gray-200 dark:border-slate-700 rounded-xl flex flex-col items-center justify-center gap-3 hover:bg-blue-50 dark:hover:bg-slate-800 hover:border-blue-400 transition-all bg-gray-50/50 dark:bg-slate-800/30">
-                                    <div className="w-10 h-10 rounded-full bg-white dark:bg-slate-700 shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <div className="w-full h-32 border-2 border-dashed border-gray-200 dark:border-zinc-700 rounded-xl flex flex-col items-center justify-center gap-3 hover:bg-blue-50 dark:hover:bg-slate-800 hover:border-blue-400 transition-all bg-gray-50/50 dark:bg-zinc-800/30">
+                                    <div className="w-10 h-10 rounded-full bg-white dark:bg-zinc-700 shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform">
                                         <Upload size={18} className="text-gray-400 group-hover:text-blue-500 transition-colors" />
                                     </div>
-                                    <span className="text-xs font-bold text-gray-600 dark:text-slate-300 uppercase tracking-widest">Upload Final Files</span>
+                                    <span className="text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-widest">Upload Final Files</span>
                                 </div>
                                 <input type="file" onChange={handleFinalFileUpload} className="hidden" multiple />
                              </label>
@@ -1568,30 +1568,30 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                                     </div>
                                 ))}
                                 {finalFiles.length > 0 ? finalFiles.map((f, i) => (
-                                    <div key={i} className="flex items-center justify-between bg-white dark:bg-slate-900 p-3 rounded-xl border border-gray-100 dark:border-slate-700 group shadow-sm hover:border-gray-200 dark:border-slate-700 transition-all">
+                                    <div key={i} className="flex items-center justify-between bg-white dark:bg-zinc-900 p-3 rounded-xl border border-gray-100 dark:border-zinc-700 group shadow-sm hover:border-gray-200 dark:border-zinc-700 transition-all">
                                         <div className="flex items-center gap-3 overflow-hidden">
-                                           <div className="p-2 bg-gray-50 dark:bg-slate-800 rounded-lg group-hover:bg-gray-100 dark:hover:bg-slate-700 dark:bg-slate-800 transition-colors">
+                                           <div className="p-2 bg-gray-50 dark:bg-zinc-800 rounded-lg group-hover:bg-gray-100 dark:hover:bg-slate-700 dark:bg-zinc-800 transition-colors">
                                               <FileBox size={16} className="text-gray-400" />
                                            </div>
-                                           <span className="text-[15px] text-gray-900 dark:text-slate-100 font-bold truncate max-w-[150px]">{f.name}</span>
+                                           <span className="text-[15px] text-gray-900 dark:text-white font-bold truncate max-w-[150px]">{f.name}</span>
                                         </div>
-                                        <button onClick={() => removeFinalFile(i)} className="text-gray-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 transition-colors p-1 rounded-full hover:bg-red-50 dark:hover:bg-red-900/30"><X size={16}/></button>
+                                        <button onClick={() => removeFinalFile(i)} className="text-gray-400 dark:text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors p-1 rounded-full hover:bg-red-50 dark:hover:bg-red-900/30"><X size={16}/></button>
                                     </div>
                                 )) : <div className="text-center text-xs text-gray-400 italic">No final files added.</div>}
                              </div>
                           </div>
 
-                           <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm shadow-gray-200/50 dark:shadow-none">
-                              <h3 className="text-sm font-bold uppercase text-gray-600 dark:text-slate-300 tracking-wider mb-5 flex items-center gap-2"><MessageCircle size={16}/> Communication</h3>
-                              <button onClick={() => selectedOrder && sendWhatsAppNotification(selectedOrder, selectedOrder.status)} className="w-full bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 py-4 rounded-xl font-bold text-xs uppercase tracking-widest border border-emerald-100 dark:border-emerald-800/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-all flex items-center justify-center gap-3 shadow-sm hover:shadow-emerald-100/10">
+                           <div className="bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-gray-100 dark:border-zinc-700 shadow-sm shadow-gray-200/50 dark:shadow-none">
+                              <h3 className="text-sm font-bold uppercase text-gray-600 dark:text-gray-300 tracking-wider mb-5 flex items-center gap-2"><MessageCircle size={16}/> Communication</h3>
+                              <button onClick={() => selectedOrder && sendWhatsAppNotification(selectedOrder, selectedOrder.status)} className="w-full bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400 py-4 rounded-xl font-bold text-xs uppercase tracking-widest border border-emerald-100 dark:border-emerald-800/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-all active:scale-[0.98] flex items-center justify-center gap-3 shadow-sm hover:shadow-emerald-100/10">
                                   <MessageCircle size={18} /> WhatsApp Update
                               </button>
                           </div>
-                           <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm shadow-gray-200/50 dark:shadow-none">
-                              <h3 className="text-sm font-bold uppercase text-gray-600 dark:text-slate-300 tracking-wider mb-5 flex items-center gap-2">
+                           <div className="bg-white dark:bg-zinc-900 p-6 rounded-2xl border border-gray-100 dark:border-zinc-700 shadow-sm shadow-gray-200/50 dark:shadow-none">
+                              <h3 className="text-sm font-bold uppercase text-gray-600 dark:text-gray-300 tracking-wider mb-5 flex items-center gap-2">
                                 <Receipt size={16} /> Invoice & Billing
                               </h3>
-                              <button onClick={() => selectedOrder && downloadInvoice(selectedOrder)} className="w-full bg-blue-50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-400 py-4 rounded-xl font-bold text-xs uppercase tracking-widest border border-blue-100 dark:border-blue-800/30 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all flex items-center justify-center gap-3 shadow-sm hover:shadow-blue-100/10">
+                              <button onClick={() => selectedOrder && downloadInvoice(selectedOrder)} className="w-full bg-blue-50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-400 py-4 rounded-xl font-bold text-xs uppercase tracking-widest border border-blue-100 dark:border-blue-800/30 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all active:scale-[0.98] flex items-center justify-center gap-3 shadow-sm hover:shadow-blue-100/10">
                                   <Download size={18} /> Download Invoice
                               </button>
                           </div>
@@ -1632,7 +1632,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                                                ))}
                                            </div>
                                        </div>
-                                       <button onClick={handleAddTestimonial} className="bg-white dark:bg-slate-900 border border-yellow-300 dark:border-yellow-800/50 text-yellow-700 dark:text-yellow-400 hover:bg-yellow-100 dark:hover:bg-yellow-950/40 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors shadow-sm">
+                                       <button onClick={handleAddTestimonial} className="bg-white dark:bg-zinc-900 border border-yellow-300 dark:border-yellow-800/50 text-yellow-700 dark:text-yellow-400 hover:bg-yellow-100 dark:hover:bg-yellow-950/40 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors shadow-sm">
                                            Add to Testimonials
                                        </button>
                                    </div>
@@ -1643,28 +1643,28 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                            )}
 
                            {selectedOrder?.requirements && (
-                               <div className="bg-white dark:bg-slate-900 p-7 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm shadow-gray-200/50 dark:shadow-none">
-                                   <h3 className="text-sm font-bold text-gray-900 dark:text-slate-100 mb-5 pb-3 border-b border-gray-100 dark:border-slate-800 flex items-center gap-2">
+                               <div className="bg-white dark:bg-zinc-900 p-7 rounded-2xl border border-gray-100 dark:border-zinc-700 shadow-sm shadow-gray-200/50 dark:shadow-none">
+                                   <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-5 pb-3 border-b border-gray-100 dark:border-zinc-700 flex items-center gap-2">
                                      <FileText size={18} className="text-gray-400" /> Project Brief & Requirements
                                    </h3>
-                                   <div className="bg-gray-50/50 dark:bg-slate-800/50 p-5 rounded-xl text-gray-900 dark:text-slate-100 font-medium leading-relaxed whitespace-pre-wrap text-[15px] border border-gray-100 dark:border-slate-800/50">
+                                   <div className="bg-gray-50/50 dark:bg-zinc-800/50 p-5 rounded-xl text-gray-900 dark:text-white font-medium leading-relaxed whitespace-pre-wrap text-[15px] border border-gray-100 dark:border-zinc-700/50">
                                       {selectedOrder.requirements}
                                    </div>
                                </div>
                            )}
 
                            {selectedOrder?.customFields && Object.keys(selectedOrder.customFields).length > 0 && (
-                               <div className="bg-white dark:bg-slate-900 p-7 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm shadow-gray-200/50 dark:shadow-none">
-                                   <h3 className="text-sm font-bold text-gray-900 dark:text-slate-100 mb-5 pb-3 border-b border-gray-100 dark:border-slate-800 flex items-center gap-2">
+                               <div className="bg-white dark:bg-zinc-900 p-7 rounded-2xl border border-gray-100 dark:border-zinc-700 shadow-sm shadow-gray-200/50 dark:shadow-none">
+                                   <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-5 pb-3 border-b border-gray-100 dark:border-zinc-700 flex items-center gap-2">
                                      <List size={18} className="text-gray-400" /> Order Details
                                    </h3>
                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                      {Object.entries(selectedOrder.customFields).map(([key, value]) => {
                                         if (value === undefined || value === null || value === '') return null;
                                         return (
-                                          <div key={key} className="bg-gray-50/50 dark:bg-slate-800/50 p-4 rounded-xl border border-gray-100 dark:border-slate-800/50">
-                                            <span className="text-[11px] font-bold text-gray-600 dark:text-slate-400 uppercase tracking-widest block mb-1.5">{key}</span>
-                                            <div className="text-[15px] font-semibold text-gray-900 dark:text-slate-100 break-words">
+                                          <div key={key} className="bg-gray-50/50 dark:bg-zinc-800/50 p-4 rounded-xl border border-gray-100 dark:border-zinc-700/50">
+                                            <span className="text-[11px] font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest block mb-1.5">{key}</span>
+                                            <div className="text-[15px] font-semibold text-gray-900 dark:text-white break-words">
                                               {Array.isArray(value) ? (
                                                 <ul className="list-disc list-inside space-y-1">
                                                   {value.map((item: any, i: number) => {
@@ -1687,13 +1687,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                                </div>
                            )}
 
-                           <div className="bg-white dark:bg-slate-900 p-7 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm shadow-gray-200/50 dark:shadow-none">
-                              <h3 className="text-sm font-bold text-gray-900 dark:text-slate-100 mb-5 pb-3 border-b border-gray-100 dark:border-slate-800 flex items-center gap-2">
+                           <div className="bg-white dark:bg-zinc-900 p-7 rounded-2xl border border-gray-100 dark:border-zinc-700 shadow-sm shadow-gray-200/50 dark:shadow-none">
+                              <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-5 pb-3 border-b border-gray-100 dark:border-zinc-700 flex items-center gap-2">
                                 <Download size={18} className="text-gray-400" /> Client Assets
                               </h3>
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                  <div>
-                                   <span className="text-gray-600 dark:text-slate-400 font-bold block text-xs uppercase tracking-wider mb-3">Uploaded Files</span>
+                                   <span className="text-gray-600 dark:text-gray-400 font-bold block text-xs uppercase tracking-wider mb-3">Uploaded Files</span>
                                    {selectedOrder?.files && selectedOrder.files.length > 0 ? (
                                      <div className="space-y-2">
                                        {selectedOrder.files.length > 1 && (
@@ -1728,63 +1728,63 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                                           <button key={i} onClick={(e) => {
                                              e.preventDefault();
                                              handleSingleDownload(f.data, f.name);
-                                          }} className="w-full flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-800 hover:bg-blue-50 border border-gray-200 dark:border-slate-700 rounded-lg group transition-colors cursor-pointer text-left">
+                                          }} className="w-full flex items-center justify-between p-3 bg-gray-50 dark:bg-zinc-800 hover:bg-blue-50 border border-gray-200 dark:border-zinc-700 rounded-lg group transition-colors cursor-pointer text-left">
                                               <div className="flex items-center gap-3 overflow-hidden">
-                                                 <div className="bg-white dark:bg-slate-900 p-1.5 rounded border border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400"><ImageIcon size={14} /></div>
-                                                 <span className="text-sm text-gray-700 dark:text-slate-300 font-medium truncate">{f.name}</span>
+                                                 <div className="bg-white dark:bg-zinc-900 p-1.5 rounded border border-gray-200 dark:border-zinc-700 text-gray-500 dark:text-gray-400"><ImageIcon size={14} /></div>
+                                                 <span className="text-sm text-gray-700 dark:text-gray-300 font-medium truncate">{f.name}</span>
                                               </div>
                                               <Download size={14} className="text-gray-400 group-hover:text-blue-500" />
                                           </button>
                                        ))}
                                      </div>
                                    ) : (
-                                     <div className="text-gray-400 italic text-sm bg-gray-50 dark:bg-slate-800 p-3 rounded-lg text-center">No files uploaded.</div>
+                                     <div className="text-gray-400 italic text-sm bg-gray-50 dark:bg-zinc-800 p-3 rounded-lg text-center">No files uploaded.</div>
                                    )}
                                  </div>
                                  <div>
-                                   <span className="text-gray-600 dark:text-slate-400 font-bold block text-xs uppercase tracking-wider mb-3">Voice Briefs</span>
+                                   <span className="text-gray-600 dark:text-gray-400 font-bold block text-xs uppercase tracking-wider mb-3">Voice Briefs</span>
                                    {selectedOrder?.voiceClips && selectedOrder.voiceClips.length > 0 ? (
                                      <div className="space-y-2">
                                        {selectedOrder.voiceClips.map((v, i) => (
-                                          <div key={i} className="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-3">
+                                          <div key={i} className="bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg p-3">
                                              <div className="flex items-center gap-2 mb-2">
                                                 <Music size={14} className="text-purple-500" />
-                                                <span className="text-sm font-bold text-gray-900 dark:text-slate-100">{v.name}</span>
+                                                <span className="text-sm font-bold text-gray-900 dark:text-white">{v.name}</span>
                                              </div>
                                              <audio controls src={v.data} className="w-full h-8" />
                                           </div>
                                        ))}
                                      </div>
                                    ) : (
-                                      <div className="text-gray-400 italic text-sm bg-gray-50 dark:bg-slate-800 p-3 rounded-lg text-center">No voice notes.</div>
+                                      <div className="text-gray-400 italic text-sm bg-gray-50 dark:bg-zinc-800 p-3 rounded-lg text-center">No voice notes.</div>
                                    )}
                                  </div>
                               </div>
                            </div>
 
                            {(selectedOrder?.dimensions || (selectedOrder?.colorPalette && selectedOrder.colorPalette.length > 0)) && (
-                               <div className="bg-white dark:bg-slate-900 p-7 rounded-2xl border border-gray-100 dark:border-slate-800 shadow-sm shadow-gray-200/50 dark:shadow-none">
-                                   <div className="flex justify-between items-center mb-5 pb-3 border-b border-gray-100 dark:border-slate-800">
-                                      <h3 className="text-sm font-bold text-gray-900 dark:text-slate-100 flex items-center gap-2"><LayoutIcon size={18} className="text-gray-400" /> Specifications</h3>
-                                      <button onClick={() => selectedOrder?.colorPalette && exportPalette(selectedOrder.colorPalette)} className="text-[10px] font-bold text-gray-500 dark:text-slate-400 hover:text-blue-600 flex items-center gap-1 uppercase tracking-wider">
+                               <div className="bg-white dark:bg-zinc-900 p-7 rounded-2xl border border-gray-100 dark:border-zinc-700 shadow-sm shadow-gray-200/50 dark:shadow-none">
+                                   <div className="flex justify-between items-center mb-5 pb-3 border-b border-gray-100 dark:border-zinc-700">
+                                      <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2"><LayoutIcon size={18} className="text-gray-400" /> Specifications</h3>
+                                      <button onClick={() => selectedOrder?.colorPalette && exportPalette(selectedOrder.colorPalette)} className="text-[10px] font-bold text-gray-500 dark:text-gray-400 hover:text-blue-600 flex items-center gap-1 uppercase tracking-wider">
                                         <Download size={12} /> Export Palette
                                       </button>
                                    </div>
                                    <div className="grid grid-cols-2 gap-6 text-sm">
                                        {selectedOrder?.dimensions && (
                                            <div>
-                                               <span className="text-gray-600 dark:text-slate-400 font-bold block text-xs uppercase tracking-wider mb-1">Dimensions</span>
-                                               <span className="font-mono text-gray-800 dark:text-slate-200 bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded inline-block uppercase">{selectedOrder.dimensions.width}x{selectedOrder.dimensions.height}{selectedOrder.dimensions.unit} ({selectedOrder.dimensions.ppi}ppi)</span>
+                                               <span className="text-gray-600 dark:text-gray-400 font-bold block text-xs uppercase tracking-wider mb-1">Dimensions</span>
+                                               <span className="font-mono text-gray-800 dark:text-gray-200 bg-gray-100 dark:bg-zinc-800 px-2 py-1 rounded inline-block uppercase">{selectedOrder.dimensions.width}x{selectedOrder.dimensions.height}{selectedOrder.dimensions.unit} ({selectedOrder.dimensions.ppi}ppi)</span>
                                            </div>
                                        )}
                                        {selectedOrder?.colorPalette && selectedOrder.colorPalette.length > 0 && (
                                            <div>
                                                 <div className="flex justify-between items-center mb-1">
-                                                   <span className="text-gray-600 dark:text-slate-400 font-bold block text-xs uppercase tracking-wider">Palette</span>
-                                                   <button onClick={() => copyPalette(selectedOrder.colorPalette)} className="text-gray-400 hover:text-gray-600 dark:text-slate-400"><Copy size={10} /></button>
+                                                   <span className="text-gray-600 dark:text-gray-400 font-bold block text-xs uppercase tracking-wider">Palette</span>
+                                                   <button onClick={() => copyPalette(selectedOrder.colorPalette)} className="text-gray-400 hover:text-gray-600 dark:text-gray-400"><Copy size={10} /></button>
                                                 </div>
                                                 <div className="flex gap-1.5 mt-1 flex-wrap">
-                                                    {selectedOrder.colorPalette.map(c => <div key={c} className="w-8 h-8 rounded-full border border-gray-200 dark:border-slate-700 shadow-sm" style={{backgroundColor: c}}></div>)}
+                                                    {selectedOrder.colorPalette.map(c => <div key={c} className="w-8 h-8 rounded-full border border-gray-200 dark:border-zinc-700 shadow-sm" style={{backgroundColor: c}}></div>)}
                                                 </div>
                                            </div>
                                        )}
@@ -1794,14 +1794,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                       </div>
                   </div>
                   
-                  <div className="px-8 py-5 border-t border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 flex justify-between items-center gap-4 z-10 shrink-0">
-                      <button onClick={confirmDeleteOrder} className="px-6 py-2.5 rounded-lg text-red-500 font-semibold hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-sm flex items-center gap-2">
-                          <Trash2 size={16} /> Delete Order
+                  <div className="absolute bottom-0 left-0 right-0 px-5 sm:px-8 pt-4 pb-8 sm:py-5 border-t border-gray-200/50 dark:border-zinc-700/50 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl flex flex-col-reverse sm:flex-row justify-between items-stretch sm:items-center gap-3 sm:gap-4 z-20 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] dark:shadow-[0_-10px_40px_rgba(0,0,0,0.2)]">
+                      <button onClick={confirmDeleteOrder} className="w-full sm:w-auto justify-center px-6 py-4 sm:py-2.5 rounded-2xl sm:rounded-xl text-red-500 font-bold sm:font-semibold hover:bg-red-50 dark:hover:bg-red-900/20 transition-all active:scale-[0.96] text-[16px] sm:text-sm flex items-center gap-2 bg-red-50/80 sm:bg-transparent dark:bg-red-900/20 dark:sm:bg-transparent">
+                          <Trash2 size={18} className="sm:w-4 sm:h-4" /> Delete Order
                       </button>
-                      <div className="flex gap-4">
-                          <button onClick={() => closeOrder()} className="px-6 py-2.5 rounded-lg text-gray-500 dark:text-slate-400 font-semibold hover:bg-gray-100 dark:hover:bg-slate-700 dark:bg-slate-800 transition-colors text-sm">Cancel</button>
-                          <button onClick={saveChanges} disabled={Object.keys(uploadProgress).length > 0} className={`px-10 py-3.5 bg-blue-600 text-white font-bold rounded-xl flex items-center gap-3 text-xs uppercase tracking-widest shadow-xl shadow-blue-600/20 transition-all ${Object.keys(uploadProgress).length > 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'}`}>
-                              {Object.keys(uploadProgress).length > 0 ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                      <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
+                          <button onClick={() => closeOrder()} className="w-full sm:w-auto justify-center px-6 py-4 sm:py-2.5 rounded-2xl sm:rounded-xl text-gray-700 dark:text-gray-200 font-bold sm:font-semibold hover:bg-gray-100 dark:hover:bg-slate-700 dark:bg-zinc-800 transition-all active:scale-[0.96] text-[16px] sm:text-sm bg-gray-100/80 sm:bg-transparent dark:bg-zinc-800/80 dark:sm:bg-transparent">Cancel</button>
+                          <button onClick={saveChanges} disabled={Object.keys(uploadProgress).length > 0} className={`w-full sm:w-auto justify-center px-10 py-4 sm:py-3.5 bg-blue-600 text-white font-bold rounded-2xl sm:rounded-xl flex items-center gap-3 text-[16px] sm:text-xs sm:uppercase sm:tracking-widest shadow-xl shadow-blue-600/20 transition-all active:scale-[0.96] ${Object.keys(uploadProgress).length > 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700 hover:-translate-y-0.5'}`}>
+                              {Object.keys(uploadProgress).length > 0 ? <Loader2 size={18} className="animate-spin sm:w-4 sm:h-4" /> : <Save size={18} className="sm:w-4 sm:h-4" />}
                               {Object.keys(uploadProgress).length > 0 ? 'Uploading...' : 'Save Changes'}
                           </button>
                       </div>

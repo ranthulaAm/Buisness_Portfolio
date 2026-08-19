@@ -453,7 +453,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
           <title>Project Tracking | Ranthula | Buisness portfolio</title>
         </Helmet>
         <Loader2 className="animate-spin text-purple-600" size={48} />
-        <p className="text-gray-500 dark:text-slate-400 font-bold uppercase tracking-[0.3em] text-xs">Syncing...</p>
+        <p className="text-gray-500 dark:text-gray-400 font-bold uppercase tracking-[0.3em] text-xs">Syncing...</p>
       </div>
     );
   }
@@ -484,10 +484,10 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
         </div>
 
         <div className="max-w-3xl mx-auto print:hidden">
-          <div className="bg-white dark:bg-slate-800/80 border border-zinc-300 dark:border-slate-600/50 rounded-[2rem] p-6 md:p-12 relative overflow-hidden shadow-[0_15px_50px_rgba(0,0,0,0.07)] dark:shadow-[0_15px_50px_rgba(0,0,0,0.6)] dark:ring-1 dark:ring-white/5">
+          <div className="bg-white dark:bg-zinc-800/80 border border-zinc-300 dark:border-zinc-600/50 rounded-[2rem] p-6 md:p-12 relative overflow-hidden shadow-[0_15px_50px_rgba(0,0,0,0.07)] dark:shadow-[0_15px_50px_rgba(0,0,0,0.6)] dark:ring-1 dark:ring-white/5">
              <div className="flex justify-between items-start mb-8 md:mb-10">
                <div>
-                 <h2 className="text-2xl md:text-4xl font-display text-gray-900 dark:text-slate-100 mb-2">{order.serviceType}</h2>
+                 <h2 className="text-2xl md:text-4xl font-display text-gray-900 dark:text-white mb-2">{order.serviceType}</h2>
                  <div className="text-xs font-mono text-zinc-500 font-bold uppercase tracking-wider">{order.id}</div>
                </div>
                <div className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border ${order.status === OrderStatus.COMPLETED ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800 shadow-sm' : order.status === OrderStatus.WAITING_PAYMENT ? 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800 shadow-sm' : 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800 shadow-sm'}`}>
@@ -496,14 +496,14 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
              </div>
              
              <div className="relative pl-4 md:pl-6 space-y-8 md:space-y-10 my-8 md:my-12 w-full max-w-full sm:max-w-sm">
-                <div className="absolute left-[23px] md:left-[31px] top-2 bottom-2 w-0.5 bg-zinc-300 dark:bg-slate-700"></div>
+                <div className="absolute left-[23px] md:left-[31px] top-2 bottom-2 w-0.5 bg-zinc-300 dark:bg-zinc-700"></div>
                 {STATUS_FLOW.map((s, idx) => {
                    const isCompleted = idx <= activeIndex;
                    const isCurrent = idx === activeIndex;
                    return (
                      <div key={s.id} className="relative flex items-center gap-6">
-                        <div className={`w-3.5 h-3.5 rounded-full border-2 z-10 transition-all duration-500 ${isCompleted ? 'bg-purple-600 border-purple-600 shadow-sm scale-110' : 'bg-white dark:bg-slate-800 border-zinc-400 dark:border-slate-500 shadow-inner'}`}></div>
-                        <div className={`${isCompleted ? 'text-gray-900 dark:text-slate-100 font-extrabold' : 'text-zinc-500 dark:text-slate-400 font-medium'} ${isCurrent ? 'font-black text-purple-600 dark:text-purple-400 font-display' : ''} text-[10px] md:text-[11px] uppercase tracking-[0.2em]`}>{s.label}</div>
+                        <div className={`w-3.5 h-3.5 rounded-full border-2 z-10 transition-all duration-500 ${isCompleted ? 'bg-purple-600 border-purple-600 shadow-sm scale-110' : 'bg-white dark:bg-zinc-800 border-zinc-400 dark:border-slate-500 shadow-inner'}`}></div>
+                        <div className={`${isCompleted ? 'text-gray-900 dark:text-white font-extrabold' : 'text-zinc-500 dark:text-gray-400 font-medium'} ${isCurrent ? 'font-black text-purple-600 dark:text-purple-400 font-display' : ''} text-[10px] md:text-[11px] uppercase tracking-[0.2em]`}>{s.label}</div>
                      </div>
                    );
                 })}
@@ -515,7 +515,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                       <div className="flex items-center gap-2 text-orange-600 font-bold uppercase tracking-widest text-sm">
                         <DollarSign size={18} /> Payment Required
                       </div>
-                      <p className="text-gray-500 dark:text-slate-400 text-[10px] font-medium uppercase tracking-wider font-sans">Please contact admin to complete payment.</p>
+                      <p className="text-gray-500 dark:text-gray-400 text-[10px] font-medium uppercase tracking-wider font-sans">Please contact admin to complete payment.</p>
                    </div>
                 )}
 
@@ -528,14 +528,14 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                               <CheckCircle2 size={18} /> Final Assets Ready
                             </div>
                             <div className="flex flex-col gap-3">
-                              <div className="bg-white/60 dark:bg-slate-900/40 rounded-2xl p-5 mb-1 flex justify-between items-center border border-green-200/60 dark:border-green-800/50">
+                              <div className="bg-white/60 dark:bg-zinc-900/40 rounded-2xl p-5 mb-1 flex justify-between items-center border border-green-200/60 dark:border-green-800/50">
                                 <div className="flex items-center gap-4">
                                    <div className="p-3.5 bg-purple-100 dark:bg-purple-900/40 rounded-xl text-purple-600 dark:text-purple-400 shrink-0">
                                       <Package size={24} />
                                    </div>
                                    <div>
-                                      <h4 className="text-gray-900 dark:text-slate-100 font-bold text-sm tracking-wide">Delivery Package</h4>
-                                      <p className="text-gray-500 dark:text-slate-400 text-xs font-mono font-medium mt-1 uppercase tracking-widest">{order.finalFiles.length} {order.finalFiles.length === 1 ? 'File' : 'Files'} <span className="mx-1.5 opacity-50">•</span> {(() => {
+                                      <h4 className="text-gray-900 dark:text-white font-bold text-sm tracking-wide">Delivery Package</h4>
+                                      <p className="text-gray-500 dark:text-gray-400 text-xs font-mono font-medium mt-1 uppercase tracking-widest">{order.finalFiles.length} {order.finalFiles.length === 1 ? 'File' : 'Files'} <span className="mx-1.5 opacity-50">•</span> {(() => {
                                           let totalBytes = 0;
                                           order.finalFiles.forEach(f => {
                                             const base64Str = f.data.split(',')[1] || f.data;
@@ -573,7 +573,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                                 )}
                               </button>
                             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                              <button onClick={() => window.print()} className="flex-1 flex items-center justify-center gap-2 bg-white dark:bg-slate-900 hover:bg-gray-50 dark:hover:bg-slate-800 border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-300 font-bold uppercase tracking-widest text-[10px] py-4 rounded-xl transition-colors shadow-sm">
+                              <button onClick={() => window.print()} className="flex-1 flex items-center justify-center gap-2 bg-white dark:bg-zinc-900 hover:bg-gray-50 dark:hover:bg-slate-800 border border-gray-300 dark:border-zinc-600 text-gray-700 dark:text-gray-300 font-bold uppercase tracking-widest text-[10px] py-4 rounded-xl transition-colors shadow-sm">
                                  <Printer size={16} /> Print Invoice
                               </button>
                               <button disabled={isDownloadingInvoice} onClick={async () => {
@@ -583,7 +583,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                                  } finally {
                                     setIsDownloadingInvoice(false);
                                  }
-                              }} className="flex-1 flex items-center justify-center gap-2 bg-white dark:bg-slate-900 hover:bg-green-50 dark:hover:bg-green-900/40 border border-green-600 dark:border-green-500 text-green-700 dark:text-green-400 font-bold uppercase tracking-widest text-[10px] py-4 rounded-xl transition-colors shadow-sm disabled:opacity-50">
+                              }} className="flex-1 flex items-center justify-center gap-2 bg-white dark:bg-zinc-900 hover:bg-green-50 dark:hover:bg-green-900/40 border border-green-600 dark:border-green-500 text-green-700 dark:text-green-400 font-bold uppercase tracking-widest text-[10px] py-4 rounded-xl transition-colors shadow-sm disabled:opacity-50">
                                  {isDownloadingInvoice ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />} {isDownloadingInvoice ? 'Preparing...' : 'Download (PDF)'}
                               </button>
                             </div>
@@ -592,8 +592,8 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                       )}
 
                       {(!order.rating || isEditingFeedback) && (
-                         <div className="p-8 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-3xl animate-fade-in shadow-sm mt-4">
-                           <h4 className="text-lg font-display text-gray-900 dark:text-slate-100 mb-4">{isEditingFeedback ? 'Edit your rating' : 'How was your experience?'}</h4>
+                         <div className="p-8 bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-3xl animate-fade-in shadow-sm mt-4">
+                           <h4 className="text-lg font-display text-gray-900 dark:text-white mb-4">{isEditingFeedback ? 'Edit your rating' : 'How was your experience?'}</h4>
                            <div className="flex justify-center gap-2 mb-6">
                              {[1, 2, 3, 4, 5].map((star) => (
                                <button key={star} onClick={() => setRating(star)} className={`text-4xl transition-colors hover:scale-110 ${rating >= star ? 'text-yellow-400' : 'text-gray-300 dark:text-slate-600 hover:text-yellow-200 dark:hover:text-yellow-400/50'}`}>
@@ -607,7 +607,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                                  value={feedback}
                                  onChange={e => setFeedback(e.target.value)}
                                  placeholder="Tell us what you liked (or didn't like)..."
-                                 className="w-full bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl p-4 outline-none focus:border-purple-500 min-h-[100px] text-sm mb-6 resize-none shadow-sm font-medium"
+                                 className="w-full bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-xl p-4 outline-none focus:border-purple-500 min-h-[100px] text-sm mb-6 resize-none shadow-sm font-medium"
                                />
                                <div className="flex gap-2">
                                   {isEditingFeedback && (
@@ -617,7 +617,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                                           setRating(order.rating || 0);
                                           setFeedback(order.feedback || '');
                                        }}
-                                       className="w-1/3 bg-gray-200 hover:bg-gray-300 text-gray-700 dark:text-slate-300 rounded-xl py-4 font-black uppercase text-[10px] tracking-widest transition-all shadow-sm"
+                                       className="w-1/3 bg-gray-200 hover:bg-gray-300 text-gray-700 dark:text-gray-300 rounded-xl py-4 font-black uppercase text-[10px] tracking-widest transition-all shadow-sm"
                                      >
                                        Cancel
                                      </button>
@@ -640,19 +640,19 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                           <CheckCircle2 className="text-purple-600 dark:text-purple-400 mb-1" size={28} />
                           {feedbackSuccess ? (
                              <>
-                               <span className="text-sm font-bold text-gray-900 dark:text-slate-100">Successfully updated!</span>
-                               <span className="text-xs text-gray-500 dark:text-slate-400">Your updated review has been submitted to admins.</span>
+                               <span className="text-sm font-bold text-gray-900 dark:text-white">Successfully updated!</span>
+                               <span className="text-xs text-gray-500 dark:text-gray-400">Your updated review has been submitted to admins.</span>
                              </>
                           ) : (
                              <>
-                               <span className="text-sm font-bold text-gray-900 dark:text-slate-100">Thank you for your feedback!</span>
+                               <span className="text-sm font-bold text-gray-900 dark:text-white">Thank you for your feedback!</span>
                                <div className="flex gap-1 text-lg my-1">
                                   {[1, 2, 3, 4, 5].map(s => <span key={s} className={s <= (order.rating || 0) ? 'text-yellow-400' : 'text-gray-300 dark:text-slate-600'}>★</span>)}
                                </div>
-                               {order.feedback && <p className="text-xs text-gray-600 dark:text-slate-300 italic">"{order.feedback}"</p>}
+                               {order.feedback && <p className="text-xs text-gray-600 dark:text-gray-300 italic">"{order.feedback}"</p>}
                                <button 
                                   onClick={() => setIsEditingFeedback(true)}
-                                  className="mt-2 text-xs font-bold text-purple-600 dark:text-purple-400 hover:text-purple-700 flex items-center gap-1 bg-white dark:bg-slate-800 px-4 py-2 rounded-full border border-purple-200 dark:border-slate-700 shadow-sm transition-colors"
+                                  className="mt-2 text-xs font-bold text-purple-600 dark:text-purple-400 hover:text-purple-700 flex items-center gap-1 bg-white dark:bg-zinc-800 px-4 py-2 rounded-full border border-purple-200 dark:border-zinc-700 shadow-sm transition-colors"
                                >
                                   <Edit2 size={12} /> Edit Review
                                </button>
@@ -689,19 +689,19 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
           const activeDraft = drafts[activeDraftIndex] || order.draftImg || '';
           
           return (
-            <div className="fixed inset-0 z-[200] flex items-center justify-center p-0 overflow-hidden animate-fade-in">
-               <div className="fixed inset-0 bg-black/90 backdrop-blur-xl" onClick={() => !isRevisionMode && closeLightbox()}></div>
+            <div className="fixed inset-0 z-[200] flex items-center justify-center p-0 md:p-4 overflow-hidden animate-fade-in">
+               <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => !isRevisionMode && closeLightbox()}></div>
                
-               <div className="relative w-full h-full bg-white dark:bg-slate-900 border-0 rounded-none overflow-y-auto md:overflow-hidden shadow-2xl flex flex-col animate-slide-up">
+               <div className="relative w-full max-w-6xl h-[100dvh] md:h-[90vh] bg-white dark:bg-zinc-900 border-0 md:border border-gray-200/60 dark:border-zinc-700 rounded-none md:rounded-2xl overflow-y-auto md:overflow-hidden shadow-2xl flex flex-col animate-slide-up">
                   
                   {/* Header */}
-                  <div className="px-6 py-4 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between shrink-0">
+                  <div className="px-5 md:px-8 py-4 md:py-6 border-b border-gray-100 dark:border-zinc-700 flex items-center justify-between bg-white dark:bg-zinc-900 z-20 shrink-0">
                     <div>
-                      <h4 className="text-lg font-bold text-gray-900 dark:text-slate-100 font-sans">{order.serviceType}</h4>
-                      <p className="text-[10px] text-gray-400 font-mono uppercase tracking-wider mt-0.5">{order.id}</p>
+                      <h4 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white font-sans">{order.serviceType}</h4>
+                      <p className="text-[10px] md:text-[11px] text-gray-500 font-mono font-bold uppercase tracking-widest mt-0.5">{order.id}</p>
                     </div>
-                    <button onClick={closeLightbox} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-500 hover:text-gray-900 dark:hover:text-slate-100 transition-colors border border-gray-200/50 dark:border-slate-800">
-                      <X size={18} />
+                    <button onClick={closeLightbox} className="p-2 rounded-full bg-gray-50 dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-500 hover:text-gray-900 dark:hover:text-slate-100 transition-colors border border-gray-200/50 dark:border-zinc-700 shadow-sm active:scale-[0.96]">
+                      <X size={20} strokeWidth={2.5} />
                     </button>
                   </div>
 
@@ -709,7 +709,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                   <div className="flex-grow flex flex-col md:flex-row overflow-visible md:overflow-hidden">
                     
                     {/* Left Column: Preview Viewbox & Thumbnails */}
-                    <div className="w-full md:w-[60%] lg:w-[65%] flex-grow md:flex-grow-0 md:h-full bg-zinc-950 flex flex-col overflow-hidden border-b md:border-b-0 md:border-r border-gray-150 dark:border-slate-800">
+                    <div className="w-full md:w-[60%] lg:w-[65%] flex-grow md:flex-grow-0 md:h-full bg-zinc-950 flex flex-col overflow-hidden border-b md:border-b-0 md:border-r border-gray-150 dark:border-zinc-700">
                       
                       {/* Viewbox */}
                       <div className="relative h-[380px] md:h-0 md:flex-grow w-full flex items-center justify-center bg-zinc-950 overflow-hidden">
@@ -758,7 +758,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
 
                       {/* Mobile Dot Indicators */}
                       {hasMultipleDrafts && (
-                        <div className="md:hidden flex justify-center gap-1.5 py-3 bg-zinc-950/40 border-b border-gray-150 dark:border-slate-800">
+                        <div className="md:hidden flex justify-center gap-1.5 py-3 bg-zinc-950/40 border-b border-gray-150 dark:border-zinc-700">
                           {drafts.map((_, idx) => (
                             <button
                               key={idx}
@@ -771,7 +771,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
 
                       {/* Desktop Version Thumbnails strip */}
                       {hasMultipleDrafts && (
-                        <div className="hidden md:block px-6 py-4 border-t border-gray-150 dark:border-slate-800 bg-zinc-950 text-white shrink-0">
+                        <div className="hidden md:block px-6 py-4 border-t border-gray-150 dark:border-zinc-700 bg-zinc-950 text-white shrink-0">
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-[10px] font-black uppercase tracking-wider text-purple-400">
                               Version History
@@ -799,11 +799,11 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                     </div>
 
                     {/* Right Column: Actions, guidelines and inputs */}
-                    <div className="w-full md:w-[40%] lg:w-[35%] md:h-full flex flex-col bg-white dark:bg-slate-900 overflow-visible md:overflow-y-auto">
+                    <div className="w-full md:w-[40%] lg:w-[35%] md:h-full flex flex-col bg-white dark:bg-zinc-900 overflow-visible md:overflow-y-auto">
                       <div className="p-5 md:p-8 flex-grow flex flex-col justify-between gap-5">
                         {isRevisionMode ? (
                           <div className="space-y-4 animate-fade-in flex-grow flex flex-col">
-                            <div className="bg-gray-50 dark:bg-slate-850/50 border border-gray-200 dark:border-slate-800 rounded-2xl p-4 flex-grow flex flex-col min-h-[120px] md:min-h-[160px]">
+                            <div className="bg-gray-50 dark:bg-zinc-700/50 border border-gray-200 dark:border-zinc-700 rounded-2xl p-4 flex-grow flex flex-col min-h-[120px] md:min-h-[160px]">
                               <label className="text-[10px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-widest mb-1.5 block shrink-0">
                                 Revision Notes for Draft #{activeDraftIndex + 1}
                               </label>
@@ -811,18 +811,18 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                                 value={revisionNotes}
                                 onChange={(e) => setRevisionNotes(e.target.value)}
                                 placeholder="Please specify changes for this version: colors, layout, details, etc."
-                                className="w-full bg-transparent border-none text-gray-900 dark:text-slate-100 text-sm outline-none placeholder:text-gray-400 flex-grow resize-none"
+                                className="w-full bg-transparent border-none text-gray-900 dark:text-white text-sm outline-none placeholder:text-gray-400 flex-grow resize-none"
                                 autoFocus
                               />
                             </div>
-                            <div className="flex flex-row gap-2 shrink-0">
-                              <button onClick={() => setIsRevisionMode(false)} className="flex-1 py-3 text-gray-500 hover:text-gray-900 dark:text-slate-350 dark:hover:text-white font-bold uppercase text-[10px] tracking-widest transition-colors">
+                            <div className="flex flex-col md:flex-row gap-3 shrink-0">
+                              <button onClick={() => setIsRevisionMode(false)} className="w-full justify-center md:flex-1 py-4 md:py-3 rounded-2xl md:rounded-none bg-gray-100/80 md:bg-transparent dark:bg-zinc-800/80 dark:md:bg-transparent text-gray-700 md:text-gray-500 hover:text-gray-900 dark:text-gray-200 dark:md:text-slate-350 dark:hover:text-white font-bold uppercase text-[12px] md:text-[10px] tracking-widest transition-all active:scale-[0.96]">
                                 Cancel
                               </button>
                               <button 
                                 onClick={handleSubmitRevision} 
                                 disabled={!revisionNotes.trim() || isSubmittingAction}
-                                className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-black uppercase text-[10px] tracking-widest transition-all disabled:opacity-50 shadow-sm"
+                                className="w-full justify-center md:flex-1 bg-purple-600 hover:bg-purple-700 text-white py-4 md:py-3 rounded-2xl md:rounded-xl font-black uppercase text-[14px] md:text-[10px] tracking-widest transition-all disabled:opacity-50 shadow-lg active:scale-[0.96]"
                               >
                                 {isSubmittingAction ? 'Submitting...' : 'Send'}
                               </button>
@@ -840,18 +840,17 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                                 </p>
                               </div>
                             </div>
-
-                            <div className="space-y-4 shrink-0">
-                              <div className="grid grid-cols-2 md:grid-cols-1 gap-3">
-                                <button onClick={() => setIsRevisionMode(true)} className="w-full py-3.5 border border-gray-200 dark:border-slate-800 rounded-xl text-gray-700 dark:text-slate-300 font-bold uppercase text-[10px] tracking-widest hover:bg-gray-50 dark:hover:bg-slate-800 transition-all flex items-center justify-center gap-2 shadow-sm">
-                                  <Clock size={14} /> Revision
+                            <div className="space-y-4 shrink-0 pb-4 md:pb-0">
+                              <div className="grid grid-cols-1 gap-3">
+                                <button onClick={() => setIsRevisionMode(true)} className="w-full py-4 md:py-3.5 border border-gray-200 dark:border-zinc-700 rounded-2xl md:rounded-xl text-gray-700 dark:text-gray-300 font-bold uppercase text-[14px] md:text-[10px] tracking-widest hover:bg-gray-50 dark:hover:bg-slate-800 transition-all flex items-center justify-center gap-2 shadow-sm active:scale-[0.96] bg-white dark:bg-zinc-900">
+                                  <Clock size={16} className="md:w-3.5 md:h-3.5" /> Revision
                                 </button>
-                                <button onClick={handleApprove} disabled={isSubmittingAction} className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3.5 rounded-xl font-bold uppercase text-[10px] tracking-widest transition-all flex items-center justify-center gap-2 shadow-md">
-                                  <Check size={16} /> Approve
+                                <button onClick={handleApprove} disabled={isSubmittingAction} className="w-full bg-purple-600 hover:bg-purple-700 text-white py-4 md:py-3.5 rounded-2xl md:rounded-xl font-bold uppercase text-[14px] md:text-[10px] tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg active:scale-[0.96]">
+                                  <Check size={18} className="md:w-4 md:h-4" /> Approve
                                 </button>
                               </div>
                               
-                              <p className="text-[9px] text-center text-gray-400 uppercase font-semibold tracking-widest px-4 leading-relaxed">
+                              <p className="text-[10px] md:text-[9px] text-center text-gray-500 md:text-gray-400 uppercase font-bold md:font-semibold tracking-widest px-4 leading-relaxed mt-2">
                                 Approving commits this version as final and initiates delivery.
                               </p>
                             </div>
@@ -882,8 +881,8 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
 
        <div className="mb-12 flex flex-col md:flex-row justify-between items-center gap-8">
           <div>
-            <h1 className="text-5xl font-display font-medium text-gray-900 dark:text-slate-100 mb-2 uppercase tracking-tight">Active Projects</h1>
-            <p className="text-gray-500 dark:text-slate-400 text-lg font-light">Keep track of your creative requests (Real-time updates).</p>
+            <h1 className="text-5xl font-display font-medium text-gray-900 dark:text-white mb-2 uppercase tracking-tight">Active Projects</h1>
+            <p className="text-gray-500 dark:text-gray-400 text-lg font-light">Keep track of your creative requests (Real-time updates).</p>
           </div>
           <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
              <div className="relative w-full sm:w-64">
@@ -893,7 +892,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                  placeholder="Search orders..." 
                  value={searchQuery}
                  onChange={(e) => setSearchQuery(e.target.value)}
-                 className="w-full bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-full pl-10 pr-4 py-3 outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-600/20 text-sm shadow-sm transition-all"
+                 className="w-full bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-full pl-10 pr-4 py-3 outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-600/20 text-sm shadow-sm transition-all"
                />
              </div>
              <Link to="/order" className="w-full sm:w-auto shrink-0 bg-purple-600 text-white px-8 py-4.5 rounded-full font-bold shadow-md hover:bg-purple-700 hover:scale-[1.01] transition-all flex items-center justify-center gap-3 uppercase text-xs tracking-widest border border-purple-700">
@@ -923,7 +922,7 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
            const isFilesDeleted = o.isDeletedByAdmin === true;
            
            return (
-           <div key={o.id} onClick={() => setSearchParams({ id: o.id })} className="group relative bg-white dark:bg-slate-800/80 border border-zinc-300 dark:border-slate-600/50 hover:border-purple-400 rounded-2xl transition-all duration-300 hover:bg-gray-50 dark:hover:bg-slate-700/50 overflow-hidden flex flex-col h-full shadow-[0_10px_35px_rgba(0,0,0,0.06)] dark:shadow-[0_10px_35px_rgba(0,0,0,0.4)] dark:ring-1 dark:ring-white/5 hover:shadow-xl cursor-pointer">
+           <div key={o.id} onClick={() => setSearchParams({ id: o.id })} className="group relative bg-white dark:bg-zinc-800/80 border border-zinc-300 dark:border-zinc-600/50 hover:border-purple-400 rounded-2xl transition-all duration-300 hover:bg-gray-50 dark:hover:bg-slate-700/50 overflow-hidden flex flex-col h-full shadow-[0_10px_35px_rgba(0,0,0,0.06)] dark:shadow-[0_10px_35px_rgba(0,0,0,0.4)] dark:ring-1 dark:ring-white/5 hover:shadow-xl cursor-pointer">
              <div className="p-6 pb-0 flex-grow relative z-10">
                  <div className="flex justify-between items-start mb-6">
                    <div className="flex items-center gap-2">
@@ -938,15 +937,15 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                        </div>
                    </div>
                    
-                   <div onClick={(e) => copyToClipboard(o.id, e)} className="flex items-center gap-2 cursor-pointer group/id hover:bg-gray-100 dark:hover:bg-slate-700 dark:bg-slate-800 px-2.5 py-1.5 -mr-2 rounded-lg transition-colors border border-transparent hover:border-zinc-250">
-                     <span className="text-[10px] font-black text-gray-500 dark:text-slate-400 uppercase tracking-widest">ID</span>
-                     <div className="text-xs font-mono text-gray-600 dark:text-slate-400 group-hover/id:text-purple-600 transition-colors uppercase font-bold">{o.id}</div>
+                   <div onClick={(e) => copyToClipboard(o.id, e)} className="flex items-center gap-2 cursor-pointer group/id hover:bg-gray-100 dark:hover:bg-slate-700 dark:bg-zinc-800 px-2.5 py-1.5 -mr-2 rounded-lg transition-colors border border-transparent hover:border-zinc-250">
+                     <span className="text-[10px] font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">ID</span>
+                     <div className="text-xs font-mono text-gray-600 dark:text-gray-400 group-hover/id:text-purple-600 transition-colors uppercase font-bold">{o.id}</div>
                      <Copy size={12} className="text-gray-400 group-hover/id:text-purple-600 opacity-0 group-hover/id:opacity-100 transition-all" />
                    </div>
                  </div>
                  
                  <div className="mb-2 flex flex-wrap items-center gap-2">
-                    <h3 className="text-xl font-display font-black text-gray-900 dark:text-slate-100 group-hover:text-purple-600 transition-colors">{o.serviceType}</h3>
+                    <h3 className="text-xl font-display font-black text-gray-900 dark:text-white group-hover:text-purple-600 transition-colors">{o.serviceType}</h3>
                     {isFilesDeleted && (
                         <span className="px-2 py-0.5 bg-red-50 dark:bg-red-900/30 text-red-650 dark:text-red-400 border border-red-150 dark:border-red-800/50 text-[9px] font-bold uppercase rounded-md tracking-wider">
                             Files Deleted
@@ -957,18 +956,18 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
                  <p className="text-gray-550 text-sm line-clamp-2 mb-6 font-sans leading-relaxed">{o.requirements}</p>
              </div>
              
-             <div className="p-6 pt-4 border-t border-zinc-200 dark:border-slate-700 flex flex-wrap justify-between items-center gap-y-3 relative z-50 bg-gray-50/70 dark:bg-slate-800/70 pointer-events-auto">
+             <div className="p-6 pt-4 border-t border-zinc-200 dark:border-zinc-700 flex flex-wrap justify-between items-center gap-y-3 relative z-50 bg-gray-50/70 dark:bg-zinc-800/70 pointer-events-auto">
                 <div className="flex flex-col">
                     <span className="text-[10px] text-gray-400 font-bold uppercase">Created</span>
-                    <span className="text-xs text-gray-700 dark:text-slate-300 font-mono font-bold">{new Date(o.createdAt).toLocaleDateString()}</span>
+                    <span className="text-xs text-gray-700 dark:text-gray-300 font-mono font-bold">{new Date(o.createdAt).toLocaleDateString()}</span>
                 </div>
                 
                 <div className="flex items-center gap-2 bg-transparent">
-                   <button onClick={(e) => onHelpClick(o, e)} className="flex items-center gap-2 px-3.5 py-2.5 rounded-full bg-white dark:bg-slate-900 hover:bg-green-50 dark:hover:bg-green-900/40 text-green-700 transition-all border border-zinc-300 dark:border-slate-700 hover:border-green-350 dark:hover:border-green-800/50 shadow-sm">
+                   <button onClick={(e) => onHelpClick(o, e)} className="flex items-center gap-2 px-3.5 py-2.5 rounded-full bg-white dark:bg-zinc-900 hover:bg-green-50 dark:hover:bg-green-900/40 text-green-700 transition-all border border-zinc-300 dark:border-zinc-700 hover:border-green-350 dark:hover:border-green-800/50 shadow-sm">
                        <MessageCircle size={15} />
                        <span className="text-[9px] font-black uppercase tracking-wider">Help</span>
                    </button>
-                   {(o.status === OrderStatus.PENDING || o.status === OrderStatus.REVIEWING) && <button onClick={(e) => onEditClick(o.id, e)} className="p-3 rounded-full bg-white dark:bg-slate-900 hover:bg-gray-100 dark:hover:bg-slate-700 dark:bg-slate-800 text-gray-650 transition-all border border-zinc-300 shadow-sm"><Edit2 size={14} /></button>}
+                   {(o.status === OrderStatus.PENDING || o.status === OrderStatus.REVIEWING) && <button onClick={(e) => onEditClick(o.id, e)} className="p-3 rounded-full bg-white dark:bg-zinc-900 hover:bg-gray-100 dark:hover:bg-slate-700 dark:bg-zinc-800 text-gray-650 transition-all border border-zinc-300 shadow-sm"><Edit2 size={14} /></button>}
                 </div>
              </div>
            </div>

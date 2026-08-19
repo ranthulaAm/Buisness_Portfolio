@@ -127,7 +127,7 @@ export const DemoDashboard: React.FC = () => {
   const averageDealSize = mockClients.length ? Math.round(totalRevenue / mockClients.length) : 0;
 
   return (
-    <div id="demo_dashboard_page" className="w-full bg-[#f8fafc] dark:bg-[#0f172a] text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-200">
+    <div id="demo_dashboard_page" className="w-full bg-[#f8fafc] dark:bg-[#0f172a] text-slate-800 dark:text-white min-h-screen transition-colors duration-200">
       <Helmet>
         <title>Responsive Core Dashboard</title>
       </Helmet>
@@ -139,7 +139,7 @@ export const DemoDashboard: React.FC = () => {
       >
         {/* Responsive Mobile Drawer Header */}
         {isMobileViewport && (
-          <header id="mobile_navbar" className="w-full bg-white dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-800 px-5 py-4 flex items-center justify-between sticky top-0 z-40">
+          <header id="mobile_navbar" className="w-full bg-white dark:bg-zinc-900 border-b border-slate-200/80 dark:border-zinc-700 px-5 py-4 flex items-center justify-between sticky top-0 z-40">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-sm">
                 R
@@ -149,7 +149,7 @@ export const DemoDashboard: React.FC = () => {
             <button 
               id="mobile_sidebar_toggle"
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2 rounded-lg text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-slate-200/50 dark:border-slate-800"
+              className="p-2 rounded-lg text-slate-500 hover:text-slate-900 dark:text-gray-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-slate-200/50 dark:border-zinc-700"
             >
               {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
@@ -166,7 +166,7 @@ export const DemoDashboard: React.FC = () => {
               exit={isMobileViewport ? { x: -280, opacity: 0 } : undefined}
               transition={{ type: 'tween', duration: 0.25 }}
               className={`
-                shrink-0 bg-white dark:bg-slate-900 border-r border-slate-200/80 dark:border-slate-800
+                shrink-0 bg-white dark:bg-zinc-900 border-r border-slate-200/80 dark:border-zinc-700
                 flex flex-col z-50
                 ${isMobileViewport 
                   ? 'fixed top-[65px] left-0 bottom-0 w-[260px]' 
@@ -176,7 +176,7 @@ export const DemoDashboard: React.FC = () => {
             >
               {/* Sidebar Header for Desktop */}
               {!isMobileViewport && (
-                <div className="p-6 border-b border-slate-100 dark:border-slate-800/60 flex items-center gap-3">
+                <div className="p-6 border-b border-slate-100 dark:border-zinc-700/60 flex items-center gap-3">
                   <div className="w-9 h-9 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-base shadow-sm">
                     R
                   </div>
@@ -203,7 +203,7 @@ export const DemoDashboard: React.FC = () => {
                         w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all
                         ${isActive 
                           ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 border-l-4 border-indigo-600 rounded-l-none' 
-                          : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white'
+                          : 'text-slate-600 dark:text-gray-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white'
                         }
                       `}
                     >
@@ -220,8 +220,8 @@ export const DemoDashboard: React.FC = () => {
               </nav>
 
               {/* User Identity Info Footer in Sidebar */}
-              <div className="p-4 border-t border-slate-100 dark:border-slate-800/60">
-                <div className="flex items-center gap-3 p-2 bg-slate-50 dark:bg-slate-800/40 rounded-xl">
+              <div className="p-4 border-t border-slate-100 dark:border-zinc-700/60">
+                <div className="flex items-center gap-3 p-2 bg-slate-50 dark:bg-zinc-800/40 rounded-xl">
                   <img 
                     src="https://api.dicebear.com/7.x/shapes/svg?seed=Ranthula" 
                     alt="User profile avatar" 
@@ -229,7 +229,7 @@ export const DemoDashboard: React.FC = () => {
                   />
                   <div className="min-w-0 flex-grow">
                     <p className="text-xs font-bold text-slate-900 dark:text-white truncate">Ranthula Senmith</p>
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate font-semibold">Administrator</p>
+                    <p className="text-[10px] text-slate-500 dark:text-gray-400 truncate font-semibold">Administrator</p>
                   </div>
                 </div>
               </div>
@@ -261,7 +261,7 @@ export const DemoDashboard: React.FC = () => {
             <div className="flex items-center gap-3">
               <button 
                 onClick={() => {}}
-                className="inline-flex items-center gap-2 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 transition-all shadow-sm active:scale-95 whitespace-nowrap"
+                className="inline-flex items-center gap-2 bg-white dark:bg-zinc-900 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-zinc-700 px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-gray-300 transition-all shadow-sm active:scale-95 whitespace-nowrap"
               >
                 <RefreshCw size={14} className="animate-spin-slow" />
                 Sync Data
@@ -273,9 +273,9 @@ export const DemoDashboard: React.FC = () => {
           <div className={`grid gap-4 md:gap-6 ${isMobileViewport ? 'grid-cols-1' : 'grid-cols-3'}`}>
             
             {/* Stat Card 1 */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm relative overflow-hidden group">
+            <div className="bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-700/80 rounded-2xl p-6 shadow-sm relative overflow-hidden group">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Active Clients</span>
+                <span className="text-xs font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wider">Active Clients</span>
                 <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
                   <Users size={18} />
                 </div>
@@ -288,15 +288,15 @@ export const DemoDashboard: React.FC = () => {
                   +12% vs last week
                 </span>
               </div>
-              <div className="mt-4 text-xs text-slate-400 dark:text-slate-500 font-medium">
+              <div className="mt-4 text-xs text-slate-400 dark:text-gray-500 font-medium">
                 Clients currently receiving dynamic live tracking updates.
               </div>
             </div>
 
             {/* Stat Card 2 */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm relative overflow-hidden group">
+            <div className="bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-700/80 rounded-2xl p-6 shadow-sm relative overflow-hidden group">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Revenue</span>
+                <span className="text-xs font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wider">Total Revenue</span>
                 <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
                   <DollarSign size={18} />
                 </div>
@@ -309,15 +309,15 @@ export const DemoDashboard: React.FC = () => {
                   Goal 85% reached
                 </span>
               </div>
-              <div className="mt-4 text-xs text-slate-400 dark:text-slate-500 font-medium">
+              <div className="mt-4 text-xs text-slate-400 dark:text-gray-500 font-medium">
                 Aggregated billing pipeline generated from milestone releases.
               </div>
             </div>
 
             {/* Stat Card 3 */}
-            <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm relative overflow-hidden group">
+            <div className="bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-700/80 rounded-2xl p-6 shadow-sm relative overflow-hidden group">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Average Deal Value</span>
+                <span className="text-xs font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wider">Average Deal Value</span>
                 <div className="w-9 h-9 rounded-xl bg-violet-50 dark:bg-violet-950/30 flex items-center justify-center text-violet-600 dark:text-violet-400">
                   <TrendingUp size={18} />
                 </div>
@@ -330,7 +330,7 @@ export const DemoDashboard: React.FC = () => {
                   Healthy tier range
                 </span>
               </div>
-              <div className="mt-4 text-xs text-slate-400 dark:text-slate-500 font-medium">
+              <div className="mt-4 text-xs text-slate-400 dark:text-gray-500 font-medium">
                 Estimated average margin scoped across active digital deliverables.
               </div>
             </div>
@@ -338,10 +338,10 @@ export const DemoDashboard: React.FC = () => {
           </div>
 
           {/* Interactive Core Data Table Section */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl shadow-sm flex flex-col overflow-hidden">
+          <div className="bg-white dark:bg-zinc-900 border border-slate-200/80 dark:border-zinc-700/80 rounded-2xl shadow-sm flex flex-col overflow-hidden">
             
             {/* Table Control Bar */}
-            <div className="p-5 border-b border-slate-150 dark:border-slate-800/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="p-5 border-b border-slate-150 dark:border-zinc-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="relative flex-grow max-w-md">
                 <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
@@ -349,7 +349,7 @@ export const DemoDashboard: React.FC = () => {
                   placeholder="Search client records..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                  className="w-full bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-zinc-700 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
                 />
               </div>
 
@@ -362,7 +362,7 @@ export const DemoDashboard: React.FC = () => {
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-xs font-bold uppercase tracking-wider focus:outline-none focus:border-indigo-500 transition-colors"
+                  className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white px-3 py-2 rounded-xl border border-slate-200 dark:border-zinc-700 text-xs font-bold uppercase tracking-wider focus:outline-none focus:border-indigo-500 transition-colors"
                 >
                   <option value="all">All Statuses</option>
                   <option value="active">Active</option>
@@ -376,7 +376,7 @@ export const DemoDashboard: React.FC = () => {
             <div className="w-full overflow-x-auto">
               <table className="w-full border-collapse text-left text-sm">
                 <thead>
-                  <tr className="bg-slate-50/50 dark:bg-slate-800/20 border-b border-slate-150 dark:border-slate-800">
+                  <tr className="bg-slate-50/50 dark:bg-zinc-800/20 border-b border-slate-150 dark:border-zinc-700">
                     <th className="py-4 px-6 font-bold text-xs text-slate-400 uppercase tracking-wider select-none cursor-pointer" onClick={() => handleSort('name')}>
                       <div className="flex items-center gap-1.5">
                         Client Identity
@@ -417,12 +417,12 @@ export const DemoDashboard: React.FC = () => {
                           {/* Client Detail Column */}
                           <td className="py-4 px-6">
                             <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-bold text-slate-700 dark:text-slate-300 text-xs">
+                              <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-zinc-800 flex items-center justify-center font-bold text-slate-700 dark:text-gray-300 text-xs">
                                 {client.name.split(' ').map(n => n[0]).join('')}
                               </div>
                               <div className="min-w-0">
                                 <p className="font-bold text-slate-900 dark:text-white truncate">{client.name}</p>
-                                <p className="text-xs text-slate-400 dark:text-slate-500 truncate">{client.email}</p>
+                                <p className="text-xs text-slate-400 dark:text-gray-500 truncate">{client.email}</p>
                               </div>
                             </div>
                           </td>
@@ -435,7 +435,7 @@ export const DemoDashboard: React.FC = () => {
                                 ? 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-500/10' 
                                 : client.status === 'pending'
                                 ? 'bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 border border-amber-500/10'
-                                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-500/10'
+                                : 'bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-gray-400 border border-slate-500/10'
                               }
                             `}>
                               <span className={`w-1.5 h-1.5 rounded-full ${
@@ -451,7 +451,7 @@ export const DemoDashboard: React.FC = () => {
                           </td>
 
                           {/* Date Column */}
-                          <td className="py-4 px-6 text-slate-500 dark:text-slate-400 whitespace-nowrap font-medium text-xs">
+                          <td className="py-4 px-6 text-slate-500 dark:text-gray-400 whitespace-nowrap font-medium text-xs">
                             {new Date(client.date).toLocaleDateString('en-US', {
                               month: 'short',
                               day: 'numeric',
@@ -480,7 +480,7 @@ export const DemoDashboard: React.FC = () => {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={5} className="py-12 text-center text-slate-400 dark:text-slate-500 font-medium">
+                        <td colSpan={5} className="py-12 text-center text-slate-400 dark:text-gray-500 font-medium">
                           No matching records located in pipeline search scope.
                         </td>
                       </tr>
@@ -491,18 +491,18 @@ export const DemoDashboard: React.FC = () => {
             </div>
 
             {/* Table Pagination Footer */}
-            <div className="p-5 border-t border-slate-150 dark:border-slate-800/60 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+            <div className="p-5 border-t border-slate-150 dark:border-zinc-700/60 flex items-center justify-between text-xs text-slate-500 dark:text-gray-400">
               <span className="font-semibold">Showing {filteredClients.length} of {mockClients.length} clients</span>
               <div className="flex items-center gap-2">
                 <button 
                   disabled 
-                  className="px-3 py-1.5 border border-slate-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-800/50 opacity-50 cursor-not-allowed font-bold"
+                  className="px-3 py-1.5 border border-slate-200 dark:border-zinc-700 rounded-lg bg-slate-50 dark:bg-zinc-800/50 opacity-50 cursor-not-allowed font-bold"
                 >
                   Prev
                 </button>
                 <button 
                   disabled 
-                  className="px-3 py-1.5 border border-slate-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-800/50 opacity-50 cursor-not-allowed font-bold"
+                  className="px-3 py-1.5 border border-slate-200 dark:border-zinc-700 rounded-lg bg-slate-50 dark:bg-zinc-800/50 opacity-50 cursor-not-allowed font-bold"
                 >
                   Next
                 </button>
