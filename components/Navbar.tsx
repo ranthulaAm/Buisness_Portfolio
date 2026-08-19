@@ -14,10 +14,20 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onLoginClick, onLogout }) 
   const location = useLocation();
   const [isDarkMode, setIsDarkMode] = useState(false);
 
+  const updateThemeColor = (isDark: boolean) => {
+    const metaThemes = document.querySelectorAll('meta[name="theme-color"]');
+    metaThemes.forEach((meta: any) => {
+      meta.content = isDark ? '#050505' : '#f9fafb';
+    });
+  };
+
   useEffect(() => {
     // Check initial
     if (document.documentElement.classList.contains('dark')) {
       setIsDarkMode(true);
+      updateThemeColor(true);
+    } else {
+      updateThemeColor(false);
     }
   }, []);
 
@@ -25,9 +35,11 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onLoginClick, onLogout }) 
     if (isDarkMode) {
       document.documentElement.classList.remove('dark');
       setIsDarkMode(false);
+      updateThemeColor(false);
     } else {
       document.documentElement.classList.add('dark');
       setIsDarkMode(true);
+      updateThemeColor(true);
     }
   };
 

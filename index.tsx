@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import './index.css';
 
 // Suppress Vite/HMR WebSocket connection closed/failed errors & unhandled rejections
 if (typeof window !== 'undefined') {
