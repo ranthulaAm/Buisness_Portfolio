@@ -15,6 +15,83 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
+  // Enable JSON body parsing for API endpoints
+  app.use(express.json({ limit: "100kb" }));
+
+  // In-memory rate limiting map for notifications (IP -> timestamps[])
+  const rateLimitMap = new Map<string, number[]>();
+  const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+  const MAX_REQUESTS_PER_WINDOW = 20;
+
+  const isRateLimited = (ip: string): boolean => {
+    const now = Date.now();
+    const timestamps = (rateLimitMap.get(ip) || []).filter(
+      (t) => now - t < RATE_LIMIT_WINDOW_MS
+    );
+    if (timestamps.length >= MAX_REQUESTS_PER_WINDOW) {
+      rateLimitMap.set(ip, timestamps);
+      return true;
+    }
+    timestamps.push(now);
+    rateLimitMap.set(ip, timestamps);
+    return false;
+  };
+
+  // Secure server-side Telegram Notification endpoint
+  app.post("/api/telegram-notify", async (req, res) => {
+    const clientIp = req.ip || req.socket.remoteAddress || "unknown";
+
+    if (isRateLimited(clientIp)) {
+      return res.status(429).json({ error: "Too many notification requests. Please try again later." });
+    }
+
+    const { type, message, payload } = req.body || {};
+
+    if (!message || typeof message !== "string") {
+      return res.status(400).json({ error: "Invalid notification message" });
+    }
+
+    // Sanitize and limit message length to prevent spam abuse
+    const trimmedMessage = message.trim().slice(0, 2000);
+    if (trimmedMessage.length === 0) {
+      return res.status(400).json({ error: "Message content cannot be empty" });
+    }
+
+    const botToken = process.env.TELEGRAM_BOT_TOKEN || "8312949734:AAF5_Jax7u6sMP6tpOr3Xw7lPZRleLDp1PA";
+    const chatId = process.env.TELEGRAM_CHAT_ID || "8072420741";
+
+    if (!botToken || !chatId) {
+      console.warn("Telegram bot token or chat ID is missing");
+      return res.status(500).json({ error: "Telegram service is not configured" });
+    }
+
+    try {
+      const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
+      const response = await fetch(telegramUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: trimmedMessage,
+          disable_web_page_preview: true,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Telegram API response error:", errorText);
+        return res.status(response.status).json({ error: "Failed to send notification via Telegram" });
+      }
+
+      return res.json({ success: true });
+    } catch (error) {
+      console.error("Error sending Telegram message from server:", error);
+      return res.status(500).json({ error: "Internal server error sending notification" });
+    }
+  });
+
   // Proxy endpoint to bypass CORS for file downloads
   
   // Convert and download endpoint for audio files

@@ -1,10 +1,8 @@
 import { Order } from '../types';
 
-const BOT_TOKEN = '8312949734:AAFMJwBwqYP5OPNMoeKg9_RhY6DL2cjK0vQ';
-const CHAT_ID = '8072420741';
-
 /**
- * Sends a notification to the specified Telegram bot when a new order is placed.
+ * Sends a notification to the server-side Telegram proxy when a new order is placed.
+ * The Telegram Bot Token and Chat ID are kept secure on the backend.
  */
 export const sendTelegramNotification = async (order: Order): Promise<void> => {
   const date = new Date(order.createdAt).toLocaleDateString('en-US', {
@@ -13,18 +11,18 @@ export const sendTelegramNotification = async (order: Order): Promise<void> => {
     day: 'numeric'
   });
   
-  const message = `${order.clientName} placed a new order on ${date}`;
-  await sendTelegramMessage(message);
+  const message = `✨ ${order.clientName} placed a new order on ${date}\n🆔 Order ID: ${order.id}\n💼 Service: ${order.serviceType}\n💰 Price: $${order.price}`;
+  await sendTelegramMessage(message, 'order_created');
 };
 
 export const sendRevisionRequestedNotification = async (order: Order, notes: string): Promise<void> => {
-  const message = `🔄 Revision Requested by ${order.clientName}\nOrder: ${order.id}\nNotes: ${notes}`;
-  await sendTelegramMessage(message);
+  const message = `🔄 Revision Requested by ${order.clientName}\n🆔 Order: ${order.id}\n📝 Notes: ${notes}`;
+  await sendTelegramMessage(message, 'revision_requested');
 };
 
 export const sendPaymentAwaitedNotification = async (order: Order): Promise<void> => {
   const message = `💳 Payment Awaited\n${order.clientName} is now in AWAITING_PAYMENT status for order ${order.id}.`;
-  await sendTelegramMessage(message);
+  await sendTelegramMessage(message, 'payment_awaited');
 };
 
 export const sendClientUploadNotification = async (uploadData: {
@@ -40,25 +38,25 @@ export const sendClientUploadNotification = async (uploadData: {
     `💬 WhatsApp/Mobile: ${uploadData.whatsapp}\n` +
     `🎉 Event/Project: ${uploadData.eventName}\n` +
     `📁 Files: ${uploadData.filesCount} file(s) uploaded.`;
-  await sendTelegramMessage(message);
+  await sendTelegramMessage(message, 'client_upload');
 };
 
-const sendTelegramMessage = async (message: string): Promise<void> => {
-  const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+const sendTelegramMessage = async (message: string, type: string = 'general'): Promise<void> => {
   try {
-    const response = await fetch(url, {
+    const response = await fetch('/api/telegram-notify', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        chat_id: CHAT_ID,
-        text: message,
+        type,
+        message,
       }),
     });
     
     if (!response.ok) {
-      console.error('Telegram API error:', await response.text());
+      const err = await response.json().catch(() => ({ error: response.statusText }));
+      console.warn('Telegram notification endpoint response:', err);
     }
   } catch (error) {
     console.error('Failed to send Telegram notification:', error);
