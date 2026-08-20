@@ -45,6 +45,16 @@ body {
   box-shadow: 0 10px 30px rgba(0,0,0,0.05);
 }
 
+/* Mobile Tab Bar solid fallback background for older browsers/Android WebViews lacking backdrop-filter */
+@supports not (backdrop-filter: blur(1px)) {
+  .mobile-tab-bar-bg {
+    background-color: #ffffff !important;
+  }
+  html.dark .mobile-tab-bar-bg {
+    background-color: #09090b !important;
+  }
+}
+
 /* Custom Animations for Service Cards */
 @keyframes float-slow {
   0%, 100% { transform: translateY(0px); }

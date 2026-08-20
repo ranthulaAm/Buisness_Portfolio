@@ -84,10 +84,10 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onLoginClick, onLogout }) 
           <div className="pointer-events-auto flex items-center gap-2 md:gap-4">
             <button 
               onClick={() => navigate('/upload')}
-              className="text-white bg-purple-600 hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-700 hover:scale-105 active:scale-95 px-4 py-2.5 md:px-5 md:py-2.5 rounded-full shadow-[0_8px_20px_rgba(147,51,234,0.35)] dark:shadow-[0_8px_25px_rgba(147,51,234,0.5)] transition-all flex items-center gap-2 border border-purple-500/20"
+              className="text-white bg-purple-600 hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-700 hover:scale-105 active:scale-95 px-4 py-2.5 md:px-5 md:py-2.5 rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.8)] transition-all items-center gap-2 border border-purple-500/20 hidden md:flex"
             >
               <Upload size={18} className="w-[18px] h-[18px]" />
-              <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest hidden md:block">Upload</span>
+              <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest">Upload</span>
             </button>
             <button 
               onClick={toggleTheme} 
@@ -100,16 +100,16 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onLoginClick, onLogout }) 
             </button>
             
             {user ? (
-              <div className="animate-fade-in flex items-center gap-2 md:gap-4">
+              <div className="animate-fade-in hidden md:flex items-center gap-2 md:gap-4">
                 <button 
                   onClick={() => navigate('/dashboard')} 
-                  className="text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700 hover:scale-105 active:scale-95 px-4 py-2.5 md:px-5 md:py-2.5 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest shadow-[0_8px_20px_rgba(79,70,229,0.35)] dark:shadow-[0_8px_25px_rgba(79,70,229,0.5)] transition-all border border-indigo-500/20 hidden sm:block"
+                  className="text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700 hover:scale-105 active:scale-95 px-4 py-2.5 md:px-5 md:py-2.5 rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest shadow-[0_8px_30px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.8)] transition-all border border-indigo-500/20 hidden sm:block"
                 >
                   Dashboard
                 </button>
                 <button 
                   onClick={() => navigate('/dashboard')} 
-                  className="text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700 hover:scale-105 active:scale-95 px-4 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest shadow-[0_8px_20px_rgba(79,70,229,0.35)] dark:shadow-[0_8px_25px_rgba(79,70,229,0.5)] transition-all border border-indigo-500/20 sm:hidden"
+                  className="text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700 hover:scale-105 active:scale-95 px-4 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest shadow-[0_8px_30px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.8)] transition-all border border-indigo-500/20 sm:hidden"
                 >
                   Dash
                 </button>

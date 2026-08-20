@@ -5,14 +5,15 @@ import { saveUserProfile } from '../services/storageService';
 import { uploadFileWithProgress } from '../services/fileUploadService';
 import { auth } from '../services/firebase';
 import { updateProfile } from 'firebase/auth';
-import { Camera, Save, Loader2, Bell, BellOff, User as UserIcon, Shield, ShieldCheck, ShieldAlert, CheckCircle, AlertTriangle, FileText, Download } from 'lucide-react';
+import { Camera, Save, Loader2, Bell, BellOff, User as UserIcon, Shield, ShieldCheck, ShieldAlert, CheckCircle, AlertTriangle, FileText, Download, LogOut } from 'lucide-react';
 import { listenToSecurityLogs, FileAuditLog } from '../services/dataService';
 
 interface ClientProfileProps {
   user: User;
+  onLogout?: () => void;
 }
 
-export const ClientProfile: React.FC<ClientProfileProps> = ({ user }) => {
+export const ClientProfile: React.FC<ClientProfileProps> = ({ user, onLogout }) => {
   const [name, setName] = useState(user.name);
   const [avatar, setAvatar] = useState(user.avatar);
   const [uploading, setUploading] = useState(false);
@@ -263,11 +264,21 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({ user }) => {
         )}
       </div>
 
-      <div className="flex justify-end pt-6 border-t border-gray-200 dark:border-zinc-700">
+      <div className="flex flex-row justify-between items-center pt-6 border-t border-gray-200 dark:border-zinc-700 gap-4">
+        {onLogout && (
+          <button 
+            type="button"
+            onClick={onLogout}
+            className="md:hidden flex items-center gap-2 px-5 py-3 rounded-xl border border-red-200 dark:border-red-900/30 text-red-600 dark:text-red-400 font-bold uppercase tracking-widest text-xs hover:bg-red-50 dark:hover:bg-red-950/20 active:scale-[0.96] transition-all"
+          >
+            <LogOut size={16} />
+            Sign Out
+          </button>
+        )}
         <button 
           onClick={handleSave}
           disabled={saving || uploading}
-          className="bg-gray-900 text-white px-8 py-3 rounded-xl font-bold uppercase tracking-widest text-xs flex items-center gap-2 hover:bg-gray-800 transition-colors disabled:opacity-50"
+          className="bg-gray-900 text-white dark:bg-white dark:text-zinc-950 px-8 py-3 rounded-xl font-bold uppercase tracking-widest text-xs flex items-center gap-2 hover:bg-gray-800 dark:hover:bg-zinc-100 transition-colors disabled:opacity-50 ml-auto"
         >
           {saving ? <Loader2 className="animate-spin" size={16} /> : <Save size={16} />}
           Save Profile

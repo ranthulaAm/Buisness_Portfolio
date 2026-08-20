@@ -5,6 +5,7 @@ import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { AuthModal } from './components/AuthModal';
 import { ConfirmationDialog } from './components/ConfirmationDialog';
+import { MobileTabBar } from './components/MobileTabBar';
 import { IntroSequence } from './components/IntroSequence';
 import { AdminGuard } from './components/AdminGuard';
 import { Home } from './pages/Home';
@@ -162,7 +163,13 @@ const AppContent: React.FC = () => {
             onLogout={confirmLogout} 
           />
           
-          <main className="flex-grow">
+          <MobileTabBar 
+            user={user} 
+            onLogout={confirmLogout} 
+            onLoginClick={openAuthModal}
+          />
+          
+          <main className="flex-grow pb-[calc(76px+env(safe-area-inset-bottom))] md:pb-0">
             <Routes>
               <Route path="/" element={<Home user={user} onLoginClick={openAuthModal} />} />
               <Route 
@@ -191,7 +198,7 @@ const AppContent: React.FC = () => {
               />
               <Route 
                 path="/dashboard" 
-                element={<ClientDashboard user={user} />} 
+                element={<ClientDashboard user={user} onLogout={confirmLogout} />} 
               />
               <Route 
                 path="/demo" 
@@ -201,7 +208,7 @@ const AppContent: React.FC = () => {
             </Routes>
           </main>
 
-          {!isAdmin && <Footer />}
+          {!isAdmin && <Footer user={user} />}
         </div>
         
         <AuthModal 

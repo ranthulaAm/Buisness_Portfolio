@@ -2,7 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { Instagram, Twitter, Mail, Heart, Facebook, Phone, MapPin, Globe } from 'lucide-react';
 import { FooterConfig, getFooterConfig } from '../services/dataService';
 
-export const Footer: React.FC = () => {
+interface FooterProps {
+  user?: any;
+}
+
+export const Footer: React.FC<FooterProps> = ({ user }) => {
   const [footerData, setFooterData] = useState<FooterConfig | null>(null);
 
   useEffect(() => {
@@ -11,8 +15,12 @@ export const Footer: React.FC = () => {
 
   if (!footerData) return null;
 
+  // Since the bottom tab bar is now universally present on mobile,
+  // we always add bottom padding on mobile screens.
+  const paddingBottomClass = "pb-[calc(16px+76px+env(safe-area-inset-bottom))] md:pb-8";
+
   return (
-    <footer className="bg-gray-50 dark:bg-zinc-800 border-t border-gray-200 dark:border-zinc-700 pt-16 pb-8 relative z-20">
+    <footer className={`bg-gray-50 dark:bg-zinc-800 border-t border-gray-200 dark:border-zinc-700 pt-16 ${paddingBottomClass} relative z-20`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row justify-between items-start gap-12">
           <div className="text-center md:text-left">

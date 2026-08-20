@@ -11,9 +11,10 @@ import { downloadInvoice } from '../utils/invoiceGenerator';
 
 interface ClientDashboardProps {
   user: User | null;
+  onLogout?: () => void;
 }
 
-export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user }) => {
+export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onLogout }) => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [showBackButton, setShowBackButton] = useState(true);
@@ -123,47 +124,50 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user }) => {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen pt-32 pb-20 px-4 md:px-8 relative overflow-hidden">
+    <div className={`min-h-[100dvh] pb-20 px-4 md:px-8 relative overflow-hidden ${activeTab === 'profile' ? 'pt-16 md:pt-32' : 'pt-32'}`}>
       <Helmet>
-        <title>Client Dashboard | Ranthula | Buisness portfolio</title>
+        <title>{activeTab === 'profile' ? 'Profile & Settings' : 'Client Dashboard'} | Ranthula | Buisness portfolio</title>
         <meta name="description" content="View and manage your project orders and revisions." />
       </Helmet>
       <div className="max-w-5xl mx-auto relative z-10">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
-           <div>
-              
-              <h1 className="text-5xl md:text-6xl font-display uppercase tracking-tighter text-gray-900 dark:text-white mb-4 mix-blend-difference">My Dashboard</h1>
-              <p className="text-gray-500 dark:text-gray-400 text-lg font-medium">Track your projects and manage settings.</p>
-           </div>
-           <InteractiveButton onClick={() => navigate('/order')}>
-               New Project
-           </InteractiveButton>
-        </div>
+        {activeTab !== 'profile' && (
+          <>
+            <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+               <div>
+                  <h1 className="text-5xl md:text-6xl font-display uppercase tracking-tighter text-gray-900 dark:text-white mb-4 mix-blend-difference">My Dashboard</h1>
+                  <p className="text-gray-500 dark:text-gray-400 text-lg font-medium">Track your projects and manage settings.</p>
+               </div>
+               <InteractiveButton onClick={() => navigate('/order')}>
+                   New Project
+               </InteractiveButton>
+            </div>
 
-        <div className="flex flex-wrap gap-4 sm:gap-8 border-b border-gray-200 dark:border-zinc-700 mb-8">
-            <button 
-                onClick={() => handleTabChange('projects')}
-                className={`pb-4 px-2 font-bold uppercase tracking-widest text-xs transition-colors border-b-2 flex items-center gap-2 ${activeTab === 'projects' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-slate-100'}`}
-            >
-                <Package size={14} /> My Projects
-            </button>
-            <button 
-                onClick={() => handleTabChange('history')}
-                className={`pb-4 px-2 font-bold uppercase tracking-widest text-xs transition-colors border-b-2 flex items-center gap-2 ${activeTab === 'history' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-slate-100'}`}
-            >
-                <Clock size={14} /> Order History
-            </button>
-            <button 
-                onClick={() => handleTabChange('profile')}
-                style={{ display: 'none' }}
-                className={`pb-4 px-2 font-bold uppercase tracking-widest text-xs transition-colors border-b-2 flex items-center gap-2 ${activeTab === 'profile' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-slate-100'}`}
-            >
-                <UserIcon size={14} /> Profile & Settings
-            </button>
-        </div>
+            <div className="flex flex-wrap gap-4 sm:gap-8 border-b border-gray-200 dark:border-zinc-700 mb-8">
+                <button 
+                    onClick={() => handleTabChange('projects')}
+                    className={`pb-4 px-2 font-bold uppercase tracking-widest text-xs transition-colors border-b-2 flex items-center gap-2 ${activeTab === 'projects' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-slate-100'}`}
+                >
+                    <Package size={14} /> My Projects
+                </button>
+                <button 
+                    onClick={() => handleTabChange('history')}
+                    className={`pb-4 px-2 font-bold uppercase tracking-widest text-xs transition-colors border-b-2 flex items-center gap-2 ${activeTab === 'history' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-slate-100'}`}
+                >
+                    <Clock size={14} /> Order History
+                </button>
+                <button 
+                    onClick={() => handleTabChange('profile')}
+                    style={{ display: 'none' }}
+                    className={`pb-4 px-2 font-bold uppercase tracking-widest text-xs transition-colors border-b-2 flex items-center gap-2 ${(activeTab as string) === 'profile' ? 'border-purple-600 text-purple-600' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-slate-100'}`}
+                >
+                    <UserIcon size={14} /> Profile & Settings
+                </button>
+            </div>
+          </>
+        )}
 
         {activeTab === 'profile' ? (
-           <ClientProfile user={user} />
+           <ClientProfile user={user} onLogout={onLogout} />
         ) : loading ? (
           <div className="space-y-6">
             {[1, 2, 3].map((i) => (
