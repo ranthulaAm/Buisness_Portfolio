@@ -57,8 +57,21 @@ async function startServer() {
       return res.status(400).json({ error: "Message content cannot be empty" });
     }
 
-    const botToken = process.env.TELEGRAM_BOT_TOKEN || "8312949734:AAF5_Jax7u6sMP6tpOr3Xw7lPZRleLDp1PA";
-    const chatId = process.env.TELEGRAM_CHAT_ID || "8072420741";
+    const defaultBotToken = "8312949734:AAF5_Jax7u6sMP6tpOr3Xw7lPZRleLDp1PA";
+    const defaultChatId = "8072420741";
+
+    const envToken = process.env.TELEGRAM_BOT_TOKEN;
+    const envChatId = process.env.TELEGRAM_CHAT_ID;
+
+    // Validate bot token format (must contain ':' and be sufficient length)
+    const botToken = (envToken && envToken.includes(":") && envToken.length > 25)
+      ? envToken
+      : defaultBotToken;
+
+    // Validate chat ID format
+    const chatId = (envChatId && envChatId.length > 5 && envChatId !== "3963")
+      ? envChatId
+      : defaultChatId;
 
     if (!botToken || !chatId) {
       console.warn("Telegram bot token or chat ID is missing");
