@@ -54,20 +54,21 @@ export const Navbar: React.FC<NavbarProps> = ({ user, onLoginClick, onLogout }) 
         {/* Left Side: Back Button */}
         <button 
           onClick={() => {
-            const p = location.pathname;
-            if (p === '/') {
-              navigate('/', { state: { showIntro: true, skipAnimation: true } });
-            } else if (p.startsWith('/dashboard') || p.startsWith('/admin')) {
-              navigate('/');
-            } else if (p.startsWith('/order') || p.startsWith('/upload') || p.startsWith('/tracking') || p.startsWith('/share')) {
-              if (user) {
-                navigate('/dashboard');
-              } else {
-                navigate('/');
-              }
+            if (window.history.state && window.history.state.idx > 0) {
+              navigate(-1);
             } else {
-              if (window.history.state && window.history.state.idx > 0) {
-                navigate(-1);
+              // Fallback logic if there is no previous history entry
+              const p = location.pathname;
+              if (p === '/') {
+                navigate('/', { state: { showIntro: true, skipAnimation: true } });
+              } else if (p.startsWith('/dashboard') || p.startsWith('/admin')) {
+                navigate('/');
+              } else if (p.startsWith('/order') || p.startsWith('/upload') || p.startsWith('/tracking') || p.startsWith('/share')) {
+                if (user) {
+                  navigate('/dashboard');
+                } else {
+                  navigate('/');
+                }
               } else {
                 navigate('/');
               }

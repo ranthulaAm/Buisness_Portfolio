@@ -186,44 +186,6 @@ interface TrackingProps {
 export const Tracking: React.FC<TrackingProps> = ({ user }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [showBackButton, setShowBackButton] = useState(true);
-  const lastScrollY = useRef(0);
-
-  useEffect(() => {
-    let ticking = false;
-
-    const handleScrollEvent = (currentScrollY: number) => {
-      if (currentScrollY < 20) {
-        setShowBackButton(true);
-        return;
-      }
-      
-      const diff = currentScrollY - lastScrollY.current;
-      if (diff > 8) {
-        // Scrolling down - hide back button (make it go downward)
-        setShowBackButton(false);
-      } else if (diff < -8) {
-        // Scrolling up - show back button
-        setShowBackButton(true);
-      }
-      lastScrollY.current = currentScrollY;
-    };
-
-    const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          handleScrollEvent(window.scrollY);
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
 
   const [trackingId, setTrackingId] = useState(searchParams.get('id') || '');
   const [order, setOrder] = useState<Order | null>(null);
@@ -450,7 +412,8 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
     return (
       <div className="min-h-screen pt-24 flex flex-col items-center justify-center gap-6 animate-fade-in">
         <Helmet>
-          <title>Project Tracking | Ranthula | Buisness portfolio</title>
+          <title>Project Tracking | Ranthula | Business Portfolio</title>
+          <meta name="description" content="Track and coordinate your design, branding, and development projects in real-time with Ranthula." />
         </Helmet>
         <Loader2 className="animate-spin text-purple-600" size={48} />
         <p className="text-gray-500 dark:text-gray-400 font-bold uppercase tracking-[0.3em] text-xs">Syncing...</p>
@@ -872,8 +835,8 @@ export const Tracking: React.FC<TrackingProps> = ({ user }) => {
   return (
     <div className="min-h-screen pt-24 px-4 pb-12 max-w-7xl mx-auto">
       <Helmet>
-        <title>Project Tracking | Ranthula | Buisness portfolio</title>
-        <meta name="description" content="Track your projects with Ranthul." />
+        <title>Project Tracking | Ranthula | Business Portfolio</title>
+        <meta name="description" content="Track, search, and monitor your active branding and digital design projects in real-time with Ranthula." />
       </Helmet>
         <div className="print:hidden">
            

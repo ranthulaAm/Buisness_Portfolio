@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { ArrowRight, Maximize2, X, Package, User as UserIcon, ChevronDown, Share2 } from 'lucide-react';
+import { ArrowRight, Maximize2, X, Package, User as UserIcon, ChevronDown, Share2, Loader2 } from 'lucide-react';
 import { SERVICES as DEFAULT_SERVICES, PORTFOLIO_ITEMS as DEFAULT_PORTFOLIO } from '../constants';
 import { User } from '../types';
 import { 
@@ -250,6 +250,8 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
   const [services, setServices] = useState(DEFAULT_SERVICES);
   const [portfolio, setPortfolio] = useState(DEFAULT_PORTFOLIO);
   const [loadingPortfolio, setLoadingPortfolio] = useState(true);
+  const [visibleCount, setVisibleCount] = useState(6);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
   const [showServiceAnimations, setShowServiceAnimations] = useState(false);
   const [enableServiceWheel, setEnableServiceWheel] = useState(true);
   const [enableDiscountWheel, setEnableDiscountWheel] = useState(true);
@@ -291,6 +293,33 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
       setContactForm(prev => ({ ...prev, email: user.email }));
     }
   }, [user]);
+
+  const activePortfolio = useMemo(() => {
+    return portfolio.filter(item => !item.hidden);
+  }, [portfolio]);
+
+  useEffect(() => {
+    if (loadingPortfolio || visibleCount >= activePortfolio.length) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        setVisibleCount(prev => Math.min(prev + 6, activePortfolio.length));
+      }
+    }, {
+      rootMargin: '450px',
+    });
+
+    const currentRef = loadMoreRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, [loadingPortfolio, visibleCount, activePortfolio.length]);
 
   useEffect(() => {
     // Load fresh data
@@ -418,11 +447,46 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
     return () => { document.body.classList.remove('overflow-hidden'); }
   }, [selectedWork]);
 
+  // Keyboard navigation for Portfolio Lightbox
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!selectedWork) return;
+
+      if (e.key === 'Escape') {
+        closeLightbox();
+      } else if (e.key === 'ArrowRight') {
+        const currentIndex = activePortfolio.findIndex(item => item.id.toString() === selectedWork.id.toString());
+        if (currentIndex !== -1) {
+          const nextIndex = (currentIndex + 1) % activePortfolio.length;
+          const nextWork = activePortfolio[nextIndex];
+          if (nextWork) openWork(nextWork.id);
+        }
+      } else if (e.key === 'ArrowLeft') {
+        const currentIndex = activePortfolio.findIndex(item => item.id.toString() === selectedWork.id.toString());
+        if (currentIndex !== -1) {
+          const prevIndex = (currentIndex - 1 + activePortfolio.length) % activePortfolio.length;
+          const prevWork = activePortfolio[prevIndex];
+          if (prevWork) openWork(prevWork.id);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedWork, activePortfolio]);
+
   return (
     <div className="flex flex-col min-h-screen text-gray-900 dark:text-white">
       <Helmet>
-        <title>Ranthula | Buisness portfolio</title>
-        <meta name="description" content="Immersive brand experiences crafted with precision. Visual soundscapes for your digital identity." />
+        <title>Ranthula | Business Portfolio</title>
+        <meta name="description" content="Immersive brand experiences, digital art, designs, and content crafted with absolute precision. Visual soundscapes and high-conversion assets for your digital identity." />
+        <meta property="og:title" content="Ranthula | Premium Design & Brand Portfolio" />
+        <meta property="og:description" content="Immersive brand experiences, digital art, designs, and content crafted with absolute precision." />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://raw.githubusercontent.com/ranthulaAm/App/main/img/logo.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Ranthula | Premium Design & Brand Portfolio" />
+        <meta name="twitter:description" content="Immersive brand experiences, digital art, designs, and content crafted with absolute precision." />
       </Helmet>
 
       <OfferBanner />
@@ -554,7 +618,7 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
                   className={`animate-pulse bg-gray-200 dark:bg-zinc-800 rounded-2xl ${idx === 0 ? 'md:col-span-2 md:row-span-2 aspect-square md:aspect-auto' : 'aspect-[4/5]'}`}
                 ></div>
               ))
-            ) : portfolio.filter(item => !item.hidden).map((item, idx) => {
+            ) : activePortfolio.slice(0, visibleCount).map((item, idx) => {
               // Creating a dynamic bento-style grid layout
               const isLarge = idx === 0 || idx === 6;
               const isWide = idx === 3;
@@ -632,6 +696,15 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
               </div>
             )})}
           </div>
+
+          {visibleCount < activePortfolio.length && (
+            <div ref={loadMoreRef} className="w-full flex items-center justify-center pt-12">
+              <div className="flex items-center gap-3 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md px-6 py-3 rounded-full border border-gray-200 dark:border-zinc-800 shadow-sm text-gray-500 dark:text-gray-400 text-sm font-medium">
+                <Loader2 className="w-4 h-4 animate-spin text-purple-600 dark:text-purple-400" />
+                <span>Loading more selected works...</span>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -873,21 +946,13 @@ export const Home: React.FC<HomeProps> = ({ user, onLoginClick }) => {
           <div className="fixed inset-0 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-xl" onClick={closeLightbox}></div>
           
           <div className="relative w-full max-w-6xl my-auto pointer-events-none">
-            {/* Close Button Mobile (Sticky-style) */}
+            {/* Elegant Floating Close Button (Unified for Desktop and Mobile to prevent cropping) */}
             <button 
               onClick={closeLightbox} 
-              className="fixed top-6 right-6 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-slate-100 pointer-events-auto transition-all z-[110] p-2 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md rounded-full border border-gray-200 dark:border-zinc-700 md:hidden shadow-sm"
+              className="fixed top-6 right-6 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-slate-100 hover:bg-gray-100 dark:hover:bg-zinc-800 pointer-events-auto transition-all z-[110] p-3 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md rounded-full border border-gray-200 dark:border-zinc-700 shadow-md hover:scale-[1.05] active:scale-[0.95]"
+              title="Close Portfolio View"
             >
               <X size={24} />
-            </button>
-
-            {/* Close Button Desktop */}
-            <button 
-              onClick={closeLightbox} 
-              className="absolute -top-12 -right-12 text-gray-400 dark:text-gray-400 hover:text-gray-900 dark:hover:text-slate-100 pointer-events-auto transition-colors z-50 p-2 group hidden md:flex items-center"
-            >
-              <span className="mr-2 text-xs uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">Close</span>
-              <X size={32} />
             </button>
 
             <div className="flex flex-col md:flex-row gap-6 md:gap-12 pointer-events-auto items-center">

@@ -101,6 +101,52 @@ Ranthula Am
     }, 1000);
   });
 };
+export const sendPaymentDetailsEmail = async (collab: any): Promise<boolean> => {
+  return new Promise((resolve) => {
+    const trackingUrl = `${window.location.origin}/share/${collab.id}`;
+    let subject = `Payment Details for ${collab.brandName} Collaboration`;
+    const amountPaid = collab.paymentHistory.reduce((sum: number, p: any) => sum + p.amount, 0);
+    const amountDue = collab.totalPrice - amountPaid;
+    
+    let message = `Thank you for collaborating with us. Here is the summary of your project and payment details.\n\n`;
+    message += `Services:\n`;
+    collab.services.forEach((s: any) => {
+      message += `- ${s.quantity}x ${s.serviceName} ($${s.unitPrice} each) - Total: $${s.lineTotal}\n`;
+      if (s.shareLink) {
+        message += `  Link: ${s.shareLink}\n`;
+      }
+    });
+    message += `\nTotal Project Price: $${collab.totalPrice}\n`;
+    message += `Amount Paid: $${amountPaid}\n`;
+    message += `Amount Due: $${amountDue}\n`;
+    
+    if (collab.billingType === 'recurring' && collab.nextBillingDate) {
+      message += `Next Billing Date: ${new Date(collab.nextBillingDate).toLocaleDateString()}\n`;
+    }
+
+    const emailBody = `
+----------------------------------------------------
+[MOCK EMAIL SERVICE]
+To: ${collab.contactEmail}
+Subject: ${subject}
+----------------------------------------------------
+Dear ${collab.contactName || collab.brandName},
+
+${message}
+
+You can access your shared files here:
+${trackingUrl}
+
+Best regards,
+Ranthula Am
+----------------------------------------------------
+    `;
+    setTimeout(() => {
+      console.log("PAYMENT DETAILS EMAIL SENT:", emailBody);
+      resolve(true);
+    }, 1000);
+  });
+};
 export const sendPromotionalEmail = async (email: string, clientName: string, type: 'offer' | 'feedback'): Promise<boolean> => {
   return new Promise((resolve) => {
     let subject = '';

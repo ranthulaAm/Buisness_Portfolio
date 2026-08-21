@@ -23,6 +23,7 @@ import { AdminTestimonials } from '../components/AdminTestimonials';
 import { AdminInvoice } from '../components/AdminInvoice';
 import { AdminEmail } from '../components/AdminEmail';
 import { AdminShares } from '../components/AdminShares';
+import { AdminBrandCollabs } from '../components/AdminBrandCollabs';
 import { AdminClients } from '../components/AdminClients';
 import { ClientActivityChart } from '../components/ClientActivityChart';
 import { AdminSecurity } from '../components/AdminSecurity';
@@ -98,7 +99,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const tabFromUrl = searchParams.get('tab');
   
-  const [activeTab, setActiveTab] = useState<'orders' | 'clients' | 'reviews' | 'charts' | 'settings' | 'portfolio' | 'skills' | 'experience' | 'education' | 'contacts' | 'testimonials' | 'invoice' | 'email' | 'security' | 'shares' | 'uploads'>(
+  const [activeTab, setActiveTab] = useState<'orders' | 'clients' | 'reviews' | 'charts' | 'settings' | 'portfolio' | 'skills' | 'experience' | 'education' | 'contacts' | 'testimonials' | 'invoice' | 'email' | 'security' | 'shares' | 'uploads' | 'brand_collabs'>(
     (tabFromUrl as any) || 'orders'
   );
 
@@ -110,7 +111,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
     }
   }, [tabFromUrl]);
 
-  const handleTabChange = (tab: 'orders' | 'clients' | 'reviews' | 'charts' | 'settings' | 'portfolio' | 'skills' | 'experience' | 'education' | 'contacts' | 'testimonials' | 'invoice' | 'email' | 'security' | 'shares' | 'uploads') => {
+  const handleTabChange = (tab: 'orders' | 'clients' | 'reviews' | 'charts' | 'settings' | 'portfolio' | 'skills' | 'experience' | 'education' | 'contacts' | 'testimonials' | 'invoice' | 'email' | 'security' | 'shares' | 'uploads' | 'brand_collabs') => {
     setActiveTab(tab);
     setSearchParams({ tab });
   };
@@ -699,6 +700,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
                    <button onClick={() => handleTabChange('shares')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'shares' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-slate-800'}`}>
                      <FileBox size={18} className={activeTab === 'shares' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'} /> Shared Files
                    </button>
+                   <button onClick={() => handleTabChange('brand_collabs')} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === 'brand_collabs' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-slate-800'}`}>
+                     <Briefcase size={18} className={activeTab === 'brand_collabs' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'} /> Brand Collabs
+                   </button>
                  </nav>
               </div>
 
@@ -1140,6 +1144,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
           <AdminEmail />
         ) : activeTab === 'shares' ? (
           <AdminShares />
+        ) : activeTab === 'brand_collabs' ? (
+          <AdminBrandCollabs />
         ) : activeTab === 'uploads' ? (
           <AdminClientUploads />
         ) : activeTab === 'security' ? (

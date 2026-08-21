@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { getSharedProject, SharedProject } from '../services/shareService';
-import { FileText, Image as ImageIcon, Video, Download, Lock, Mail, Loader2, ArrowLeft, ArrowDown } from 'lucide-react';
+import { getBrandCollaboration } from '../services/brandCollabService';
+import { FileText, Image as ImageIcon, Video, Download, Lock, Mail, Loader2, ArrowLeft, ArrowDown, Folder } from 'lucide-react';
 import { MediaRenderer } from '../components/MediaRenderer';
 import JSZip from 'jszip';
 import { handleSingleDownload, handleBulkDownload } from '../utils/downloadHelpers';
@@ -16,7 +17,7 @@ const getGreeting = () => {
 
 export const SharedProjectView: React.FC = () => {
   const { shareId } = useParams<{ shareId: string }>();
-  const [project, setProject] = useState<SharedProject | null>(null);
+  const [project, setProject] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   
@@ -32,7 +33,18 @@ export const SharedProjectView: React.FC = () => {
     const fetchProject = async () => {
       if (!shareId) return;
       try {
-        const data = await getSharedProject(shareId);
+        let data: any = await getSharedProject(shareId);
+        if (!data) {
+           data = await getBrandCollaboration(shareId);
+           // normalize to match structure expected by the view if it's a collab
+           if (data) {
+              data = {
+                 ...data,
+                 clientName: data.brandName
+              };
+           }
+        }
+        
         if (data) {
           setProject(data);
           if (data.accessType === 'public') {
@@ -214,8 +226,8 @@ export const SharedProjectView: React.FC = () => {
           </div>
         ) : (
           <div className="space-y-12">
-            {['Unsorted', 'Raw Assets', 'References', 'Final Exports'].map(folder => {
-              const folderFiles = project.files.filter(f => (f.folder || 'Unsorted') === folder);
+            {Array.from(new Set(['Unsorted', ...(project.folders || ['Raw Assets', 'References', 'Final Exports'])])).map(folder => {
+              const folderFiles = project.files.filter((f: any) => (f.folder || 'Unsorted') === folder);
               if (folderFiles.length === 0) return null;
               
               return (

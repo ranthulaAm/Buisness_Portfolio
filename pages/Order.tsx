@@ -210,72 +210,7 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const formRef = useRef<HTMLDivElement>(null);
-  const [showBackButton, setShowBackButton] = useState(true);
-  const lastScrollY = useRef(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    let ticking = false;
-
-    const handleScrollEvent = (currentScrollY: number) => {
-      if (currentScrollY < 20) {
-        setShowBackButton(true);
-        return;
-      }
-      
-      const diff = currentScrollY - lastScrollY.current;
-      if (diff > 8) {
-        // Scrolling down - hide back button (make it go downward)
-        setShowBackButton(false);
-      } else if (diff < -8) {
-        // Scrolling up - show back button
-        setShowBackButton(true);
-      }
-      lastScrollY.current = currentScrollY;
-    };
-
-    const handleWindowScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          handleScrollEvent(window.scrollY);
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-
-    const handleContainerScroll = () => {
-      if (!ticking && scrollContainerRef.current) {
-        window.requestAnimationFrame(() => {
-          handleScrollEvent(scrollContainerRef.current?.scrollTop || 0);
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-
-    window.addEventListener('scroll', handleWindowScroll, { passive: true });
-    
-    let container = scrollContainerRef.current;
-    if (container) {
-      container.addEventListener('scroll', handleContainerScroll, { passive: true });
-    }
-
-    const intervalId = setInterval(() => {
-      if (!container && scrollContainerRef.current) {
-        container = scrollContainerRef.current;
-        container.addEventListener('scroll', handleContainerScroll, { passive: true });
-      }
-    }, 500);
-
-    return () => {
-      window.removeEventListener('scroll', handleWindowScroll);
-      if (container) {
-        container.removeEventListener('scroll', handleContainerScroll);
-      }
-      clearInterval(intervalId);
-    };
-  }, []);
 
   const step = parseInt(searchParams.get('step') || '1', 10);
   const preSelectedServiceId = searchParams.get('service');
@@ -528,6 +463,25 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
     const phones = phoneInput.split(',').map(p => p.trim()).filter(Boolean);
     const mobileArray = phones.map(p => p.startsWith('+') ? p : `${countryCode}${p}`);
     setFormData(prev => ({ ...prev, mobile: mobileArray.length > 0 ? mobileArray : [] }));
+
+    // Real-time phone number validation (only triggers once they start typing or if there's already an error)
+    if (phoneInput.trim() !== '') {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        const invalid = phones.some(p => {
+          const digits = p.replace(/[^0-9]/g, '');
+          return digits.length < 7 || digits.length > 15;
+        });
+        if (invalid) {
+          newErrors.mobile = 'Enter a valid phone number (7-15 digits)';
+        } else {
+          delete newErrors.mobile;
+        }
+        return newErrors;
+      });
+    } else if (errors.mobile && phoneInput.trim() === '') {
+      setErrors(prev => ({ ...prev, mobile: 'Phone number is required' }));
+    }
   }, [countryCode, phoneInput]);
 
   // Load existing order if in Edit mode
@@ -696,7 +650,48 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
     } else {
       setFormData(prev => ({ ...prev, [name]: finalValue }));
     }
-    if (errors[name]) setErrors(prev => { const n = { ...prev }; delete n[name]; return n; });
+
+    // Proactive Real-Time Error Messaging
+    setErrors(prev => {
+      const newErrors = { ...prev };
+      if (name === 'name') {
+        if (!value.trim()) {
+          newErrors.name = 'Full Name is required';
+        } else {
+          delete newErrors.name;
+        }
+      } else if (name === 'email') {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!value.trim()) {
+          newErrors.email = 'Email Address is required';
+        } else if (!emailRegex.test(value)) {
+          newErrors.email = 'Enter a valid email address';
+        } else {
+          delete newErrors.email;
+        }
+      } else if (name === 'eventTitle' && ['s_social', 's_banner', 's_flyer'].includes(formData.serviceType)) {
+        if (!value.trim()) {
+          newErrors.eventTitle = 'Event Title is required';
+        } else {
+          delete newErrors.eventTitle;
+        }
+      } else if (name === 'brandName' && ['s_social', 's_banner', 's_flyer'].includes(formData.serviceType)) {
+        if (!value.trim()) {
+          newErrors.brandName = 'Brand Name is required';
+        } else {
+          delete newErrors.brandName;
+        }
+      } else if (name === 'requirements' && ['s_social', 's_banner', 's_flyer'].includes(formData.serviceType)) {
+        if (!value.trim()) {
+          newErrors.requirements = 'Vision/Requirements is required';
+        } else {
+          delete newErrors.requirements;
+        }
+      } else {
+        delete newErrors[name];
+      }
+      return newErrors;
+    });
   };
 
   const handleCustomFieldChange = (fieldId: string, value: any) => {
@@ -707,13 +702,31 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
         [fieldId]: value
       }
     }));
-    if (errors[fieldId]) {
-      setErrors(prev => {
-        const n = { ...prev };
-        delete n[fieldId];
-        return n;
-      });
-    }
+    
+    // Proactive Real-Time Error Messaging for custom fields
+    setErrors(prev => {
+      const newErrors = { ...prev };
+      const selectedService = services.find(s => s.id === formData.serviceType);
+      const field = selectedService?.customFields?.find(f => f.id === fieldId);
+      if (field && field.required) {
+        if (field.type === 'checkbox') {
+          if (!value) {
+            newErrors[fieldId] = `${field.label} is required`;
+          } else {
+            delete newErrors[fieldId];
+          }
+        } else {
+          if (value === undefined || value === null || (typeof value === 'string' && !value.trim())) {
+            newErrors[fieldId] = `${field.label} is required`;
+          } else {
+            delete newErrors[fieldId];
+          }
+        }
+      } else {
+        delete newErrors[fieldId];
+      }
+      return newErrors;
+    });
   };
 
   const handleDimensionChange = (field: string, value: string) => {
@@ -1156,8 +1169,11 @@ export const Order: React.FC<OrderProps> = ({ user, onLoginRequest }) => {
   return (
     <div className="flex flex-col min-h-screen">
       <Helmet>
-        <title>Order Project | Ranthula | Buisness portfolio</title>
-        <meta name="description" content="Start a new digital project. Share your ideas and let's craft something amazing." />
+        <title>Order Project | Ranthula | Business Portfolio</title>
+        <meta name="description" content="Start a new digital project with Ranthula. Select a service, share your requirements and assets, and let's bring your creative vision to life with professional brand design and digital art." />
+        <meta property="og:title" content="Order a Creative Project | Ranthula" />
+        <meta property="og:description" content="Collaborate on custom design, visual styling, or brand art. Enter details and get started instantly." />
+        <meta property="og:type" content="website" />
       </Helmet>
       <OfferBanner />
       <div className="pt-24 pb-12 px-4 max-w-7xl mx-auto w-full">

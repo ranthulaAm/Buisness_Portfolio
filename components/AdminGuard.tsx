@@ -16,45 +16,7 @@ export const AdminGuard: React.FC<AdminGuardProps> = ({ children, user }) => {
   const [allowedEmails, setAllowedEmails] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [verifyingPassword, setVerifyingPassword] = useState(false);
-  const [showBackButton, setShowBackButton] = useState(true);
-  const lastScrollY = useRef(0);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    let ticking = false;
-
-    const handleScrollEvent = (currentScrollY: number) => {
-      if (currentScrollY < 20) {
-        setShowBackButton(true);
-        return;
-      }
-      
-      const diff = currentScrollY - lastScrollY.current;
-      if (diff > 8) {
-        // Scrolling down - hide back button (make it go downward)
-        setShowBackButton(false);
-      } else if (diff < -8) {
-        // Scrolling up - show back button
-        setShowBackButton(true);
-      }
-      lastScrollY.current = currentScrollY;
-    };
-
-    const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          handleScrollEvent(window.scrollY);
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
 
   useEffect(() => {
     // Check session persistence for password gate

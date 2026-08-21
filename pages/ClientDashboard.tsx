@@ -17,46 +17,8 @@ interface ClientDashboardProps {
 export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onLogout }) => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showBackButton, setShowBackButton] = useState(true);
   const [historySearchQuery, setHistorySearchQuery] = useState('');
   const [projectSearchQuery, setProjectSearchQuery] = useState('');
-  const lastScrollY = useRef(0);
-
-  useEffect(() => {
-    let ticking = false;
-
-    const handleScrollEvent = (currentScrollY: number) => {
-      if (currentScrollY < 20) {
-        setShowBackButton(true);
-        return;
-      }
-      
-      const diff = currentScrollY - lastScrollY.current;
-      if (diff > 8) {
-        // Scrolling down - hide back button (make it go downward)
-        setShowBackButton(false);
-      } else if (diff < -8) {
-        // Scrolling up - show back button
-        setShowBackButton(true);
-      }
-      lastScrollY.current = currentScrollY;
-    };
-
-    const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          handleScrollEvent(window.scrollY);
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
   
   const [searchParams, setSearchParams] = useSearchParams();
   const tabFromUrl = searchParams.get('tab');
@@ -126,8 +88,8 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onLogout
   return (
     <div className={`min-h-[100dvh] pb-20 px-4 md:px-8 relative overflow-hidden ${activeTab === 'profile' ? 'pt-16 md:pt-32' : 'pt-32'}`}>
       <Helmet>
-        <title>{activeTab === 'profile' ? 'Profile & Settings' : 'Client Dashboard'} | Ranthula | Buisness portfolio</title>
-        <meta name="description" content="View and manage your project orders and revisions." />
+        <title>{activeTab === 'profile' ? 'Profile & Settings' : 'Client Dashboard'} | Ranthula | Business Portfolio</title>
+        <meta name="description" content="View, check revision progress, download design assets, and manage your custom design profiles securely in the Ranthula client dashboard." />
       </Helmet>
       <div className="max-w-5xl mx-auto relative z-10">
         {activeTab !== 'profile' && (

@@ -14,6 +14,7 @@ export const AdminPortfolio: React.FC = () => {
     const [uploadingIdx, setUploadingIdx] = useState<number | null>(null);
     const [progress, setProgress] = useState(0);
     const [itemToDelete, setItemToDelete] = useState<number | null>(null);
+    const [visibleAdminCount, setVisibleAdminCount] = useState(6);
 
     const handleMoveUp = async (index: number) => {
         if (index === 0) return;
@@ -195,7 +196,7 @@ export const AdminPortfolio: React.FC = () => {
                 <div className="flex items-center justify-center py-12"><Loader2 className="animate-spin text-gray-400" size={32} /></div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {portfolio.map((item, i) => (
+                    {portfolio.slice(0, visibleAdminCount).map((item, i) => (
                         <div key={item.id || i} className="border border-gray-200 dark:border-zinc-700 rounded-2xl overflow-hidden shadow-sm flex flex-col group bg-gray-50/50 relative">
                             
                             {/* Image Selection / Viewer */}
@@ -325,6 +326,18 @@ export const AdminPortfolio: React.FC = () => {
                             </div>
                         </div>
                     ))}
+                </div>
+            )}
+
+            {visibleAdminCount < portfolio.length && (
+                <div className="flex justify-center mt-12 pb-8">
+                    <button 
+                        type="button"
+                        onClick={() => setVisibleAdminCount(prev => prev + 6)}
+                        className="px-6 py-3 bg-gray-100 hover:bg-gray-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-gray-700 dark:text-gray-300 font-bold text-xs uppercase tracking-widest rounded-xl transition-all cursor-pointer shadow-sm active:scale-95 flex items-center gap-2"
+                    >
+                        <span>Load More Projects</span>
+                    </button>
                 </div>
             )}
         </div>
