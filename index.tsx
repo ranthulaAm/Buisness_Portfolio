@@ -4,22 +4,38 @@ import './index.css';
 
 // Suppress Vite/HMR WebSocket connection closed/failed errors & unhandled rejections
 if (typeof window !== 'undefined') {
+  const originalWarn = console.warn;
+  console.warn = (...args: any[]) => {
+    const msg = args[0] || '';
+    if (
+      typeof msg === 'string' &&
+      (msg.includes('width(-1)') || msg.includes('height(-1)') || msg.includes('should be greater than 0'))
+    ) {
+      return;
+    }
+    originalWarn.apply(console, args);
+  };
+
+  const isWebSocketError = (err: any) => {
+    if (!err) return false;
+    const msg = typeof err === 'string' ? err : (err.message || '');
+    const stack = err.stack || '';
+    return (
+      msg.toLowerCase().includes('websocket') ||
+      msg.toLowerCase().includes('closed without opened') ||
+      stack.toLowerCase().includes('vite')
+    );
+  };
+
   window.addEventListener('unhandledrejection', (event) => {
-    if (event.reason && (
-      event.reason.message === 'WebSocket closed without opened.' ||
-      (typeof event.reason.message === 'string' && event.reason.message.includes('WebSocket')) ||
-      (typeof event.reason === 'string' && event.reason.includes('WebSocket')) ||
-      (event.reason.stack && event.reason.stack.includes('vite'))
-    )) {
+    if (isWebSocketError(event.reason)) {
       event.preventDefault();
       event.stopPropagation();
     }
   }, true);
+
   window.addEventListener('error', (event) => {
-    if (event.message && (
-      event.message.includes('WebSocket') ||
-      event.message.includes('vite')
-    )) {
+    if (isWebSocketError(event.error) || isWebSocketError(event.message)) {
       event.preventDefault();
       event.stopPropagation();
     }

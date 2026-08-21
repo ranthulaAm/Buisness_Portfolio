@@ -111,23 +111,33 @@ export const sendPaymentDetailsEmail = async (collab: any): Promise<boolean> => 
     let message = `Thank you for collaborating with us. Here is the summary of your project and payment details.\n\n`;
     message += `Services:\n`;
     collab.services.forEach((s: any) => {
-      message += `- ${s.quantity}x ${s.serviceName} ($${s.unitPrice} each) - Total: $${s.lineTotal}\n`;
+      message += `- ${s.quantity}x ${s.serviceName} (LKR ${s.unitPrice.toLocaleString()} each) - Total: LKR ${s.lineTotal.toLocaleString()}\n`;
       if (s.shareLink) {
         message += `  Link: ${s.shareLink}\n`;
       }
     });
-    message += `\nTotal Project Price: $${collab.totalPrice}\n`;
-    message += `Amount Paid: $${amountPaid}\n`;
-    message += `Amount Due: $${amountDue}\n`;
+
+    if (collab.additionalCharges && collab.additionalCharges.length > 0) {
+      message += `\nAdditional Charges:\n`;
+      collab.additionalCharges.forEach((c: any) => {
+        message += `- ${c.name}: LKR ${c.price.toLocaleString()}\n`;
+      });
+    }
+
+    message += `\nTotal Project Price: LKR ${collab.totalPrice.toLocaleString()}\n`;
+    message += `Amount Paid: LKR ${amountPaid.toLocaleString()}\n`;
+    message += `Amount Due: LKR ${amountDue.toLocaleString()}\n`;
     
     if (collab.billingType === 'recurring' && collab.nextBillingDate) {
       message += `Next Billing Date: ${new Date(collab.nextBillingDate).toLocaleDateString()}\n`;
     }
 
+    const emailList = collab.contactEmails && collab.contactEmails.length > 0 ? collab.contactEmails.join(', ') : collab.contactEmail;
+
     const emailBody = `
 ----------------------------------------------------
 [MOCK EMAIL SERVICE]
-To: ${collab.contactEmail}
+To: ${emailList}
 Subject: ${subject}
 ----------------------------------------------------
 Dear ${collab.contactName || collab.brandName},
@@ -141,6 +151,7 @@ Best regards,
 Ranthula Am
 ----------------------------------------------------
     `;
+
     setTimeout(() => {
       console.log("PAYMENT DETAILS EMAIL SENT:", emailBody);
       resolve(true);
@@ -178,4 +189,57 @@ Ranthula Am
       resolve(true);
     }, 1000);
   });
+};
+
+/**
+ * Generates a pre-formatted WhatsApp message including quotation details and access link.
+ */
+export const getWhatsAppQuotationMessage = (collab: any): string => {
+  const trackingUrl = `${window.location.origin}/share/${collab.id}`;
+  const amountPaid = (collab.paymentHistory || []).reduce((sum: number, p: any) => sum + p.amount, 0);
+  const amountDue = collab.totalPrice - amountPaid;
+
+  let msg = `*Dear ${collab.contactName || collab.brandName},*\n\n`;
+  msg += `Here is your dynamic quotation & collaboration payment breakdown (in *LKR*):\n\n`;
+  msg += `*Services Details:*\n`;
+  collab.services.forEach((s: any) => {
+    msg += `• *${s.serviceName}* (${s.quantity}x) - LKR ${s.lineTotal.toLocaleString()}\n`;
+    if (s.sharedDeliverables) {
+      msg += `  _Files: ${s.sharedDeliverables}_\n`;
+    }
+  });
+
+  if (collab.additionalCharges && collab.additionalCharges.length > 0) {
+    msg += `\n*Additional Charges:*\n`;
+    collab.additionalCharges.forEach((c: any) => {
+      msg += `• *${c.name}* - LKR ${c.price.toLocaleString()}\n`;
+    });
+  }
+
+  msg += `\n-----------------------------\n`;
+  msg += `*Total Project Quote:* LKR ${collab.totalPrice.toLocaleString()}\n`;
+  msg += `*Amount Paid:* LKR ${amountPaid.toLocaleString()}\n`;
+  msg += `*Remaining Balance (Due):* *LKR ${amountDue.toLocaleString()}*\n`;
+  msg += `-----------------------------\n\n`;
+  msg += `You can review details, view shared files, and approve/track live progress here:\n`;
+  msg += `${trackingUrl}\n\n`;
+  msg += `Best regards,\n`;
+  msg += `*Ranthula Am*`;
+
+  return msg;
+};
+
+/**
+ * Triggers a WhatsApp tab containing the pre-formatted quotation message.
+ */
+export const sendWhatsAppQuotation = (collab: any): boolean => {
+  const msg = getWhatsAppQuotationMessage(collab);
+  const primaryWhatsApp = (collab.whatsappNumbers && collab.whatsappNumbers[0]) || collab.whatsappNumber || '';
+  const cleanPhone = primaryWhatsApp.replace(/[^0-9]/g, '');
+  
+  if (cleanPhone) {
+    window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+    return true;
+  }
+  return false;
 };

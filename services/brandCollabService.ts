@@ -4,12 +4,21 @@ import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebas
 import { SharedFile, ShareAccessType } from './shareService';
 
 export interface CollabServiceLine {
+  id: string; // unique ID for this line item
   serviceId: string;
   serviceName: string;
   quantity: number;
   unitPrice: number;
   lineTotal: number;
   shareLink?: string;
+  extraCharges?: { name: string, price: number }[];
+  
+  // New per-service management fields
+  status?: 'pending' | 'in_progress' | 'review' | 'completed';
+  folderName?: string; // dedicated folder for this service
+  accessType?: ShareAccessType;
+  accessValue?: string;
+  sharedDeliverables?: string; // e.g. "banners, flyers, templates"
 }
 
 export type BillingType = 'one-time' | 'recurring';
@@ -24,10 +33,16 @@ export interface PaymentRecord {
 export interface BrandCollaboration {
   id: string;
   brandName: string;
-  contactEmail: string;
-  contactName?: string;
+  
+  // Backwards compatibility, but now we use arrays
+  contactEmail?: string;
   whatsappNumber?: string;
+  contactEmails: string[];
+  whatsappNumbers: string[];
+  contactName?: string;
+
   services: CollabServiceLine[];
+  additionalCharges?: { name: string, price: number }[];
   totalPrice: number;
   billingType: BillingType;
   billingIntervalDays?: number;
@@ -64,14 +79,14 @@ export const updateBrandCollaboration = async (id: string, updates: Partial<Bran
 };
 
 export const deleteBrandCollaboration = async (collab: BrandCollaboration) => {
-  for (const file of collab.files) {
-    if (file.path) {
-      try {
-        const fileRef = ref(storage, file.path);
-        await deleteObject(fileRef);
-      } catch (e: any) {
-        if (e.code !== 'storage/object-not-found') {
-          console.error("Error deleting file", e);
+  if (collab.files && Array.isArray(collab.files)) {
+    for (const file of collab.files) {
+      if (file.path) {
+        try {
+          const fileRef = ref(storage, file.path);
+          await deleteObject(fileRef);
+        } catch (e: any) {
+          console.warn("Storage deletion warning (ignoring to proceed with document deletion):", e);
         }
       }
     }

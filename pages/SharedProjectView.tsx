@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Navigate } from 'react-router-dom';
+import { useParams, Navigate, useSearchParams } from 'react-router-dom';
 import { getSharedProject, SharedProject } from '../services/shareService';
 import { getBrandCollaboration } from '../services/brandCollabService';
 import { FileText, Image as ImageIcon, Video, Download, Lock, Mail, Loader2, ArrowLeft, ArrowDown, Folder } from 'lucide-react';
@@ -17,7 +17,12 @@ const getGreeting = () => {
 
 export const SharedProjectView: React.FC = () => {
   const { shareId } = useParams<{ shareId: string }>();
+  const [searchParams] = useSearchParams();
+  const serviceId = searchParams.get('service');
+
   const [project, setProject] = useState<any | null>(null);
+  const [activeService, setActiveService] = useState<any | null>(null);
+  
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   
@@ -46,8 +51,24 @@ export const SharedProjectView: React.FC = () => {
         }
         
         if (data) {
+          let targetAccessType = data.accessType;
+          
+          if (serviceId && data.services) {
+            const foundService = data.services.find((s: any) => s.id === serviceId);
+            if (foundService) {
+              setActiveService(foundService);
+              // Filter files strictly to this service's folder if folderName exists
+              if (foundService.folderName) {
+                data.files = data.files.filter((f: any) => f.folder === foundService.folderName);
+              }
+              // Use service-specific access control if it exists
+              targetAccessType = foundService.accessType || 'public';
+            }
+          }
+          
           setProject(data);
-          if (data.accessType === 'public') {
+          
+          if (targetAccessType === 'public') {
             setAccessGranted(true);
           }
         } else {
@@ -61,22 +82,26 @@ export const SharedProjectView: React.FC = () => {
       }
     };
     fetchProject();
-  }, [shareId]);
+  }, [shareId, serviceId]);
 
   const handleVerify = () => {
     if (!project) return;
     setVerificationError('');
-    if (project.accessType === 'password') {
-      if (passwordInput.trim() === project.accessValue.trim()) {
+    
+    const targetAccessType = activeService ? (activeService.accessType || 'public') : project.accessType;
+    const targetAccessValue = activeService ? (activeService.accessValue || '') : project.accessValue;
+
+    if (targetAccessType === 'password') {
+      if (passwordInput.trim() === targetAccessValue.trim()) {
         setAccessGranted(true);
       } else {
         setVerificationError('Incorrect password');
       }
-    } else if (project.accessType === 'email') {
-      const allowedEntries = project.accessValue
+    } else if (targetAccessType === 'email') {
+      const allowedEntries = targetAccessValue
         .toLowerCase()
         .split(/[,;\n]+/)
-        .map(item => item.trim())
+        .map((item: string) => item.trim())
         .filter(Boolean);
         
       const clientInputClean = emailInput.toLowerCase().trim();
@@ -128,36 +153,72 @@ export const SharedProjectView: React.FC = () => {
   }
 
   if (error || !project) {
+    const isPermissionError = error?.toLowerCase().includes('permission') || error?.toLowerCase().includes('insufficient');
     return (
-      <div className="py-24 bg-gray-50 dark:bg-zinc-900 flex flex-col items-center justify-center p-6 text-center">
-        <div className="bg-white dark:bg-zinc-800 p-8 rounded-2xl shadow-xl max-w-md w-full border border-gray-200 dark:border-zinc-700">
+      <div className="py-12 bg-gray-50 dark:bg-zinc-900 flex flex-col items-center justify-center p-4">
+        <div className="bg-white dark:bg-zinc-800 p-8 rounded-2xl shadow-xl max-w-xl w-full border border-gray-200 dark:border-zinc-700 text-center">
           <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
             <Lock size={32} />
           </div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Access Denied</h2>
-          <p className="text-gray-500 dark:text-gray-400 mb-8">{error || 'This link is invalid or has expired.'}</p>
-          <button onClick={() => window.location.href = '/'} className="bg-gray-100 dark:bg-zinc-700 text-gray-700 dark:text-gray-300 px-6 py-2 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors">Return Home</button>
+          <p className="text-gray-500 dark:text-gray-400 mb-6">{error || 'This link is invalid or has expired.'}</p>
+          
+          {isPermissionError && (
+            <div className="mb-6 text-left bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50 p-5 rounded-xl text-sm">
+              <h3 className="font-bold text-blue-800 dark:text-blue-300 mb-2">💡 Quick Fix for Developer</h3>
+              <p className="text-blue-700 dark:text-blue-400 mb-3">
+                Your live Firebase Console rules are restricting public access to shared links. To allow clients to view their portals, copy and paste these rules into your <b>Firebase Console &gt; Firestore Database &gt; Rules</b> tab:
+              </p>
+              <pre className="bg-gray-900 text-green-400 p-3 rounded font-mono text-xs overflow-x-auto max-h-40">
+{`rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /shared_projects/{document} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /brand_collaborations/{document} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}`}
+              </pre>
+              <p className="text-xs text-blue-600 dark:text-blue-400/80 mt-2">
+                Once saved in your Firebase Console, refresh this page and the shared portal will load instantly!
+              </p>
+            </div>
+          )}
+
+          <div className="flex gap-4 justify-center">
+            <button onClick={() => window.location.href = '/'} className="bg-gray-100 dark:bg-zinc-700 text-gray-700 dark:text-gray-300 px-6 py-2 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors">Return Home</button>
+          </div>
         </div>
       </div>
     );
   }
 
   if (!accessGranted) {
+    const targetAccessType = activeService ? (activeService.accessType || 'public') : project.accessType;
     return (
       <div className="py-24 bg-gray-50 dark:bg-zinc-900 flex flex-col items-center justify-center p-6">
         <div className="bg-white dark:bg-zinc-800 p-8 rounded-2xl shadow-xl max-w-md w-full border border-gray-200 dark:border-zinc-700">
           <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
-            {project.accessType === 'password' ? <Lock size={32} /> : <Mail size={32} />}
+            {targetAccessType === 'password' ? <Lock size={32} /> : <Mail size={32} />}
           </div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 text-center leading-tight">
             {getGreeting()} {project.clientName}
           </h2>
           <p className="text-gray-500 dark:text-gray-400 mb-6 text-center">
-            {project.accessType === 'password' ? 'Please enter the password to access your files.' : 'Please verify your identity to access your files.'}
+            {activeService && <span className="block font-bold mb-2 text-blue-600">{activeService.serviceName}</span>}
+            {targetAccessType === 'password' ? 'Please enter the password to access your files.' : 'Please verify your identity to access your files.'}
           </p>
           
           <div className="space-y-4">
-            {project.accessType === 'password' ? (
+            {targetAccessType === 'password' ? (
               <input 
                 type="password" 
                 placeholder="Enter Password" 
@@ -203,6 +264,22 @@ export const SharedProjectView: React.FC = () => {
               {getGreeting()} {project.clientName},<br/>download your project files here
             </h1>
             <p className="text-gray-500 dark:text-gray-400 mt-4 text-lg">Shared on {new Date(project.createdAt).toLocaleDateString()}</p>
+            
+            {/* Shared Deliverables Info Block */}
+            <div className="mt-5 p-4 bg-white dark:bg-zinc-800 rounded-2xl border border-gray-100 dark:border-zinc-700 shadow-sm max-w-lg">
+              <span className="text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 block mb-1">
+                Shared Files Summary
+              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xl">📁</span>
+                <p className="text-base font-bold text-gray-800 dark:text-zinc-200">
+                  {activeService 
+                    ? (activeService.sharedDeliverables ? activeService.sharedDeliverables : `Files for: ${activeService.serviceName}`)
+                    : "All Project Files"
+                  }
+                </p>
+              </div>
+            </div>
           </div>
           
           {project.files.length > 0 && (
