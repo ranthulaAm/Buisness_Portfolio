@@ -42,11 +42,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }
     setError('');
     
     try {
+      const cleanEmail = email.trim();
       if (isCreating) {
-        await createUserWithEmailAndPassword(auth, email, password);
+        await createUserWithEmailAndPassword(auth, cleanEmail, password);
         toast.success('Account created successfully!');
       } else {
-        await signInWithEmailAndPassword(auth, email, password);
+        await signInWithEmailAndPassword(auth, cleanEmail, password);
         toast.success('Signed in successfully!');
       }
       onClose();

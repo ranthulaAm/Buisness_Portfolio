@@ -158,7 +158,7 @@ export const AdminShares: React.FC = () => {
   };
 
   const copyLink = (id: string) => {
-    const url = `${window.location.origin}/#/share/${id}`;
+    const url = `${window.location.origin}/share/${id}`;
     navigator.clipboard.writeText(url);
     setCopySuccess(id);
     setTimeout(() => setCopySuccess(''), 2000);

@@ -453,7 +453,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ user }) => {
 
   const sendWhatsAppNotification = (order: Order, status: OrderStatus) => {
       const appUrl = window.location.origin;
-      const trackingLink = `${appUrl}/#/tracking?id=${order.id}`;
+      const trackingLink = `${appUrl}/tracking?id=${order.id}`;
       const messageText = `Hi ${order.clientName},\n\nYour order (${order.id}) status has been updated to: *${status}*.\n\nYou can view the details and download assets here:\n${trackingLink}`;
       const firstMobile = Array.isArray(order.mobile) ? (order.mobile[0] || '') : (order.mobile || '');
       const url = `https://api.whatsapp.com/send?phone=${firstMobile.replace(/[^0-9]/g, '')}&text=${encodeURIComponent(messageText)}`;

@@ -55,13 +55,37 @@ export const SharedProjectView: React.FC = () => {
     if (!project) return;
     setVerificationError('');
     if (project.accessType === 'password') {
-      if (passwordInput === project.accessValue) {
+      if (passwordInput.trim() === project.accessValue.trim()) {
         setAccessGranted(true);
       } else {
         setVerificationError('Incorrect password');
       }
     } else if (project.accessType === 'email') {
-      if (emailInput.toLowerCase().trim() === project.accessValue.toLowerCase().trim()) {
+      const allowedEntries = project.accessValue
+        .toLowerCase()
+        .split(/[,;\n]+/)
+        .map(item => item.trim())
+        .filter(Boolean);
+        
+      const clientInputClean = emailInput.toLowerCase().trim();
+      
+      // Keep only digits for phone number comparisons
+      const cleanDigits = (str: string) => str.replace(/\D/g, '');
+      const clientDigits = cleanDigits(clientInputClean);
+      
+      const isMatch = allowedEntries.some(allowed => {
+        const allowedClean = allowed.trim();
+        if (allowedClean === clientInputClean) return true;
+        
+        // If it's a numeric/phone number, compare parsed digits
+        const allowedDigits = cleanDigits(allowedClean);
+        if (clientDigits && allowedDigits && clientDigits === allowedDigits) {
+          return true;
+        }
+        return false;
+      });
+
+      if (isMatch) {
         setAccessGranted(true);
       } else {
         setVerificationError('Email or phone does not match records');

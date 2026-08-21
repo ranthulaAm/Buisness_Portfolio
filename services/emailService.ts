@@ -9,7 +9,7 @@ import { getEmailConfig } from './dataService';
 export const sendConfirmationEmail = async (order: Order): Promise<boolean> => {
   return new Promise(async (resolve) => {
     const config = await getEmailConfig();
-    const trackingUrl = `${window.location.origin}/#/tracking?id=${order.id}`;
+    const trackingUrl = `${window.location.origin}/tracking?id=${order.id}`;
     
     const emailSubject = config.emailSubjectTemplate
         .replace(/{orderId}/g, order.id)
@@ -44,7 +44,7 @@ ${emailBody}
 
 export const sendStatusUpdateEmail = async (order: Order, newStatus: OrderStatus): Promise<boolean> => {
   return new Promise((resolve) => {
-    const trackingUrl = `${window.location.origin}/#/tracking?id=${order.id}`;
+    const trackingUrl = `${window.location.origin}/tracking?id=${order.id}`;
     let subject = `Update on Order #${order.id}`;
     let message = "";
 

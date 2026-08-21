@@ -120,8 +120,15 @@ export const ClientUpload: React.FC<{ user?: User | null }> = ({ user }) => {
       }
 
       // Save to Firestore
+      const cleanFormData = {
+        clientName: formData.clientName.trim(),
+        email: formData.email.trim(),
+        whatsapp: formData.whatsapp.trim(),
+        eventName: formData.eventName.trim(),
+      };
+
       await addDoc(collection(db, 'client_uploads'), {
-        ...formData,
+        ...cleanFormData,
         files: uploadedFiles,
         status: 'new',
         createdAt: new Date().toISOString(),
@@ -130,10 +137,10 @@ export const ClientUpload: React.FC<{ user?: User | null }> = ({ user }) => {
       // Send telegram notification to admins
       try {
         await sendClientUploadNotification({
-          clientName: formData.clientName,
-          email: formData.email,
-          whatsapp: formData.whatsapp,
-          eventName: formData.eventName,
+          clientName: cleanFormData.clientName,
+          email: cleanFormData.email,
+          whatsapp: cleanFormData.whatsapp,
+          eventName: cleanFormData.eventName,
           filesCount: uploadedFiles.length
         });
       } catch (notifyError) {
