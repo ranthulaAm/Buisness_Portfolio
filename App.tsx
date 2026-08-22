@@ -84,7 +84,38 @@ const AppContent: React.FC = () => {
 
   // Firebase Auth Listener
   useEffect(() => {
-    import('firebase/auth').then(({ signInAnonymously }) => {
+    import('firebase/auth').then(({ signInAnonymously, isSignInWithEmailLink, signInWithEmailLink, getRedirectResult }) => {
+      // Check for redirect result errors
+      getRedirectResult(auth).catch((error) => {
+        console.error("Redirect sign-in error:", error);
+      });
+
+      // Check for email link sign-in first
+      if (isSignInWithEmailLink(auth, window.location.href)) {
+        let emailForSignIn = window.localStorage.getItem('emailForSignIn');
+        if (!emailForSignIn) {
+          emailForSignIn = window.prompt('Please provide your email for confirmation');
+        }
+        
+        if (emailForSignIn) {
+          signInWithEmailLink(auth, emailForSignIn, window.location.href)
+            .then((result) => {
+              window.localStorage.removeItem('emailForSignIn');
+              // Clear URL parameters
+              const url = new URL(window.location.href);
+              url.searchParams.delete('apiKey');
+              url.searchParams.delete('oobCode');
+              url.searchParams.delete('mode');
+              url.searchParams.delete('lang');
+              url.searchParams.delete('auth');
+              window.history.replaceState({}, '', url.toString());
+            })
+            .catch((error) => {
+              console.error('Error signing in with email link:', error);
+            });
+        }
+      }
+
       const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
         if (firebaseUser && !firebaseUser.isAnonymous) {
            const appUser: User = {

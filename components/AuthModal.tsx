@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Mail, AlertCircle, ArrowRight, Loader, Lock, Info, Eye, EyeOff } from 'lucide-react';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, signInWithRedirect, sendSignInLinkToEmail } from 'firebase/auth';
 import { auth, googleProvider, facebookProvider } from '../services/firebase';
 import { toast } from 'react-hot-toast';
 
@@ -12,11 +12,13 @@ interface AuthModalProps {
 
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }) => {
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isMagicLink, setIsMagicLink] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isEmailSent, setIsEmailSent] = useState(false);
   const [promptData, setPromptData] = useState<{
     type: 'signUp' | 'signIn' | null;
     message: string;
@@ -29,6 +31,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }
       setPassword('');
       setShowPassword(false);
       setIsSignUp(false);
+      setIsMagicLink(false);
+      setIsEmailSent(false);
       setPromptData({ type: null, message: '' });
     }
   }, [isOpen]);
@@ -91,8 +95,39 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }
     }
   };
 
+  const executeMagicLink = async () => {
+    setIsLoading(true);
+    setError('');
+    try {
+      const cleanEmail = email.trim();
+      const actionCodeSettings = {
+        url: `${window.location.origin}/?auth=login`,
+        handleCodeInApp: true,
+      };
+      await sendSignInLinkToEmail(auth, cleanEmail, actionCodeSettings);
+      window.localStorage.setItem('emailForSignIn', cleanEmail);
+      setIsEmailSent(true);
+      toast.success('Magic link sent to your email!');
+    } catch (err: any) {
+      console.error(err);
+      setError('Failed to send magic link. Please try again.');
+      toast.error('Failed to send magic link.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (isMagicLink) {
+      if (!email.trim()) {
+        setError('Please enter your email.');
+        return;
+      }
+      executeMagicLink();
+      return;
+    }
+
     if (!email.trim() || !password.trim()) {
       setError('Please fill in all fields.');
       return;
@@ -113,8 +148,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }
 
   const handleGoogleLogin = async () => {
     try {
-      await signInWithPopup(auth, googleProvider);
-      onClose();
+      const isIframe = window !== window.parent;
+      if (isIframe) {
+        await signInWithPopup(auth, googleProvider);
+        onClose();
+      } else {
+        await signInWithRedirect(auth, googleProvider);
+      }
     } catch (err: any) {
       console.error(err);
       if (err.code === 'auth/popup-closed-by-user') {
@@ -127,8 +167,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }
 
   const handleFacebookLogin = async () => {
     try {
-      await signInWithPopup(auth, facebookProvider);
-      onClose();
+      const isIframe = window !== window.parent;
+      if (isIframe) {
+        await signInWithPopup(auth, facebookProvider);
+        onClose();
+      } else {
+        await signInWithRedirect(auth, facebookProvider);
+      }
     } catch (err: any) {
       console.error(err);
       if (err.code === 'auth/popup-closed-by-user') {
@@ -158,8 +203,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }
         </button>
 
         <div className="text-center mb-8 relative z-10">
-          <h2 className="text-3xl font-display text-white mb-2">{isSignUp ? 'Create Account' : 'Welcome Back'}</h2>
-          <p className="text-white/50 text-sm">{isSignUp ? 'Join us to start your creative journey' : 'Sign in to manage your design projects'}</p>
+          <h2 className="text-3xl font-display text-white mb-2">{isMagicLink ? 'Passwordless Sign In' : isSignUp ? 'Create Account' : 'Welcome Back'}</h2>
+          <p className="text-white/50 text-sm">{isMagicLink ? 'We will send a secure sign-in link to your email' : isSignUp ? 'Join us to start your creative journey' : 'Sign in to manage your design projects'}</p>
         </div>
 
         <button 
@@ -212,31 +257,33 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }
             )}
           </div>
           
-          <div>
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" size={18} />
-              <input 
-                type={showPassword ? "text" : "password"}
-                placeholder="••••••••" 
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full bg-black/40 border border-white/10 rounded-xl py-3.5 pl-12 pr-12 text-white text-sm outline-none focus:border-[#d500f9] focus:bg-black/60 transition-all placeholder:text-white/20"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white transition-colors"
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
+          {!isMagicLink && (
+            <div>
+              <div className="relative">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" size={18} />
+                <input 
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required={!isMagicLink}
+                  className="w-full bg-black/40 border border-white/10 rounded-xl py-3.5 pl-12 pr-12 text-white text-sm outline-none focus:border-[#d500f9] focus:bg-black/60 transition-all placeholder:text-white/20"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white transition-colors"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+              {isSignUp && (
+                <p className="text-[11px] text-white/40 mt-1.5 ml-1 flex items-center gap-1">
+                  <Info size={12} /> Password must be at least 6 characters long.
+                </p>
+              )}
             </div>
-            {isSignUp && (
-              <p className="text-[11px] text-white/40 mt-1.5 ml-1 flex items-center gap-1">
-                <Info size={12} /> Password must be at least 6 characters long.
-              </p>
-            )}
-          </div>
+          )}
 
           {error && (
             <div className="flex items-center gap-2 text-red-400 text-xs font-bold bg-red-400/10 p-3 rounded-lg border border-red-400/20 animate-fade-in">
@@ -246,30 +293,57 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }
           )}
 
           <div className="flex flex-col gap-4 pt-2">
-            <button 
-              type="submit" 
-              disabled={isLoading || !email.trim() || !password.trim()}
-              className="w-full bg-[#d500f9] text-white font-bold font-sans py-3.5 rounded-xl flex items-center justify-center gap-2 hover:bg-[#b000cc] transition-all shadow-lg hover:scale-[1.01] disabled:opacity-70 disabled:cursor-not-allowed"
-            >
-              {isLoading ? <Loader size={18} className="animate-spin" /> : (
-                <>
-                  {isSignUp ? 'Create Account' : 'Sign In'}
-                  <ArrowRight size={18} />
-                </>
-              )}
-            </button>
-
-            <div className="flex items-center justify-center gap-3 mt-2">
-               <span className="text-[12px] text-white/50">
-                 {isSignUp ? 'Already have an account?' : "Don't have an account?"}
-               </span>
-               <button 
-                type="button"
-                onClick={toggleMode}
-                className="text-[#d500f9] font-bold hover:text-white transition-colors text-[12px]"
+            {isEmailSent ? (
+              <div className="bg-green-500/10 border border-green-500/20 text-green-400 text-center p-4 rounded-xl text-sm font-bold animate-fade-in">
+                Magic link sent! Check your email to sign in.
+              </div>
+            ) : (
+              <button 
+                type="submit" 
+                disabled={isLoading || !email.trim() || (!isMagicLink && !password.trim())}
+                className="w-full bg-[#d500f9] text-white font-bold font-sans py-3.5 rounded-xl flex items-center justify-center gap-2 hover:bg-[#b000cc] transition-all shadow-lg hover:scale-[1.01] disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                {isSignUp ? 'Sign In' : 'Create Account'}
+                {isLoading ? <Loader size={18} className="animate-spin" /> : (
+                  <>
+                    {isMagicLink ? 'Send Magic Link' : isSignUp ? 'Create Account' : 'Sign In'}
+                    <ArrowRight size={18} />
+                  </>
+                )}
               </button>
+            )}
+
+            <div className="flex flex-col items-center justify-center gap-3 mt-2">
+              {!isMagicLink && (
+                <button 
+                  type="button"
+                  onClick={() => setIsMagicLink(true)}
+                  className="text-white/70 hover:text-white font-medium transition-colors text-[12px] underline decoration-white/30 underline-offset-2"
+                >
+                  Sign in with Magic Link instead
+                </button>
+              )}
+              {isMagicLink && (
+                <button 
+                  type="button"
+                  onClick={() => setIsMagicLink(false)}
+                  className="text-white/70 hover:text-white font-medium transition-colors text-[12px] underline decoration-white/30 underline-offset-2"
+                >
+                  Sign in with password instead
+                </button>
+              )}
+              
+              <div className="flex items-center gap-2 mt-1">
+                 <span className="text-[12px] text-white/50">
+                   {isSignUp ? 'Already have an account?' : "Don't have an account?"}
+                 </span>
+                 <button 
+                  type="button"
+                  onClick={toggleMode}
+                  className="text-[#d500f9] font-bold hover:text-white transition-colors text-[12px]"
+                >
+                  {isSignUp ? 'Sign In' : 'Create Account'}
+                </button>
+              </div>
             </div>
           </div>
         </form>
