@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Mail, AlertCircle, ArrowRight, Loader, Lock, Info, Eye, EyeOff } from 'lucide-react';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, signInWithRedirect, sendSignInLinkToEmail } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, sendSignInLinkToEmail } from 'firebase/auth';
 import { auth, googleProvider, facebookProvider } from '../services/firebase';
 import { toast } from 'react-hot-toast';
 
@@ -148,13 +148,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }
 
   const handleGoogleLogin = async () => {
     try {
-      const isIframe = window !== window.parent;
-      if (isIframe) {
-        await signInWithPopup(auth, googleProvider);
-        onClose();
-      } else {
-        await signInWithRedirect(auth, googleProvider);
-      }
+      await signInWithPopup(auth, googleProvider);
+      onClose();
     } catch (err: any) {
       console.error(err);
       if (err.code === 'auth/popup-closed-by-user') {
@@ -167,13 +162,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin }
 
   const handleFacebookLogin = async () => {
     try {
-      const isIframe = window !== window.parent;
-      if (isIframe) {
-        await signInWithPopup(auth, facebookProvider);
-        onClose();
-      } else {
-        await signInWithRedirect(auth, facebookProvider);
-      }
+      await signInWithPopup(auth, facebookProvider);
+      onClose();
     } catch (err: any) {
       console.error(err);
       if (err.code === 'auth/popup-closed-by-user') {

@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/__/(.*)",
+      "destination": "https://ragraphics-app.firebaseapp.com/__/$1"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api/$1"
     },

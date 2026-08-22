@@ -11,6 +11,12 @@ export default defineConfig(({ mode }) => {
         hmr: {
           overlay: false,
         },
+        proxy: {
+          '/__': {
+            target: 'https://ragraphics-app.firebaseapp.com',
+            changeOrigin: true,
+          }
+        }
       },
       plugins: [react()],
       define: {

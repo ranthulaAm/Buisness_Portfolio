@@ -84,12 +84,7 @@ const AppContent: React.FC = () => {
 
   // Firebase Auth Listener
   useEffect(() => {
-    import('firebase/auth').then(({ signInAnonymously, isSignInWithEmailLink, signInWithEmailLink, getRedirectResult }) => {
-      // Check for redirect result errors
-      getRedirectResult(auth).catch((error) => {
-        console.error("Redirect sign-in error:", error);
-      });
-
+    import('firebase/auth').then(({ signInAnonymously, isSignInWithEmailLink, signInWithEmailLink }) => {
       // Check for email link sign-in first
       if (isSignInWithEmailLink(auth, window.location.href)) {
         let emailForSignIn = window.localStorage.getItem('emailForSignIn');
