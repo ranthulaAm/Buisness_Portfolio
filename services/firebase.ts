@@ -5,7 +5,7 @@ import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: "AIzaSyC6fNMDIhcs0lqfvM3Nq57GIUwrXAuUlbk",
-  authDomain: typeof window !== 'undefined' ? window.location.hostname : "ragraphics-app.firebaseapp.com",
+  authDomain: "ragraphics-app.firebaseapp.com",
   projectId: "ragraphics-app",
   storageBucket: "ragraphics-app.firebasestorage.app",
   messagingSenderId: "1091662698201",

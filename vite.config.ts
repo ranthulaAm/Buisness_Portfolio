@@ -10,12 +10,6 @@ export default defineConfig(({ mode }) => {
         host: '0.0.0.0',
         hmr: {
           overlay: false,
-        },
-        proxy: {
-          '/__': {
-            target: 'https://ragraphics-app.firebaseapp.com',
-            changeOrigin: true,
-          }
         }
       },
       plugins: [react()],
